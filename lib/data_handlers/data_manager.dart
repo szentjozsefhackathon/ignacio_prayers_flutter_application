@@ -1,8 +1,4 @@
-import 'dart:ffi';
-
 import 'package:logging/logging.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 // Local imports
@@ -49,6 +45,10 @@ class DataManager {
     dataType: DataType.list,
   );
 
+  final MediaManager _imagesManager = MediaManager(mediaType: imagesKey);
+
+  final MediaManager _voicesManager = MediaManager(mediaType: voicesKey);
+
   DataManager() {
     _setupLogging();
   }
@@ -75,15 +75,13 @@ class DataManager {
     // Check if the map data needs to be updated
     if (localVersions.images != serverVersions.images) {
       final imagesServerDatas = await _imagesDataManager.serverData;
-      MediaManager imagesManager = MediaManager(serverMediaDatas: imagesServerDatas, mediaType: imagesKey);
-      await imagesManager.syncFiles();
+      await imagesManager.syncFiles(imagesServerDatas);
     }
 
     // Check if the voices need to be updated
     if (localVersions.voices != serverVersions.voices) {
       final voicesServerDatas = await _voicesDataManager.serverData;
-      MediaManager voicesManager = MediaManager(serverMediaDatas: voicesServerDatas, mediaType: voicesKey);
-      await voicesManager.syncFiles();
+      await voicesManager.syncFiles(voicesServerDatas);
     }
 
     // Save the new version data
@@ -91,8 +89,10 @@ class DataManager {
   }
 
   DataSetManager<PrayerGroup> get prayerGroupDataManager => _prayerGroupDataManager;
-  DataSetManager<MediaData> get imagesDataManager => _imagesDataManager;
-  DataSetManager<MediaData> get voicesDataManager => _voicesDataManager;
+  // DataSetManager<MediaData> get imagesDataManager => _imagesDataManager;
+  // DataSetManager<MediaData> get voicesDataManager => _voicesDataManager;
+  MediaManager get imagesManager => _imagesManager;
+  MediaManager get voicesManager => _voicesManager;
 }
 
 // For Debugging

@@ -9,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:ignacio_prayers_flutter_application/main.dart';
+import 'package:ignacio_prayers_flutter_application/data_handlers/data_manager.dart';
 
 void main() {
+
+  final dataManager = DataManager();
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(MyApp(dataManager: dataManager));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

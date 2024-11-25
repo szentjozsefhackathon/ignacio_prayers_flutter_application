@@ -11,11 +11,9 @@ import 'dart:typed_data';
 
 class MediaManager {
   final log = Logger('MediaManager');
-  final DataList<MediaData> serverMediaDatas;
   final String mediaType;
 
   MediaManager({
-    required this.serverMediaDatas,
     required this.mediaType}){
 
     _setupLogging();
@@ -29,7 +27,7 @@ class MediaManager {
     });
   }
 
-  Future<void> syncFiles() async {
+  Future<void> syncFiles(DataList<MediaData> serverMediaDatas) async {
     // Get local media data from file system
     final localMediaDatas = await _localMediaData;
 
@@ -154,6 +152,7 @@ void main() async {
 
   final serverMediaDatas = DataList<MediaData>.fromJson(json.decode(serverJsonData),MediaData.fromJson);
 
-  MediaManager mediaManager = MediaManager(serverMediaDatas: serverMediaDatas, mediaType: imagesKey);
-  await mediaManager.syncFiles();
+  MediaManager mediaManager = MediaManager(mediaType: imagesKey);
+  await mediaManager.syncFiles(serverMediaDatas);
+
 }

@@ -11,7 +11,8 @@ const String imagesKey = 'images';
 const String voicesKey = 'voices';
 
 // Server constants
-const String serverUrl = 'http://localhost:3000';
+// const String serverUrl = 'http://localhost:3000';
+const String serverUrl = 'http://192.168.10.102:3000';
 const String checkVersionUrlEndpoint = '/api/json/check-versions';
 const String downloadDataUrlEndpoint = '/api/json/download-data';
 const String getImagesListUrlEndpoint = '/api/media/sync-images';

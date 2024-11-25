@@ -30,4 +30,12 @@ class Prayer{
         "minTimeInMinutes": minTimeInMinutes,
         "steps": List<dynamic>.from(steps.map((x) => x.toJson())),
     };
+
+    int getWeightSum(){
+        int sum = 0;
+        for (var step in steps){
+            sum += step.timeInSeconds;
+        }
+        return sum;
+    }
 }
