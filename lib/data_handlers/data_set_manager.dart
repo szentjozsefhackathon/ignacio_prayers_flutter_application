@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'exceptions.dart';
 import 'dart:convert';
-import '../constants.dart'; // Import the constants file
+import '../constants/constants.dart'; // Import the constants file
 
 
 enum DataType { single, list }
@@ -64,7 +64,7 @@ class DataSetManager<T extends DataDescriptor>{
   }
 
   Future<String> _fetchServerData() async {
-    final response = await http.get(Uri.parse(serverUrl + dataUrlEndpoint));
+    final response = await http.get(Uri.parse(SERVER_URL + dataUrlEndpoint));
     if (response.statusCode == 200) {
       return response.body;
     } else {
@@ -110,8 +110,8 @@ class DataSetManager<T extends DataDescriptor>{
 // For Debugging
 void main() async {
   DataSetManager<PrayerGroup> dataManager = DataSetManager<PrayerGroup>(
-      dataKey: prayerGroupsKey,
-      dataUrlEndpoint: downloadDataUrlEndpoint,
+      dataKey: PRAYER_GROUP_KEY,
+      dataUrlEndpoint: DOWNLOAD_DATA_URL_ENDPOINT,
       fromJson: PrayerGroup.fromJson,
       dataType: DataType.list,
     );
@@ -131,8 +131,8 @@ void main() async {
   print('Data downloaded: $test_data4');
 
   DataSetManager<Versions> versionsDataManager = DataSetManager<Versions>(
-      dataKey: versionsKey,
-      dataUrlEndpoint: checkVersionUrlEndpoint,
+      dataKey: VERSIONS_KEY,
+      dataUrlEndpoint: CHECK_VERSION_URL_ENDPOINT,
       fromJson: Versions.fromJson,
       dataType: DataType.single,
     );

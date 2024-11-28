@@ -6,7 +6,7 @@ import '../data_descriptors/prayer_group.dart'; // Import Json data descriptors
 import '../data_descriptors/versions.dart'; // Import Json data descriptors
 import '../data_descriptors/media_data.dart'; // Import Json data descriptors for the media data
 import 'data_set_manager.dart';
-import '../constants.dart'; // Import the constants file
+import '../constants/constants.dart'; // Import the constants file
 import 'media_manager.dart';
 
 class DataManager {
@@ -15,39 +15,39 @@ class DataManager {
   // initialize the data managers
   // versionsDataManager is used to manage the versions data
   final DataSetManager<Versions> _versionsDataManager = DataSetManager<Versions>(
-      dataKey: versionsKey,
-      dataUrlEndpoint: checkVersionUrlEndpoint,
+      dataKey: VERSIONS_KEY,
+      dataUrlEndpoint: CHECK_VERSION_URL_ENDPOINT,
       fromJson: Versions.fromJson,
       dataType: DataType.single,
     );
   
   // prayerGroupDataManager is used to manage the prayer group data
   final DataSetManager<PrayerGroup> _prayerGroupDataManager = DataSetManager<PrayerGroup>(
-      dataKey: prayerGroupsKey,
-      dataUrlEndpoint: downloadDataUrlEndpoint,
+      dataKey: PRAYER_GROUP_KEY,
+      dataUrlEndpoint: DOWNLOAD_DATA_URL_ENDPOINT,
       fromJson: PrayerGroup.fromJson,
       dataType: DataType.list,
     );
 
   // imagesDataManager is used to manage the images data
   final DataSetManager<MediaData> _imagesDataManager = DataSetManager<MediaData>(
-      dataKey: imagesKey,
-      dataUrlEndpoint: getImagesListUrlEndpoint,
+      dataKey: IMAGES_KEY,
+      dataUrlEndpoint: GET_IMAGE_LIST_URL_ENDPOINT,
       fromJson: MediaData.fromJson,
       dataType: DataType.list,
     );
 
   // voicesDataManager is used to manage the voices data
   final DataSetManager<MediaData> _voicesDataManager = DataSetManager<MediaData>(
-    dataKey: voicesKey,
-    dataUrlEndpoint: getVoicesListUrlEndpoint,
+    dataKey: VOICES_KEY,
+    dataUrlEndpoint: GET_VOICES_LIST_URL_ENDPOINT,
     fromJson: MediaData.fromJson,
     dataType: DataType.list,
   );
 
-  final MediaManager _imagesManager = MediaManager(mediaType: imagesKey);
+  final MediaManager _imagesManager = MediaManager(mediaType: IMAGES_KEY);
 
-  final MediaManager _voicesManager = MediaManager(mediaType: voicesKey);
+  final MediaManager _voicesManager = MediaManager(mediaType: VOICES_KEY);
 
   DataManager() {
     _setupLogging();

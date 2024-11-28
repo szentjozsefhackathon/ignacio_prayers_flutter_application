@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:ignacio_prayers_flutter_application/constants.dart';
+import 'package:ignacio_prayers_flutter_application/constants/constants.dart';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -85,7 +85,7 @@ class MediaManager {
 
 
   Future<void> _downloadAndSaveImage(String filename) async {
-    final downloadUrl = Uri.parse('$serverUrl/$mediaApiUrl/$mediaType/$filename');
+    final downloadUrl = Uri.parse('$SERVER_URL/$MEDIA_API_URL/$mediaType/$filename');
 
     try {
       final http.Response response = await http.get(downloadUrl);
@@ -136,7 +136,7 @@ class MediaManager {
     final directory = Directory(directoryPath);
 
     if (await directory.exists()) {
-      log.info('Directory exists: $directoryPath');
+      // log.info('Directory exists: $directoryPath');
     } else {
       log.info('Directory does not exist. Creating: $directoryPath');
       await directory.create(recursive: true);
@@ -152,7 +152,7 @@ void main() async {
 
   final serverMediaDatas = DataList<MediaData>.fromJson(json.decode(serverJsonData),MediaData.fromJson);
 
-  MediaManager mediaManager = MediaManager(mediaType: imagesKey);
+  MediaManager mediaManager = MediaManager(mediaType: IMAGES_KEY);
   await mediaManager.syncFiles(serverMediaDatas);
 
 }

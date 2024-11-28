@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer.dart';
 import '../data_descriptors/data_list.dart'; // Import Json data descriptors
-import '/settings/setting.dart';
+import '../settings/settings_page.dart';
 import 'dart:io';
 import 'prayer_settings_page.dart';
 
@@ -45,7 +45,7 @@ class PrayerDescriptionPage extends StatelessWidget {
                   ),
                 );
               },
-              child: Text("Start Prayer"),
+              child: Text("Setup Prayer"),
             ),
           ],
         ),

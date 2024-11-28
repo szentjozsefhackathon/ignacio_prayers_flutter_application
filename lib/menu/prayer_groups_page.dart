@@ -3,31 +3,21 @@ import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer_group.dart';
 import '../data_descriptors/data_list.dart'; // Import Json data descriptors
 import 'prayers_page.dart';
-import '/settings/setting.dart';
+import '../settings/settings_page.dart';
 import 'dart:io';
 
-class PayerGroupsPage extends StatefulWidget {
+class PrayerGroupsPage extends StatefulWidget {
   final DataManager dataManager;
-  const PayerGroupsPage({super.key, required this.title, required this.dataManager});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  const PrayerGroupsPage({super.key, required this.title, required this.dataManager});
 
   final String title;
 
   @override
-  State<PayerGroupsPage> createState() => _PayerGroupsPageState();
+  State<PrayerGroupsPage> createState() => _PrayerGroupsPageState();
 }
 
-class _PayerGroupsPageState extends State<PayerGroupsPage> {
+class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   DataList<PrayerGroup> _items = DataList<PrayerGroup>(items: []); 
-  // TODO create images list
 
   @override
   void initState() {
@@ -44,30 +34,15 @@ class _PayerGroupsPageState extends State<PayerGroupsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
                 actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () {
               // Handle settings button press
-              Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SettingsPage()),
-              );
+              Navigator.pushNamed(context, '/settings');
             },
           ),
         ],
@@ -94,11 +69,11 @@ class _PayerGroupsPageState extends State<PayerGroupsPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => PrayersPage(
-                            title: item.title,
-                            prayers: item.prayers,
-                            dataManager: widget.dataManager,
-                            ),
+                              title: item.title,
+                              prayers: item.prayers,
+                              dataManager: widget.dataManager,
                           ),
+                        ),
                       );
                     },
                     child: Stack(
