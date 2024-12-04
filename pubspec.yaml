@@ -44,6 +44,7 @@ dependencies:
   vibration: ^2.0.1
   just_audio: ^0.9.42
   enum_to_string: ^2.0.1
+  flutter_dnd: ^0.1.4
 
 
   collection: ^1.16.0

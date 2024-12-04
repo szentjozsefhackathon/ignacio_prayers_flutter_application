@@ -84,9 +84,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
           if (_currentPrayer.voiceOptions != [])
             ListTile(
               title: Text("Select Voice"),
-              subtitle: Text("Női"),
+              subtitle: Text(_userSettingsData.voiceChoice),
               trailing: DropdownButton<String>(
-                value: "Női",
+                value: _userSettingsData.voiceChoice, //TODO: check if this voice is available
                 onChanged: (newValue) {
                   if (newValue != null) {
                     _userSettingsData.voiceChoice = newValue;
@@ -128,22 +128,26 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     int tempLength = _userSettingsData.prayerLength;
                     return AlertDialog(
                       title: Text("Set Prayer Length"),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Slider(
-                            value: tempLength.toDouble(),
-                            min: _currentPrayer.minTimeInMinutes.toDouble(),
-                            max: 60,
-                            divisions: 60 - _currentPrayer.minTimeInMinutes,
-                            label: "$tempLength minutes",
-                            onChanged: (value) {
-                              setState(() {
-                                tempLength = value.toInt();
-                              });
-                            },
-                          ),
-                        ],
+                      content: StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Slider(
+                                value: tempLength.toDouble(),
+                                min: _currentPrayer.minTimeInMinutes.toDouble(),
+                                max: 60,
+                                divisions: 60 - _currentPrayer.minTimeInMinutes,
+                                label: "$tempLength minutes",
+                                onChanged: (value) {
+                                  setState(() {
+                                    tempLength = value.toInt();
+                                  });
+                                },
+                              ),
+                            ],
+                          );
+                        },
                       ),
                       actions: [
                         TextButton(

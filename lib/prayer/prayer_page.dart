@@ -9,8 +9,7 @@ import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer.dart';
 import '../data_descriptors/prayer_step.dart';
 import 'dart:async';
-import '../constants/constants.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_dnd/flutter_dnd.dart';
 
 class PrayerPage extends StatefulWidget {
   final Prayer prayer;
@@ -122,7 +121,8 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
 
   void pageAudioPlayer(){
     _audioPlayer.pause();
-    final filename = widget.prayer.steps[_currentPage].voices[0]; // match voices
+    final int voiceIndex = widget.prayer.voiceOptions.indexOf(_userSettingsData.voiceChoice);
+    final filename = widget.prayer.steps[_currentPage].voices[voiceIndex]; // match voices
     loadAudio(filename);
     _audioPlayer.setVolume(1.0);
     if (_isPaused) {
@@ -186,12 +186,21 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
             itemBuilder: (context, index){
               final step = widget.prayer.steps[index];
               return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Current page: ${index + 1}"),
-                    Text(step.description),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(38.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Text("Current page: ${index + 1}"),
+                      Text(
+                        step.description,
+                        style: TextStyle(
+                          fontSize: 24.0,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               );
             }

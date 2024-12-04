@@ -6,6 +6,7 @@ import '../data_descriptors/user_settings_data.dart';
 import '../data_handlers/exceptions.dart';
 import 'dart:convert';
 
+//TODO: change to a provider class
 
 class UserSettingsManager {
   final log = Logger('UserSettingsManager');
