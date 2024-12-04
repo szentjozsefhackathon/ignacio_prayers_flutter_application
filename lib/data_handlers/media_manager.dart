@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:ignacio_prayers_flutter_application/constants/constants.dart';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
@@ -83,9 +84,8 @@ class MediaManager {
     return mediaDataList;
   }
 
-
   Future<void> _downloadAndSaveImage(String filename) async {
-    final downloadUrl = Uri.parse('$SERVER_URL/$MEDIA_API_URL/$mediaType/$filename');
+    final downloadUrl = _getDownloadUrl(filename);
 
     try {
       final http.Response response = await http.get(downloadUrl);
@@ -99,6 +99,8 @@ class MediaManager {
       log.severe('Error during sync: $e');
     }
   }
+
+  Uri _getDownloadUrl(String filename) => Uri.parse('$SERVER_URL/$MEDIA_API_URL/$mediaType/$filename');
 
   Future<void> _saveFile(String filename, Uint8List imageBytes) async {
     try {
@@ -115,6 +117,17 @@ class MediaManager {
       await file.delete();
     } catch (e) {
       log.severe('Error deleting file: $e');
+    }
+  }
+
+  Future<dynamic> getFile(String filename) async {
+    if (kIsWeb) {
+      // Return the URL for web
+      return _getDownloadUrl(filename).toString();
+    } else {
+      // Return the local file for non-web platforms
+      final file = await getLocalFile(filename);
+      return file;
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer_group.dart';
@@ -50,19 +51,23 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
       body: _items.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 8.0,
-                mainAxisSpacing: 8.0,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 350,
+                mainAxisSpacing: 4,
+                mainAxisExtent: 200,
+                crossAxisSpacing: 4,
               ),
               itemCount: _items.length,
               itemBuilder: (context, index) {
                 final item = _items[index];
                 return Card(
+                  semanticContainer: true,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   elevation: 4,
+                  margin: EdgeInsets.all(10),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
@@ -80,18 +85,28 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                       children: [
                         // Background Image
                         Positioned.fill(
-                          child: FutureBuilder<File>(
-                            future: widget.dataManager.imagesManager.getLocalFile(item.image),
+                          child: FutureBuilder<dynamic>(
+                            future: widget.dataManager.imagesManager.getFile(item.image),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const Center(child: CircularProgressIndicator());
-                              } else if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.existsSync()) {
+                              } else if (snapshot.hasError || !snapshot.hasData) { // !snapshot.data!.existsSync()
                                 return const Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey));
                               } else {
-                                return Image.file(
-                                  snapshot.data!,
-                                  fit: BoxFit.cover,
-                                );
+                                if(kIsWeb){
+                                  // For web: Use Image.network with a URL
+                                  return Image.network(
+                                    snapshot.data!, 
+                                    fit: BoxFit.cover
+                                    );
+                                }
+                                else{
+                                  // For other platforms: Use Image.file
+                                  return Image.file(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                  );
+                                }
                               }
                             },
                           ),

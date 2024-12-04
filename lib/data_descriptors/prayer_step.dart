@@ -1,9 +1,9 @@
-class PrayerStep {
+import 'data_descriptor.dart';
+class PrayerStep implements DataDescriptor{
   String description;
   List<String> voices;
   int timeInSeconds;
   PrayerStepType type;
-
 
   PrayerStep({
     required this.description,

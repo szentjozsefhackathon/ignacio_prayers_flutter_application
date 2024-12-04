@@ -10,19 +10,23 @@ const String PRAYER_GROUP_KEY = 'prayerGroupsData';
 const String VERSIONS_KEY = 'versionsData';
 const String IMAGES_KEY = 'images';
 const String VOICES_KEY = 'voices';
+// User settings keys
+const String USER_SETTINGS_KEY = 'userData';
+
 // Settings keys
-const String SELECTED_VOICE_KEY = 'selectedVoice';
-const String PAYER_LEN_KEY = 'prayerLength';
-const String THEME_MODE_SWITCH_KEY = 'dark_mode';
-const String AUTO_PAGE_TURN_SWITCH_KEY = 'automaticPageSwitch';
-const String SOUND_SWITCH_KEY = 'soundEnabled';
+const String THEME_MODE_KEY = 'themeMode';
 const String DND_KEY = 'dndEnabled';
-const String DAILY_NOTIFIER_KEY = 'dailyNotifier';
+const String DAILY_NOTIFIER_SWITCH_KEY = 'dailyNotifierEnabled';
+const String DAILY_NOTIFIER_TIME_KEY = 'dailyNotifierTime';
 
-
+// Prayer settings keys
+const String AUTO_PAGE_TURN_KEY = 'automaticPageSwitch';
+const String PAYER_LEN_KEY = 'prayerLength';
+const String SOUND_SWITCH_KEY = 'soundEnabled';
+const String SELECTED_VOICE_KEY = 'selectedVoice';
 
 // Server constants
-// const String serverUrl = 'http://localhost:3000';
+// const String SERVER_URL = 'http://localhost:3000';
 const String SERVER_URL = 'http://192.168.10.102:3000';
 const String CHECK_VERSION_URL_ENDPOINT = '/api/json/check-versions';
 const String DOWNLOAD_DATA_URL_ENDPOINT = '/api/json/download-data';

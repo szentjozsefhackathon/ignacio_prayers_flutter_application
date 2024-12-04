@@ -1,9 +1,10 @@
 import 'prayer_step.dart';
-
-class Prayer{
+import 'data_descriptor.dart';
+class Prayer implements DataDescriptor{
     String title;
     String description;
     String image;
+    List<String> voiceOptions;
     int minTimeInMinutes;
     List<PrayerStep> steps;
 
@@ -11,6 +12,7 @@ class Prayer{
         required this.title,
         required this.description,
         required this.image,
+        required this.voiceOptions,
         required this.minTimeInMinutes,
         required this.steps,
     });
@@ -19,6 +21,7 @@ class Prayer{
         title: json["title"],
         description: json["description"],
         image: json["image"],
+        voiceOptions: List<String>.from(json["voice_options"].map((x) => x)),
         minTimeInMinutes: json["minTimeInMinutes"],
         steps: List<PrayerStep>.from(json["steps"].map((x) => PrayerStep.fromJson(x))),
     );
@@ -27,6 +30,7 @@ class Prayer{
         "title": title,
         "description": description,
         "image": image,
+        "voice_options": List<dynamic>.from(voiceOptions.map((x) => x)),
         "minTimeInMinutes": minTimeInMinutes,
         "steps": List<dynamic>.from(steps.map((x) => x.toJson())),
     };

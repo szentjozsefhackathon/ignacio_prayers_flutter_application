@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'dart:convert';
+import 'package:provider/provider.dart';
 
 // Local imports
 import '../data_descriptors/prayer_group.dart'; // Import Json data descriptors
@@ -9,8 +10,14 @@ import 'data_set_manager.dart';
 import '../constants/constants.dart'; // Import the constants file
 import 'media_manager.dart';
 
+// TODO: make this a povider
 class DataManager {
   final log = Logger('DataHandler');
+
+
+  DataManager() {
+    _setupLogging();
+  }
 
   // initialize the data managers
   // versionsDataManager is used to manage the versions data
@@ -49,10 +56,6 @@ class DataManager {
 
   final MediaManager _voicesManager = MediaManager(mediaType: VOICES_KEY);
 
-  DataManager() {
-    _setupLogging();
-  }
-
   void _setupLogging() {
     Logger.root.level = Level.ALL; // Set the log level to ALL
     Logger.root.onRecord.listen((record) {
@@ -75,12 +78,14 @@ class DataManager {
     // Check if the map data needs to be updated
     if (localVersions.images != serverVersions.images) {
       final imagesServerDatas = await _imagesDataManager.serverData;
+      // TODO: dont need this in case of Web app
       await imagesManager.syncFiles(imagesServerDatas);
     }
 
     // Check if the voices need to be updated
     if (localVersions.voices != serverVersions.voices) {
       final voicesServerDatas = await _voicesDataManager.serverData;
+      // TODO: dont need this in case of Web app
       await voicesManager.syncFiles(voicesServerDatas);
     }
 

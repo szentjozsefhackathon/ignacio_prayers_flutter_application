@@ -11,6 +11,7 @@ import 'exceptions.dart';
 import 'dart:convert';
 import '../constants/constants.dart'; // Import the constants file
 
+// TODO: move to Hive or SQLite
 
 enum DataType { single, list }
 

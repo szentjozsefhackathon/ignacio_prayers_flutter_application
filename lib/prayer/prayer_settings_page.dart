@@ -1,84 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer.dart';
 import 'prayer_page.dart';
-import '../constants/constants.dart';
-import '../settings/settings_page.dart';
+import '../data_descriptors/user_settings_data.dart';
+import '../settings/user_settings_manager.dart';
 
 
 class PrayerSettingsPage extends StatefulWidget {
   final Prayer prayer;
   final DataManager dataManager;
 
-  const PrayerSettingsPage({Key? key, required this.prayer, required this.dataManager})
-      : super(key: key);
+  const PrayerSettingsPage({
+    Key? key, 
+    required this.prayer, 
+    required this.dataManager
+    }): super(key: key);
 
   @override
   _PrayerSettingsPageState createState() => _PrayerSettingsPageState();
 }
 
 class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
-  late SharedPreferences preferences;
-  bool soundEnabled = true;
-  bool automaticPageSwitch = true;
-  bool dndEnabled = true;
-  String selectedVoice = "Female";
-  int prayerLength = 5;
-
+  // Add any state variables you need to update
+  final userSettingsManager = UserSettingsManager();
+  UserSettingsData _userSettingsData = UserSettingsData.withDefaults();
 
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _loadData();
   }
 
-  Future<void> _loadPreferences() async {
-    preferences = await SharedPreferences.getInstance();
-
+  Future<void> _loadData() async {
+    final UserSettingsData userSettingsData = await userSettingsManager.loadUserSettings();
     setState(() {
-      automaticPageSwitch = preferences.getBool(AUTO_PAGE_TURN_SWITCH_KEY) ?? true;
-      soundEnabled = preferences.getBool(SOUND_SWITCH_KEY) ?? true;
-      dndEnabled = preferences.getBool(DND_KEY) ?? true;
-      selectedVoice = preferences.getString(VOICES_KEY) ?? "Female";
-      prayerLength =
-          preferences.getInt(PAYER_LEN_KEY) ?? widget.prayer.minTimeInMinutes;
+      _userSettingsData = userSettingsData;
     });
   }
 
-  Future<void> _updatePreference(String key, dynamic value) async {
-    switch (value.runtimeType) {
-      case bool:
-        await preferences.setBool(key, value);
-        break;
-      case String:
-        await preferences.setString(key, value);
-        break;
-      case int:
-        await preferences.setInt(key, value);
-        break;
-    }
-    
-    setState(() {
-      switch (key) {
-        case AUTO_PAGE_TURN_SWITCH_KEY:
-          automaticPageSwitch = value;
-          break;
-        case SOUND_SWITCH_KEY:
-          soundEnabled = value;
-          break;
-        case SELECTED_VOICE_KEY:
-          selectedVoice = value;
-          break;
-        case DND_KEY:
-          dndEnabled = value;
-          break;
-        case PAYER_LEN_KEY:
-          prayerLength = value;
-          break;
-      }
+  void _updateUserSettings(UserSettingsData userSettingsData) {
+    Future.microtask((){
+      setState(() {
+        _userSettingsData = userSettingsData;
+      });
+      userSettingsManager.saveSaveSettings(userSettingsData);
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,30 +67,33 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
         children: [
           SwitchListTile(
             title: Text("Automatic Page Turn"),
-            value: automaticPageSwitch,
+            value: _userSettingsData.autoPageTurn,
             onChanged: (newValue) {
-              _updatePreference(AUTO_PAGE_TURN_SWITCH_KEY, newValue);
+              _userSettingsData.autoPageTurn = newValue;
+              _updateUserSettings(_userSettingsData);
             },
           ),
           SwitchListTile(
             title: Text("Do Not Disturb"),
-            value: dndEnabled,
+            value: _userSettingsData.dnd,
             onChanged: (newValue) {
-              _updatePreference(DND_KEY, newValue);
+              _userSettingsData.dnd = newValue;
+              _updateUserSettings(_userSettingsData);
             },
           ),
-          if (_currentPrayer.title == "Ignaci szemlelodes")
+          if (_currentPrayer.voiceOptions != [])
             ListTile(
               title: Text("Select Voice"),
-              subtitle: Text(selectedVoice),
+              subtitle: Text("Női"),
               trailing: DropdownButton<String>(
-                value: selectedVoice,
+                value: "Női",
                 onChanged: (newValue) {
                   if (newValue != null) {
-                    _updatePreference('selectedVoice', newValue);
+                    _userSettingsData.voiceChoice = newValue;
+                    _updateUserSettings(_userSettingsData);
                   }
                 },
-                items: ["Female", "Male 2"]
+                items: _currentPrayer.voiceOptions
                     .map((voice) => DropdownMenuItem(
                           value: voice,
                           child: Text(voice),
@@ -130,12 +101,13 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     .toList(),
               ),
             ),
-          if (_currentPrayer.title == "Ignaci szemlelodes")
+          if (_currentPrayer.voiceOptions != [])
             SwitchListTile(
               title: Text("Enable Sound"),
-              value: soundEnabled,
+              value: _userSettingsData.prayerSoundEnabled,
               onChanged: (newValue) {
-                _updatePreference(SOUND_SWITCH_KEY, newValue);
+                _userSettingsData.prayerSoundEnabled = newValue;
+                _updateUserSettings(_userSettingsData);
               },
             )
           else
@@ -146,14 +118,14 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             ),
           ListTile(
             title: Text("Prayer Length"),
-            subtitle: Text("$prayerLength minutes"),
+            subtitle: Text("${_userSettingsData.prayerLength} minutes"),
             trailing: IconButton(
               icon: Icon(Icons.edit),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    int tempLength = prayerLength;
+                    int tempLength = _userSettingsData.prayerLength;
                     return AlertDialog(
                       title: Text("Set Prayer Length"),
                       content: Column(
@@ -182,7 +154,8 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            _updatePreference('prayerLength', tempLength);
+                            _userSettingsData.prayerLength = tempLength;
+                            _updateUserSettings(_userSettingsData);
                             Navigator.pop(context);
                           },
                           child: Text("Save"),
@@ -196,12 +169,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SettingsPage(),
-                ),
-              );
+              Navigator.pushNamed(context, '/settings');
             },
             child: Text("More settings"),
           ),
@@ -210,7 +178,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrayerPage(prayer: _currentPrayer, dataManager: widget.dataManager),
+                  builder: (context) => PrayerPage(prayer: _currentPrayer, userSettingsData: _userSettingsData, dataManager: widget.dataManager),
                 ),
               );
             },
@@ -220,5 +188,4 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
       ),
     );
   }
-  
 }
