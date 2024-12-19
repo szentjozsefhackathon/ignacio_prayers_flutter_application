@@ -1,4 +1,4 @@
-name: Deploy Flutter Web App
+name: Deploy Flutter Web and Linux App
 
 on:
   push:
