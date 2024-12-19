@@ -4,34 +4,36 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Flutter Repository
-      uses: actions/checkout@v4
-      with:
-        repository: user/flutter-project
-        path: flutter-project
+      # 1. Check out the repository
+      - name: Checkout Flutter Repository
+        uses: actions/checkout@v4
+        with:
+          repository: user/flutter-project
+          path: flutter-project
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: stable
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
 
-    - name: Build Flutter Web App
-      run: |
-        cd flutter-project
-        flutter build web
+      - name: Build Flutter Web App
+        run: |
+          cd flutter-project
+          flutter build web
 
-    # TODO: Uncomment the following lines to deploy the app to a server 
-    # - name: Deploy to Server
-    #   uses: appleboy/scp-action@v0.2.4
-    #   with:
-    #     host: your.server.ip
-    #     username: your-username
-    #     password: ${{ secrets.SERVER_PASSWORD }}
-    #     source: flutter-project/build/web/
-    #     target: /path/to/deployment/folder/
+      # TODO: Uncomment the following lines to deploy the app to a server 
+      # - name: Deploy to Server
+      #   uses: appleboy/scp-action@v0.2.4
+      #   with:
+      #     host: your.server.ip
+      #     username: your-username
+      #     password: ${{ secrets.SERVER_PASSWORD }}
+      #     source: flutter-project/build/web/
+      #     target: /path/to/deployment/folder/
