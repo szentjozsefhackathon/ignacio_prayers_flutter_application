@@ -14,19 +14,101 @@ jobs:
       # 1. Check out the repository
       - name: Checkout Flutter Repository
         uses: actions/checkout@v4
-        with:
-          repository: user/flutter-project
-          path: flutter-project
 
+      #2 Setup Java
+      - name: Set Up Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: 'oracle'
+          java-version: '17'
+
+      #3 Setup Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: stable
 
+      #4 Install Dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      #5 Building linux app
       - name: Build Flutter Web App
+        run: flutter build web --release
+
+      #6 Building web app
+      - name: Build Flutter Web App
+        run: flutter build web --release
+      
+      #10 Extract Version
+      - name: Extract version from pubspec.yaml
+        id: extract_version
         run: |
-          cd flutter-project
-          flutter build web
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      #11 Check if Tag Exists
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      #12 Modify Tag if it Exists
+      - name: Modify Tag
+        if: env.TAG_EXISTS == 'true'
+        id: modify_tag
+        run: |
+          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+          echo "VERSION=$new_version" >> $GITHUB_ENV
+        
+      #13 Create Release
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/linux/x64/release/bundle/ignacio_prayers_flutter_application"
+          tag: v${{ env.VERSION }}
+          token: ${{ secrets.TOKEN }}
+
+      # 2. Log in to GHCR
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 3. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # 4. Set up owner to lowercase
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: '${{ github.repository_owner }}'
+      
+
+      # 4. Build and Push the Docker Image
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./kata-marci-wedding-site
+          push: true
+          tags: |
+            ghcr.io/golar24/kata-marci-wedding-page:latest
+            ghcr.io/golar24/kata-marci-wedding-page:${{ github.sha }}
+
+      # 5. Confirm Success
+      - name: Verify Image
+        run: |
+          echo "Docker image has been pushed to:"
+          echo "ghcr.io/golar24/kata-marci-wedding-page:latest"
+          echo "ghcr.io/golar24/kata-marci-wedding-page:${{ github.sha }}"
 
       # TODO: Uncomment the following lines to deploy the app to a server 
       # - name: Deploy to Server
