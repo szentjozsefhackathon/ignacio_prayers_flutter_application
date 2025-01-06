@@ -27,29 +27,32 @@ class PrayerDescriptionPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width:600.0,
+                child: Text(
                   prayer.description,
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 24),
+                  textAlign: TextAlign.center,
                 ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PrayerSettingsPage(prayer: prayer, dataManager: dataManager),
-                      ),
-                    );
-                  },
-                  child: Text("Setup Prayer"),
-                ),
-              ],
-            ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PrayerSettingsPage(prayer: prayer, dataManager: dataManager),
+                        ),
+                      );
+                    },
+                    child: Text("Setup Prayer"),
+                  ),
+              ),
+            ],
           ),
         ),
       );

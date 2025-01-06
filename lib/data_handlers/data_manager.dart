@@ -1,6 +1,5 @@
 import 'package:logging/logging.dart';
 import 'dart:convert';
-import 'package:provider/provider.dart';
 
 // Local imports
 import '../data_descriptors/prayer_group.dart'; // Import Json data descriptors
@@ -63,34 +62,40 @@ class DataManager {
     });
   }
 
-  Future<void> checkForUpdates() async { //TODO: test internet if it can connect to server, try catch and load data again
+  Future<void> checkForUpdates() async {
     // Load local version data
-    final localVersions = await _versionsDataManager.data;
-    // Load server version data
-    final serverVersions = await _versionsDataManager.serverData;
+    try{
+      final localVersions = await _versionsDataManager.data;
+      // Load server version data
+      final serverVersions = await _versionsDataManager.serverData;
 
-    // Check if the data needs to be updated
-    if (localVersions.data != serverVersions.data) {
-      await _prayerGroupDataManager.downloadAndSaveData();
-      await _prayerGroupDataManager.data; // new data applied
+      // Check if the data needs to be updated
+      if (localVersions.data != serverVersions.data) {
+        await _prayerGroupDataManager.downloadAndSaveData();
+        await _prayerGroupDataManager.data; // new data applied
+      }
+
+      // Check if the map data needs to be updated
+      if (localVersions.images != serverVersions.images) {
+        final imagesServerDatas = await _imagesDataManager.serverData;
+        // TODO: dont need this in case of Web app
+        await imagesManager.syncFiles(imagesServerDatas);
+      }
+
+      // Check if the voices need to be updated
+      if (localVersions.voices != serverVersions.voices) {
+        final voicesServerDatas = await _voicesDataManager.serverData;
+        // TODO: dont need this in case of Web app
+        await voicesManager.syncFiles(voicesServerDatas);
+      }
+
+      // Save the new version data
+      await _versionsDataManager.saveLocalData(json.encoder.convert(serverVersions.toJson()));
+
+    } catch (e) {
+      // log.warning('Failed to load local data: $e');
+      rethrow;
     }
-
-    // Check if the map data needs to be updated
-    if (localVersions.images != serverVersions.images) {
-      final imagesServerDatas = await _imagesDataManager.serverData;
-      // TODO: dont need this in case of Web app
-      await imagesManager.syncFiles(imagesServerDatas);
-    }
-
-    // Check if the voices need to be updated
-    if (localVersions.voices != serverVersions.voices) {
-      final voicesServerDatas = await _voicesDataManager.serverData;
-      // TODO: dont need this in case of Web app
-      await voicesManager.syncFiles(voicesServerDatas);
-    }
-
-    // Save the new version data
-    await _versionsDataManager.saveLocalData(json.encoder.convert(serverVersions.toJson()));
   }
 
   DataSetManager<PrayerGroup> get prayerGroupDataManager => _prayerGroupDataManager;

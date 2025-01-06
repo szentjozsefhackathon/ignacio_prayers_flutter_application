@@ -3,7 +3,7 @@ import 'package:ignacio_prayers_flutter_application/data_descriptors/prayer_grou
 import 'package:ignacio_prayers_flutter_application/data_descriptors/versions.dart';
 import '../data_descriptors/data_list.dart'; // Import Json data descriptors
 
-
+import 'dart:io'; // For SocketException
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,36 +47,75 @@ class DataSetManager<T extends DataDescriptor>{
       return await _data!;
     } on NoLocalDataException catch (e) {
       log.warning('No local data found, attempting to fetch from server: $e');
-      await downloadAndSaveData();
-      return await _readLocalData();
+      try {
+        await downloadAndSaveData();
+        return await _readLocalData();
+      } catch (e, stackTrace) {
+        // log.severe('Failed to load data: $e', e, stackTrace);
+        // throw DataLoadingException('Failed to load data', e);
+        rethrow;
+      }
     } catch (e, stackTrace) {
-      log.severe('Failed to load data: $e', e, stackTrace);
-      throw DataLoadingException('Failed to load data', e);
+      // log.severe('Failed to load data: $e', e, stackTrace);
+      // throw DataLoadingException('Failed to load data', e);
+      rethrow;
     }
   }
 
   Future<dynamic> get serverData async {
-    final response = await _fetchServerData();
-    if (dataType == DataType.single) {
-      return fromJson(json.decode(response));
-    } else {
-      return DataList<T>.fromJson(json.decode(response), fromJson);
+    try{
+      final response = await _fetchServerData();
+      if (dataType == DataType.single) {
+        return fromJson(json.decode(response));
+      } else {
+        return DataList<T>.fromJson(json.decode(response), fromJson);
+      }
+    } catch (e, stackTrace) {
+      log.severe('Failed to load server data: $e', e, stackTrace);
+      rethrow;
     }
   }
 
   Future<String> _fetchServerData() async {
-    final response = await http.get(Uri.parse(SERVER_URL + dataUrlEndpoint));
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      log.warning('Failed to fetch data from server: ${response.statusCode}');
-      throw Exception('Failed to fetch data from server');
+    try {
+      final response = await http.get(Uri.parse(SERVER_URL + dataUrlEndpoint));
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        log.warning('Failed to fetch data from server: ${response.statusCode}');
+        throw HttpException("Failed with status code: ${response.statusCode}");
+      }
+    } on SocketException{
+      // Handle "Connection Refused" or "No Internet"
+      log.severe('Connection Refused');
+      // throw DataLoadingException('Unable to connect to the server. Please check your internet or server.', e);
+      throw Exception("No Internet connection or connection refused");
+    } on http.ClientException{
+      // Handle invalid HTTP response
+      log.severe('HTTP Error:');
+      throw Exception("Invalid response received from the server.");
+      // throw DataLoadingException('Invalid response received from the server.', e);
+    } on FormatException{
+      // Handle invalid JSON
+      log.severe('Format Error');
+      throw Exception("Invalid response format");
+      // throw DataLoadingException('The server URL or response format is invalid.', e);
+    } catch (e, stackTrace) {
+      // Handle any other exceptions
+      log.severe('Error: $e', e, stackTrace);
+      throw Exception("Invalid response format");
+      // throw DataLoadingException('An unexpected error occurred:', e);
     }
   }
   
   Future<void> downloadAndSaveData() async {
-    final response = await _fetchServerData();
-    await saveLocalData(response);
+    try {
+      final response = await _fetchServerData();
+      await saveLocalData(response);
+    } catch (e, stackTrace) {
+      // log.severe('Failed to download and save data: $e', e, stackTrace);
+      rethrow;
+    }
   }
 
   Future<void> saveLocalData(String jsonData) async {

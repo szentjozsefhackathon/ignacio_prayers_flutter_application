@@ -5,20 +5,20 @@ import '../data_descriptors/prayer_group.dart';
 import '../data_descriptors/data_list.dart'; // Import Json data descriptors
 import 'prayers_page.dart';
 import '../settings/settings_page.dart';
-import 'dart:io';
 
 class PrayerGroupsPage extends StatefulWidget {
-  final DataManager dataManager;
-  const PrayerGroupsPage({super.key, required this.title, required this.dataManager});
-
   final String title;
+
+  const PrayerGroupsPage({super.key, required this.title});
 
   @override
   State<PrayerGroupsPage> createState() => _PrayerGroupsPageState();
 }
 
 class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
-  DataList<PrayerGroup> _items = DataList<PrayerGroup>(items: []); 
+  DataList<PrayerGroup> _items = DataList<PrayerGroup>(items: []);
+
+  final dataManager = DataManager();
 
   @override
   void initState() {
@@ -27,10 +27,17 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   }
 
   Future<void> _loadData() async {
-    final prayerGroups = await widget.dataManager.prayerGroupDataManager.data;
-    setState(() {
-      _items = prayerGroups;
-    });
+    try {
+      await dataManager.checkForUpdates();
+      final prayerGroups = await dataManager.prayerGroupDataManager.data;
+      setState(() {
+        _items = prayerGroups;
+      });
+    } catch (e) {
+      // Show the error to the user
+      showErrorDialog(e.toString());
+    }
+
   }
 
   @override
@@ -76,7 +83,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                           builder: (context) => PrayersPage(
                               title: item.title,
                               prayers: item.prayers,
-                              dataManager: widget.dataManager,
+                              dataManager: dataManager,
                           ),
                         ),
                       );
@@ -86,7 +93,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                         // Background Image
                         Positioned.fill(
                           child: FutureBuilder<dynamic>(
-                            future: widget.dataManager.imagesManager.getFile(item.image),
+                            future: dataManager.imagesManager.getFile(item.image),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const Center(child: CircularProgressIndicator());
@@ -136,5 +143,23 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
               },
             ),
     );
+  }
+
+  void showErrorDialog(String errorMessage) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Error"),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
