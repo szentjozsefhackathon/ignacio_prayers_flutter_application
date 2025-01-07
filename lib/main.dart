@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'menu/prayer_groups_page.dart';
 import 'settings/settings_page.dart';
 import 'settings/user_settings_manager.dart';
-import '../data_descriptors/user_settings_data.dart';
-import 'dart:io'; // For SocketException
+import 'data_descriptors/user_settings_data.dart';
+import 'dart:io' show Platform;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:alarm/alarm.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Alarm.init();
+
   runApp(IgnacioPrayersApp());
 }
 
@@ -17,16 +22,9 @@ class IgnacioPrayersApp extends StatefulWidget {
 }
 
 class _IgnacioPrayersAppState extends State<IgnacioPrayersApp> {
-  
-  // Create a new instance of DataManager
-  // By creating the instance data will be loaded from shared preferences
-  // if the data is not found in shared preferences the data will be downloaded from the server 
-  // (this should be applied only downloading thew app and first startup)
+  // Load user preferences
   final userSettingsManager = UserSettingsManager();
 
-  // Check for updates in the background
-  // If there are updates the data will be downloaded and saved to shared preferences
-  // dataManager.checkForUpdates();
 
   // TODO: multiple languages
   // final String defaultLocale = Platform.localeName;

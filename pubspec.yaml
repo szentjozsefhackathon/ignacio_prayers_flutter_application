@@ -44,13 +44,15 @@ dependencies:
   vibration: ^2.0.1
   just_audio: ^0.9.42
   enum_to_string: ^2.0.1
-  fluttertoast: ^8.2.0
-  # flutter_dnd: ^0.1.4
-
-
   collection: ^1.16.0
-  
-  android_alarm_manager_plus: ^4.0.4
+  url_launcher: ^6.3.1
+
+  # DND
+  do_not_disturb: ^1.0.3
+
+  # alarm service
+  alarm: ^4.1.1
+  permission_handler: ^11.3.1
   
 dev_dependencies:
   flutter_test:

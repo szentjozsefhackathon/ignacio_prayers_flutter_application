@@ -154,7 +154,10 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
           content: Text(errorMessage),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+               Navigator.of(context).pop();
+               _loadData();
+              },
               child: Text("OK"),
             ),
           ],

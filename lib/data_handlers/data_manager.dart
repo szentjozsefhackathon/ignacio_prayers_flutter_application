@@ -73,6 +73,7 @@ class DataManager {
       if (localVersions.data != serverVersions.data) {
         await _prayerGroupDataManager.downloadAndSaveData();
         await _prayerGroupDataManager.data; // new data applied
+        log.info('Local data updated from version ${localVersions.data} to ${serverVersions.data}');
       }
 
       // Check if the map data needs to be updated
@@ -80,6 +81,7 @@ class DataManager {
         final imagesServerDatas = await _imagesDataManager.serverData;
         // TODO: dont need this in case of Web app
         await imagesManager.syncFiles(imagesServerDatas);
+        log.info('Image files updated from version ${localVersions.images} to ${serverVersions.images}');
       }
 
       // Check if the voices need to be updated
@@ -87,10 +89,12 @@ class DataManager {
         final voicesServerDatas = await _voicesDataManager.serverData;
         // TODO: dont need this in case of Web app
         await voicesManager.syncFiles(voicesServerDatas);
+        log.info('Voice files updated from version ${localVersions.voices} to ${serverVersions.voices}');
       }
 
       // Save the new version data
       await _versionsDataManager.saveLocalData(json.encoder.convert(serverVersions.toJson()));
+      log.info('Versions data updated');
 
     } catch (e) {
       // log.warning('Failed to load local data: $e');

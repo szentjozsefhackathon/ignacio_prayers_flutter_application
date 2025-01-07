@@ -17,22 +17,22 @@ class UserSettingsManager {
     final prefs = await SharedPreferences.getInstance();
     String jsonString = json.encode(userSettingsData.toJson());
     await prefs.setString(USER_SETTINGS_KEY, jsonString);
-    log.info('Data saved to storage');
+    log.info('User preferences are saved to storage');
   }
 
   Future<UserSettingsData> loadUserSettings() async {
-    log.info('Reading data from storage');
+    log.info('Reading user preferences from storage');
     try{
       final prefs = await SharedPreferences.getInstance();
       final jsonData = prefs.getString(USER_SETTINGS_KEY);
 
       if (jsonData == null) {
-        log.warning('No local data found, Initializing with defaults');
+        log.info('No saved user preferences are found, initializing with defaults');
         return UserSettingsData.withDefaults();
       }
       return UserSettingsData.fromJson(json.decode(jsonData));
     } catch (e, stackTrace) {
-      log.severe('Error reading local data: $e', e, stackTrace);
+      log.severe('Error reading user preferences: $e', e, stackTrace);
       rethrow; // Propagate the exception to the caller
     }
   }
