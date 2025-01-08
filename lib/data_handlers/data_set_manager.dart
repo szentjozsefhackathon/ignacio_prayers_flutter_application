@@ -89,7 +89,7 @@ class DataSetManager<T extends DataDescriptor>{
       // Handle "Connection Refused" or "No Internet"
       log.severe('Connection Refused');
       // throw DataLoadingException('Unable to connect to the server. Please check your internet or server.', e);
-      throw Exception("No Internet connection or connection refused");
+      throw Exception("No Internet connection or connection refused"); // TODO: Add link to check server availability from browser
     } on http.ClientException{
       // Handle invalid HTTP response
       log.severe('HTTP Error:');
@@ -103,7 +103,7 @@ class DataSetManager<T extends DataDescriptor>{
     } catch (e, stackTrace) {
       // Handle any other exceptions
       log.severe('Error: $e', e, stackTrace);
-      throw Exception("Invalid response format");
+      throw Exception('An unexpected error occurred: $e');
       // throw DataLoadingException('An unexpected error occurred:', e);
     }
   }

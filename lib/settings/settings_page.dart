@@ -179,7 +179,12 @@ class _SettingsOptionsState extends State<SettingsOptions> {
       //   await _dndPlugin.openNotificationPolicyAccessSettings();
       //   // Inform user to grant permission and return to the app
       // }
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
+      if (_isDndEnabled) {
+        _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
+      } else {
+        _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
+      }
+      _isDndEnabled = !_isDndEnabled;
       // TODO: add this persmission as well
       // _dndPlugin.openNotificationPolicyAccessSettings();
       // _dndPlugin.openDndSettings();
@@ -207,13 +212,13 @@ class _SettingsOptionsState extends State<SettingsOptions> {
           Expanded(
             child: GridView(
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 350,
+                maxCrossAxisExtent: 600,
                 mainAxisSpacing: 4,
                 mainAxisExtent: 200,
                 crossAxisSpacing: 4,
               ),
               children: <Widget>[
-                SwitchCard<String>(
+                SwitchCard<String>( //TODO: change to EnumCard because of the new way of handling do not disturb
                   title: 'Settings',
                   values: _switchStates,
                   onChanged: _dndStateChanged,
@@ -249,6 +254,34 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                     //   });
                     // },
                     onTap: () => navigateToAlarmScreen(null),
+                  ),
+                ),
+                Card(
+                  child: SafeArea(
+                    child: alarms.isNotEmpty
+                      ? ListView.separated(
+                          itemCount: alarms.length,
+                          separatorBuilder: (context, index) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            return ExampleAlarmTile(
+                              key: Key(alarms[index].id.toString()),
+                              title: TimeOfDay(
+                                hour: alarms[index].dateTime.hour,
+                                minute: alarms[index].dateTime.minute,
+                              ).format(context),
+                              onPressed: () => navigateToAlarmScreen(alarms[index]),
+                              onDismissed: () {
+                                Alarm.stop(alarms[index].id).then((_) => loadAlarms());
+                              },
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            'No alarms set',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
                   ),
                 ),
                 Card(

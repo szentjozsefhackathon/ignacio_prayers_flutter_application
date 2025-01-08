@@ -50,23 +50,17 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Prayer _currentPrayer = widget.prayer;
+    final Prayer currentPrayer = widget.prayer;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_currentPrayer.title),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        title: Text(currentPrayer.title),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           SwitchListTile(
-            title: Text("Automatic Page Turn"),
+            title: const Text("Automatic Page Turn"),
             value: _userSettingsData.autoPageTurn,
             onChanged: (newValue) {
               _userSettingsData.autoPageTurn = newValue;
@@ -74,16 +68,16 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             },
           ),
           SwitchListTile(
-            title: Text("Do Not Disturb"),
+            title: const Text("Do Not Disturb"),
             value: _userSettingsData.dnd,
             onChanged: (newValue) {
               _userSettingsData.dnd = newValue;
               _updateUserSettings(_userSettingsData);
             },
           ),
-          if (_currentPrayer.voiceOptions != [])
+          if (currentPrayer.voiceOptions != [])
             ListTile(
-              title: Text("Select Voice"),
+              title: const Text("Select Voice"),
               subtitle: Text(_userSettingsData.voiceChoice),
               trailing: DropdownButton<String>(
                 value: _userSettingsData.voiceChoice, //TODO: check if this voice is available
@@ -93,7 +87,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     _updateUserSettings(_userSettingsData);
                   }
                 },
-                items: _currentPrayer.voiceOptions
+                items: currentPrayer.voiceOptions
                     .map((voice) => DropdownMenuItem(
                           value: voice,
                           child: Text(voice),
@@ -101,9 +95,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     .toList(),
               ),
             ),
-          if (_currentPrayer.voiceOptions != [])
+          if (currentPrayer.voiceOptions != [])
             SwitchListTile(
-              title: Text("Enable Sound"),
+              title: const Text("Enable Sound"),
               value: _userSettingsData.prayerSoundEnabled,
               onChanged: (newValue) {
                 _userSettingsData.prayerSoundEnabled = newValue;
@@ -135,9 +129,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                             children: [
                               Slider(
                                 value: tempLength.toDouble(),
-                                min: _currentPrayer.minTimeInMinutes.toDouble(),
+                                min: currentPrayer.minTimeInMinutes.toDouble(),
                                 max: 60,
-                                divisions: 60 - _currentPrayer.minTimeInMinutes,
+                                divisions: 60 - currentPrayer.minTimeInMinutes,
                                 label: "$tempLength minutes",
                                 onChanged: (value) {
                                   setState(() {
@@ -182,7 +176,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrayerPage(prayer: _currentPrayer, userSettingsData: _userSettingsData, dataManager: widget.dataManager),
+                  builder: (context) => PrayerPage(prayer: currentPrayer, userSettingsData: _userSettingsData, dataManager: widget.dataManager),
                 ),
               );
             },

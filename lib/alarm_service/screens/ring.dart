@@ -46,7 +46,7 @@ class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
               'You alarm (${widget.alarmSettings.id}) is ringing...',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const Text('🔔', style: TextStyle(fontSize: 50)),
+            const Text('🔔🙏', style: TextStyle(fontSize: 50)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [

@@ -66,8 +66,10 @@ class DataManager {
     // Load local version data
     try{
       final localVersions = await _versionsDataManager.data;
+      log.info('Local versions data : ${localVersions.toJson()}');
       // Load server version data
       final serverVersions = await _versionsDataManager.serverData;
+      log.info('Server versions data : ${serverVersions.toJson()}');
 
       // Check if the data needs to be updated
       if (localVersions.data != serverVersions.data) {
@@ -94,8 +96,9 @@ class DataManager {
 
       // Save the new version data
       await _versionsDataManager.saveLocalData(json.encoder.convert(serverVersions.toJson()));
-      log.info('Versions data updated');
-
+      // final newLocalVersions = await _versionsDataManager.data;
+      // log.info('Local versions data updated to : ${newLocalVersions.toJson()}');
+      
     } catch (e) {
       // log.warning('Failed to load local data: $e');
       rethrow;

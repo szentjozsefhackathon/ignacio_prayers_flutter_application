@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:alarm/alarm.dart';
-// import 'package:alarm/model/volume_settings.dart';
+import 'package:alarm/model/volume_settings.dart';
 import 'package:flutter/material.dart';
 
 class ExampleAlarmEditScreen extends StatefulWidget {
@@ -38,14 +38,14 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
       volume = null;
       fadeDuration = null;
       staircaseFade = false;
-      assetAudio = 'assets/marimba.mp3';
+      assetAudio = 'assets/ringing_sounds/marimba.mp3';
     } else {
       selectedDateTime = widget.alarmSettings!.dateTime;
       loopAudio = widget.alarmSettings!.loopAudio;
       vibrate = widget.alarmSettings!.vibrate;
-      // volume = widget.alarmSettings!.volumeSettings.volume;
-      // fadeDuration = widget.alarmSettings!.volumeSettings.fadeDuration;
-      // staircaseFade = widget.alarmSettings!.volumeSettings.fadeSteps.isNotEmpty;
+      volume = widget.alarmSettings!.volumeSettings.volume;
+      fadeDuration = widget.alarmSettings!.volumeSettings.fadeDuration;
+      staircaseFade = widget.alarmSettings!.volumeSettings.fadeSteps.isNotEmpty;
       assetAudio = widget.alarmSettings!.assetAudioPath;
     }
   }
@@ -95,25 +95,25 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
         ? DateTime.now().millisecondsSinceEpoch % 10000 + 1
         : widget.alarmSettings!.id;
 
-    // final VolumeSettings volumeSettings;
-    // if (staircaseFade) {
-    //   volumeSettings = VolumeSettings.staircaseFade(
-    //     volume: volume,
-    //     fadeSteps: [
-    //       VolumeFadeStep(Duration.zero, 0),
-    //       VolumeFadeStep(const Duration(seconds: 15), 0.03),
-    //       VolumeFadeStep(const Duration(seconds: 20), 0.5),
-    //       VolumeFadeStep(const Duration(seconds: 30), 1),
-    //     ],
-    //   );
-    // } else if (fadeDuration != null) {
-    //   volumeSettings = VolumeSettings.fade(
-    //     volume: volume,
-    //     fadeDuration: fadeDuration!,
-    //   );
-    // } else {
-    //   volumeSettings = VolumeSettings.fixed(volume: volume);
-    // }
+    final VolumeSettings volumeSettings;
+    if (staircaseFade) {
+      volumeSettings = VolumeSettings.staircaseFade(
+        volume: volume,
+        fadeSteps: [
+          VolumeFadeStep(Duration.zero, 0),
+          VolumeFadeStep(const Duration(seconds: 15), 0.03),
+          VolumeFadeStep(const Duration(seconds: 20), 0.5),
+          VolumeFadeStep(const Duration(seconds: 30), 1),
+        ],
+      );
+    } else if (fadeDuration != null) {
+      volumeSettings = VolumeSettings.fade(
+        volume: volume,
+        fadeDuration: fadeDuration!,
+      );
+    } else {
+      volumeSettings = VolumeSettings.fixed(volume: volume);
+    }
 
     final alarmSettings = AlarmSettings(
       id: id,
@@ -122,8 +122,8 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
       vibrate: vibrate,
       assetAudioPath: assetAudio,
       warningNotificationOnKill: Platform.isIOS,
-      // volumeSettings: volumeSettings,
-      // allowAlarmOverlap: true,
+      volumeSettings: volumeSettings,
+      allowAlarmOverlap: true,
       notificationSettings: NotificationSettings(
         title: 'Alarm example',
         body: 'Your alarm ($id) is ringing',
@@ -241,23 +241,23 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
                 value: assetAudio,
                 items: const [
                   DropdownMenuItem<String>(
-                    value: 'assets/marimba.mp3',
+                    value: 'assets/ringing_sounds/marimba.mp3',
                     child: Text('Marimba'),
                   ),
                   DropdownMenuItem<String>(
-                    value: 'assets/nokia.mp3',
+                    value: 'assets/ringing_sounds/nokia.mp3',
                     child: Text('Nokia'),
                   ),
                   DropdownMenuItem<String>(
-                    value: 'assets/mozart.mp3',
+                    value: 'assets/ringing_sounds/mozart.mp3',
                     child: Text('Mozart'),
                   ),
                   DropdownMenuItem<String>(
-                    value: 'assets/star_wars.mp3',
+                    value: 'assets/ringing_sounds/star_wars.mp3',
                     child: Text('Star Wars'),
                   ),
                   DropdownMenuItem<String>(
-                    value: 'assets/one_piece.mp3',
+                    value: 'assets/ringing_sounds/one_piece.mp3',
                     child: Text('One Piece'),
                   ),
                 ],

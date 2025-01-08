@@ -53,6 +53,7 @@ class MediaManager {
     }).toList();
 
     // Add or update files
+    // TODO: how to reduce http requests?
     await Future.forEach(filesToAddOrUpdate, (file) async {
       await _downloadAndSaveImage(file.name);
     });

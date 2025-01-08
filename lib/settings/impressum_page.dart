@@ -11,8 +11,8 @@ class ImpressumPage extends StatelessWidget {
       body: Center(
         child: RichText(
           textAlign: TextAlign.center,
-          text: const TextSpan(
-              style: TextStyle(fontSize: 20),
+          text: TextSpan(
+              style: Theme.of(context).textTheme.titleLarge,
               children: const <InlineSpan>[
                 TextSpan(
                   text: 'Jézus Társasága Magyarországi Rendtartománya\n'

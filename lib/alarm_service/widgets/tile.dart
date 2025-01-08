@@ -42,7 +42,7 @@ class ExampleAlarmTile extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),

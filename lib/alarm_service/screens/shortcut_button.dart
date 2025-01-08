@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:alarm/alarm.dart';
-// import 'package:alarm/model/volume_settings.dart';
+import 'package:alarm/model/volume_settings.dart';
 import 'package:flutter/material.dart';
 
 class ExampleAlarmHomeShortcutButton extends StatefulWidget {
@@ -36,7 +36,7 @@ class _ExampleAlarmHomeShortcutButtonState
       id: DateTime.now().millisecondsSinceEpoch % 10000,
       dateTime: dateTime,
       assetAudioPath: 'assets/marimba.mp3',
-      // volumeSettings: VolumeSettings.fixed(volume: volume),
+      volumeSettings: VolumeSettings.fixed(volume: volume),
       notificationSettings: NotificationSettings(
         title: 'Alarm example',
         body: 'Shortcut button alarm with delay of $delayInHours hours',

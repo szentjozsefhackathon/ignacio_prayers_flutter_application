@@ -16,8 +16,12 @@ class PrayerPage extends StatefulWidget {
   final DataManager dataManager; // Shared instance of DataManager
   final UserSettingsData userSettingsData;
 
-  const PrayerPage({Key? key, required this.prayer, required this.userSettingsData, required this.dataManager})
-      : super(key: key);
+  const PrayerPage({
+    Key? key, 
+    required this.prayer,
+    required this.userSettingsData,
+    required this.dataManager
+    }) : super(key: key);
 
   @override
   _PrayerPageState createState() => _PrayerPageState();
@@ -172,8 +176,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    final Prayer currentPrayer = widget.prayer;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('PageView Sample')),
+      appBar: AppBar(
+        title: Text(currentPrayer.title),
+        ),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
@@ -181,10 +189,10 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
             /// [PageView.scrollDirection] defaults to [Axis.horizontal].
             /// Use [Axis.vertical] to scroll vertically.
             controller: _pageViewController,
-            itemCount: widget.prayer.steps.length, // Dynamic item count
+            itemCount: currentPrayer.steps.length, // Dynamic item count
             onPageChanged: _handlePageViewChanged,
             itemBuilder: (context, index){
-              final step = widget.prayer.steps[index];
+              final step = currentPrayer.steps[index];
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(38.0),
