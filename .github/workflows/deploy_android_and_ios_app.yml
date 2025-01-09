@@ -72,7 +72,7 @@ jobs:
 
         #9 Upload Artifacts
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Releases
           path: |
@@ -83,7 +83,7 @@ jobs:
 
       
         ################### RELEASE ###################
-        
+
         #10 Extract Version
       - name: Extract version from pubspec.yaml
         id: extract_version
