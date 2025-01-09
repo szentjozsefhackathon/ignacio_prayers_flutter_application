@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data_descriptors/user_settings_data.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:alarm/alarm.dart';
+import 'package:flutter/foundation.dart';
 
 import 'impressum_page.dart';
 import 'switch_card.dart';
@@ -218,72 +219,75 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                 crossAxisSpacing: 4,
               ),
               children: <Widget>[
-                SwitchCard<String>( //TODO: change to EnumCard because of the new way of handling do not disturb
-                  title: 'Settings',
-                  values: _switchStates,
-                  onChanged: _dndStateChanged,
-                  switchLabels: {
-                    'DND': 'Do Not Disturb',
-                  },
-                ),
+                if(!kIsWeb)
+                  SwitchCard<String>( //TODO: change to EnumCard because of the new way of handling do not disturb
+                    title: 'Settings',
+                    values: _switchStates,
+                    onChanged: _dndStateChanged,
+                    switchLabels: {
+                      'DND': 'Do Not Disturb',
+                    },
+                  ),
                 EnumCard<ThemeMode>(
                   choices: ThemeMode.values,
                   value: widget.userSettings.themeMode,
                   onChanged: _themeModeChanged,
                 ),
-                Card(
-                  child: InkWell(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Switch(
-                          value: widget.userSettings.dailyNotifier,
-                          onChanged: (bool newValue) => widget.userSettings.dailyNotifier = !widget.userSettings.dailyNotifier,
-                        ),
-                        Text('Selected time: ${selectedTime!.format(context)}'),
-                      ],
-                    ),
-                    // onTap: () async {
-                    //   final TimeOfDay? time = await showTimePicker(
-                    //     context: context,
-                    //     initialTime: selectedTime ?? TimeOfDay(hour: widget.userSettings.dailyNotifierHour, minute: widget.userSettings.dailyNotifierMinute),
-                    //     initialEntryMode: entryMode,
-                    //   );
-                    //   setState(() {
-                    //     selectedTime = time;
-                    //   });
-                    // },
-                    onTap: () => navigateToAlarmScreen(null),
-                  ),
-                ),
-                Card(
-                  child: SafeArea(
-                    child: alarms.isNotEmpty
-                      ? ListView.separated(
-                          itemCount: alarms.length,
-                          separatorBuilder: (context, index) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            return ExampleAlarmTile(
-                              key: Key(alarms[index].id.toString()),
-                              title: TimeOfDay(
-                                hour: alarms[index].dateTime.hour,
-                                minute: alarms[index].dateTime.minute,
-                              ).format(context),
-                              onPressed: () => navigateToAlarmScreen(alarms[index]),
-                              onDismissed: () {
-                                Alarm.stop(alarms[index].id).then((_) => loadAlarms());
-                              },
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text(
-                            'No alarms set',
-                            style: Theme.of(context).textTheme.titleMedium,
+                if(!kIsWeb)
+                  Card(
+                    child: InkWell(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Switch(
+                            value: widget.userSettings.dailyNotifier,
+                            onChanged: (bool newValue) => widget.userSettings.dailyNotifier = !widget.userSettings.dailyNotifier,
                           ),
-                        ),
+                          Text('Selected time: ${selectedTime!.format(context)}'),
+                        ],
+                      ),
+                      // onTap: () async {
+                      //   final TimeOfDay? time = await showTimePicker(
+                      //     context: context,
+                      //     initialTime: selectedTime ?? TimeOfDay(hour: widget.userSettings.dailyNotifierHour, minute: widget.userSettings.dailyNotifierMinute),
+                      //     initialEntryMode: entryMode,
+                      //   );
+                      //   setState(() {
+                      //     selectedTime = time;
+                      //   });
+                      // },
+                      onTap: () => navigateToAlarmScreen(null),
+                    ),
                   ),
-                ),
+                if(!kIsWeb)
+                  Card(
+                    child: SafeArea(
+                      child: alarms.isNotEmpty
+                        ? ListView.separated(
+                            itemCount: alarms.length,
+                            separatorBuilder: (context, index) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              return ExampleAlarmTile(
+                                key: Key(alarms[index].id.toString()),
+                                title: TimeOfDay(
+                                  hour: alarms[index].dateTime.hour,
+                                  minute: alarms[index].dateTime.minute,
+                                ).format(context),
+                                onPressed: () => navigateToAlarmScreen(alarms[index]),
+                                onDismissed: () {
+                                  Alarm.stop(alarms[index].id).then((_) => loadAlarms());
+                                },
+                              );
+                            },
+                          )
+                        : Center(
+                            child: Text(
+                              'No alarms set',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                    ),
+                  ),
                 Card(
                   child: InkWell(
                     onTap: () {

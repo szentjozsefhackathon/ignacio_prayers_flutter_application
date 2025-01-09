@@ -8,6 +8,7 @@ import '../data_descriptors/media_data.dart'; // Import Json data descriptors fo
 import 'data_set_manager.dart';
 import '../constants/constants.dart'; // Import the constants file
 import 'media_manager.dart';
+import 'package:flutter/foundation.dart';
 
 // TODO: make this a povider
 class DataManager {
@@ -81,16 +82,18 @@ class DataManager {
       // Check if the map data needs to be updated
       if (localVersions.images != serverVersions.images) {
         final imagesServerDatas = await _imagesDataManager.serverData;
-        // TODO: dont need this in case of Web app
-        await imagesManager.syncFiles(imagesServerDatas);
+
+        //dont need this in case of Web app
+        if(!kIsWeb) await imagesManager.syncFiles(imagesServerDatas);
         log.info('Image files updated from version ${localVersions.images} to ${serverVersions.images}');
       }
 
       // Check if the voices need to be updated
       if (localVersions.voices != serverVersions.voices) {
         final voicesServerDatas = await _voicesDataManager.serverData;
-        // TODO: dont need this in case of Web app
-        await voicesManager.syncFiles(voicesServerDatas);
+
+        //dont need this in case of Web app
+        if(!kIsWeb) await voicesManager.syncFiles(voicesServerDatas);
         log.info('Voice files updated from version ${localVersions.voices} to ${serverVersions.voices}');
       }
 

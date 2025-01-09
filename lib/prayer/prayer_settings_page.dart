@@ -4,6 +4,7 @@ import '../data_descriptors/prayer.dart';
 import 'prayer_page.dart';
 import '../data_descriptors/user_settings_data.dart';
 import '../settings/user_settings_manager.dart';
+import 'package:flutter/foundation.dart';
 
 
 class PrayerSettingsPage extends StatefulWidget {
@@ -67,14 +68,15 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               _updateUserSettings(_userSettingsData);
             },
           ),
-          SwitchListTile(
-            title: const Text("Do Not Disturb"),
-            value: _userSettingsData.dnd,
-            onChanged: (newValue) {
-              _userSettingsData.dnd = newValue;
-              _updateUserSettings(_userSettingsData);
-            },
-          ),
+          if(!kIsWeb)
+            SwitchListTile(
+              title: const Text("Do Not Disturb"),
+              value: _userSettingsData.dnd,
+              onChanged: (newValue) {
+                _userSettingsData.dnd = newValue;
+                _updateUserSettings(_userSettingsData);
+              },
+            ),
           if (currentPrayer.voiceOptions != [])
             ListTile(
               title: const Text("Select Voice"),
