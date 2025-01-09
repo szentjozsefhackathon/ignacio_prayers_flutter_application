@@ -1,10 +1,10 @@
 name: Deploy Flutter Android and IOS App
 
 on:
-    push:
-      branches:
-        - main
-    workflow_dispatch: # Allows manual trigger
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual trigger
 
 jobs:  
   build:      
@@ -29,11 +29,17 @@ jobs:
         with:
           flutter-version: '3.24.4'
           channel: 'stable'
+      
+      #4 Check Flutter Doctor
+      - name: Check Flutter Doctor
+        run: flutter doctor -v
 
-        #4 Install Dependencies
+      #5 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
 
+      ################### ANDROID APP ###################
+              
         #5 Setup Keystore - TODO
     #   - name: Decode Keystore
     #     run: |
@@ -54,6 +60,7 @@ jobs:
       - name: Build appBundle
         run: flutter build appbundle
 
+      ################### IOS APP ###################
         #8 Build IPA ( IOS Build )
       - name: Build IPA
         run: flutter build ipa --no-codesign
@@ -73,6 +80,10 @@ jobs:
             build/app/outputs/bundle/release/app-release.aab
             build/ios_build.tar.gz
 
+
+      
+        ################### RELEASE ###################
+        
         #10 Extract Version
       - name: Extract version from pubspec.yaml
         id: extract_version

@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    name: Build & Release
     runs-on: ubuntu-latest
 
     steps:
@@ -29,25 +30,14 @@ jobs:
           flutter-version: '3.24.4'
           channel: 'stable'
 
-      #4 Install Dependencies
+      #4 Check Flutter Doctor
+      - name: Check Flutter Doctor
+        run: flutter doctor -v
+
+      #5 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
-
-      #5 Building web app
-      - name: Build Flutter Web App
-        run: flutter build web --release --base-href="/flutter/"
       
-      #6 Building linux app
-      - name: Build Flutter Linux App
-        run: flutter build linux --release
-
-      #10 Extract Version
-      - name: Extract version from pubspec.yaml
-        id: extract_version
-        run: |
-          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
-          echo "VERSION=$version" >> $GITHUB_ENV
-
       # #11 Check if Tag Exists
       # - name: Check if Tag Exists
       #   id: check_tag
@@ -65,14 +55,12 @@ jobs:
       #   run: |
       #     new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
       #     echo "VERSION=$new_version" >> $GITHUB_ENV
-        
-      # #13 Create Release
-      # - name: Create Release
-      #   uses: ncipollo/release-action@v1
-      #   with:
-      #     artifacts: "build/linux/x64/release/bundle/ignacio_prayers_flutter_application"
-      #     tag: v${{ env.VERSION }}
-      #     token: ${{ secrets.TOKEN }}
+
+
+      ################### WEB APP ###################
+      #5 Building web app
+      - name: Build Flutter Web App
+        run: flutter build web --release --base-href="/flutter/"
 
       # 7. Log in to GHCR
       - name: Log in to GitHub Container Registry
@@ -103,6 +91,7 @@ jobs:
           echo "ghcr.io/golar24/kata-marci-wedding-page:latest"
           echo "ghcr.io/golar24/kata-marci-wedding-page:${{ github.sha }}"
 
+
       # TODO: Uncomment the following lines to deploy the app to a server 
       # - name: Deploy to Server
       #   uses: appleboy/scp-action@v0.2.4
@@ -112,3 +101,38 @@ jobs:
       #     password: ${{ secrets.SERVER_PASSWORD }}
       #     source: flutter-project/build/web/
       #     target: /path/to/deployment/folder/
+
+
+      ################### LINUX APP ###################
+
+      # Step 2: Install dependencies
+      - name: Install Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ninja-build cmake
+
+      # Step 3: Configure CMake
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Ninja -DCMAKE_CXX_COMPILER=g++ ..
+
+      #6 Building linux app
+      - name: Build Flutter Linux App
+        run: flutter build linux --release
+
+      #10 Extract Version
+      - name: Extract version from pubspec.yaml
+        id: extract_version
+        run: |
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      # #13 Create Release
+      # - name: Create Release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "build/linux/x64/release/bundle/ignacio_prayers_flutter_application"
+      #     tag: v${{ env.VERSION }}
+      #     token: ${{ secrets.TOKEN }}
