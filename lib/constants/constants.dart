@@ -26,8 +26,7 @@ const String SOUND_SWITCH_KEY = 'soundEnabled';
 const String SELECTED_VOICE_KEY = 'selectedVoice';
 
 // Server constants
-// const String SERVER_URL = 'http://localhost/api';
-const String SERVER_URL = 'http://192.168.10.102/api';
+const String SERVER_URL = 'http://4.231.10.139/api';
 const String CHECK_VERSION_URL_ENDPOINT = '/api/json/check-versions';
 const String DOWNLOAD_DATA_URL_ENDPOINT = '/api/json/download-data';
 const String GET_IMAGE_LIST_URL_ENDPOINT = '/api/media/sync-images';
