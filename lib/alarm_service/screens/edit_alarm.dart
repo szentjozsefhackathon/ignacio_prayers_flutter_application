@@ -54,17 +54,12 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final difference = selectedDateTime.difference(today).inDays;
-
-    switch (difference) {
-      case 0:
-        return 'Today';
-      case 1:
-        return 'Tomorrow';
-      case 2:
-        return 'After tomorrow';
-      default:
-        return 'In $difference days';
-    }
+    return switch (difference) {
+      0 => 'Today',
+      1 => 'Tomorrow',
+      2 => 'After tomorrow',
+      _ => 'In $difference days',
+    };
   }
 
   Future<void> pickTime() async {
@@ -150,209 +145,206 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(
+                    'Cancel',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(color: Colors.blueAccent),
+                  ),
+                ),
+                TextButton(
+                  onPressed: saveAlarm,
+                  child: loading
+                      ? const CircularProgressIndicator()
+                      : Text(
+                          'Save',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge!
+                              .copyWith(color: Colors.blueAccent),
+                        ),
+                ),
+              ],
+            ),
+            Text(
+              getDay(),
+              style: Theme.of(context).textTheme.titleMedium!,
+              // style: Theme.of(context).textTheme.titleMedium!.copyWith(color: Colors.blueAccent.withValues(alpha: 0.8)),
+            ),
+            RawMaterialButton(
+              onPressed: pickTime,
+              fillColor: Colors.grey[200],
+              child: Container(
+                margin: const EdgeInsets.all(20),
                 child: Text(
-                  'Cancel',
+                  TimeOfDay.fromDateTime(selectedDateTime).format(context),
                   style: Theme.of(context)
                       .textTheme
-                      .titleLarge!
+                      .displayMedium!
                       .copyWith(color: Colors.blueAccent),
                 ),
               ),
-              TextButton(
-                onPressed: saveAlarm,
-                child: loading
-                    ? const CircularProgressIndicator()
-                    : Text(
-                        'Save',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge!
-                            .copyWith(color: Colors.blueAccent),
-                      ),
-              ),
-            ],
-          ),
-          Text(
-            getDay(),
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium!
-                // .copyWith(color: Colors.blueAccent.withValues(alpha: 0.8)),
-          ),
-          RawMaterialButton(
-            onPressed: pickTime,
-            fillColor: Colors.grey[200],
-            child: Container(
-              margin: const EdgeInsets.all(20),
-              child: Text(
-                TimeOfDay.fromDateTime(selectedDateTime).format(context),
-                style: Theme.of(context)
-                    .textTheme
-                    .displayMedium!
-                    .copyWith(color: Colors.blueAccent),
-              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Loop alarm audio',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Switch(
-                value: loopAudio,
-                onChanged: (value) => setState(() => loopAudio = value),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Vibrate',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Switch(
-                value: vibrate,
-                onChanged: (value) => setState(() => vibrate = value),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Sound',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              DropdownButton(
-                value: assetAudio,
-                items: const [
-                  DropdownMenuItem<String>(
-                    value: 'assets/ringing_sounds/marimba.mp3',
-                    child: Text('Marimba'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Loop alarm audio',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Switch(
+                  value: loopAudio,
+                  onChanged: (value) => setState(() => loopAudio = value),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Vibrate',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Switch(
+                  value: vibrate,
+                  onChanged: (value) => setState(() => vibrate = value),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Sound',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                DropdownButton(
+                  value: assetAudio,
+                  items: const [
+                    DropdownMenuItem<String>(
+                      value: 'assets/ringing_sounds/marimba.mp3',
+                      child: Text('Marimba'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'assets/ringing_sounds/nokia.mp3',
+                      child: Text('Nokia'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'assets/ringing_sounds/mozart.mp3',
+                      child: Text('Mozart'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'assets/ringing_sounds/star_wars.mp3',
+                      child: Text('Star Wars'),
+                    ),
+                    DropdownMenuItem<String>(
+                      value: 'assets/ringing_sounds/one_piece.mp3',
+                      child: Text('One Piece'),
+                    ),
+                  ],
+                  onChanged: (value) => setState(() => assetAudio = value!),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Custom volume',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Switch(
+                  value: volume != null,
+                  onChanged: (value) => setState(
+                    () => volume = value ? 0.5 : null,
                   ),
-                  DropdownMenuItem<String>(
-                    value: 'assets/ringing_sounds/nokia.mp3',
-                    child: Text('Nokia'),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'assets/ringing_sounds/mozart.mp3',
-                    child: Text('Mozart'),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'assets/ringing_sounds/star_wars.mp3',
-                    child: Text('Star Wars'),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'assets/ringing_sounds/one_piece.mp3',
-                    child: Text('One Piece'),
-                  ),
-                ],
-                onChanged: (value) => setState(() => assetAudio = value!),
+                ),
+              ],
+            ),
+            if (volume != null)
+              SizedBox(
+                height: 45,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Icon(
+                      volume! > 0.7
+                          ? Icons.volume_up_rounded
+                          : volume! > 0.1
+                              ? Icons.volume_down_rounded
+                              : Icons.volume_mute_rounded,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: volume!,
+                        onChanged: (value) {
+                          setState(() => volume = value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Custom volume',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Switch(
-                value: volume != null,
-                onChanged: (value) =>
-                    setState(() => volume = value ? 0.5 : null),
-              ),
-            ],
-          ),
-          if (volume != null)
-            SizedBox(
-              height: 45,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    volume! > 0.7
-                        ? Icons.volume_up_rounded
-                        : volume! > 0.1
-                            ? Icons.volume_down_rounded
-                            : Icons.volume_mute_rounded,
-                  ),
-                  Expanded(
-                    child: Slider(
-                      value: volume!,
-                      onChanged: (value) {
-                        setState(() => volume = value);
-                      },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Fade duration',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                DropdownButton<int>(
+                  value: fadeDuration?.inSeconds ?? 0,
+                  items: List.generate(
+                    6,
+                    (index) => DropdownMenuItem<int>(
+                      value: index * 5,
+                      child: Text('${index * 5}s'),
                     ),
                   ),
-                ],
-              ),
-            ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Fade duration',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              DropdownButton<int>(
-                value: fadeDuration?.inSeconds ?? 0,
-                items: List.generate(
-                  6,
-                  (index) => DropdownMenuItem<int>(
-                    value: index * 5,
-                    child: Text('${index * 5}s'),
+                  onChanged: (value) => setState(
+                    () => fadeDuration =
+                        value != null ? Duration(seconds: value) : null,
                   ),
                 ),
-                onChanged: (value) => setState(
-                  () => fadeDuration =
-                      value != null ? Duration(seconds: value) : null,
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Staircase fade',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Switch(
+                  value: staircaseFade,
+                  onChanged: (value) => setState(() => staircaseFade = value),
+                ),
+              ],
+            ),
+            if (!creating)
+              TextButton(
+                onPressed: deleteAlarm,
+                child: Text(
+                  'Delete Alarm',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(color: Colors.red),
                 ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Staircase fade',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Switch(
-                value: staircaseFade,
-                onChanged: (value) => setState(() => staircaseFade = value),
-              ),
-            ],
-          ),
-          if (!creating)
-            TextButton(
-              onPressed: deleteAlarm,
-              child: Text(
-                'Delete Alarm',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium!
-                    .copyWith(color: Colors.red),
-              ),
-            ),
-          const SizedBox(),
-        ],
-      ),
-    );
-  }
+            const SizedBox(),
+          ],
+        ),
+      );
 }

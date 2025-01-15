@@ -51,43 +51,41 @@ class _ExampleAlarmHomeShortcutButtonState
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        GestureDetector(
-          onLongPress: () {
-            setState(() => showMenu = true);
-          },
-          child: FloatingActionButton(
-            onPressed: () => onPressButton(0),
-            backgroundColor: Colors.green[700],
-            heroTag: null,
-            child: const Text(
-              'RING NOW',
-              textScaler: TextScaler.linear(0.9),
-              textAlign: TextAlign.center,
+  Widget build(BuildContext context) => Row(
+        children: [
+          GestureDetector(
+            onLongPress: () {
+              setState(() => showMenu = true);
+            },
+            child: FloatingActionButton(
+              onPressed: () => onPressButton(0),
+              backgroundColor: Colors.green[700],
+              heroTag: null,
+              child: const Text(
+                'RING NOW',
+                textScaler: TextScaler.linear(0.9),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        ),
-        if (showMenu)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () => onPressButton(24),
-                child: const Text('+24h'),
-              ),
-              TextButton(
-                onPressed: () => onPressButton(36),
-                child: const Text('+36h'),
-              ),
-              TextButton(
-                onPressed: () => onPressButton(48),
-                child: const Text('+48h'),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
+          if (showMenu)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextButton(
+                  onPressed: () => onPressButton(24),
+                  child: const Text('+24h'),
+                ),
+                TextButton(
+                  onPressed: () => onPressButton(36),
+                  child: const Text('+36h'),
+                ),
+                TextButton(
+                  onPressed: () => onPressButton(48),
+                  child: const Text('+48h'),
+                ),
+              ],
+            ),
+        ],
+      );
 }

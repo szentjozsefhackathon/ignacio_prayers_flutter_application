@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
-import '../data_handlers/data_manager.dart';
-import '../data_descriptors/prayer.dart';
-import 'prayer_page.dart';
-import '../data_descriptors/user_settings_data.dart';
-import '../settings/user_settings_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
+import '../data_descriptors/prayer.dart';
+import '../data_descriptors/user_settings_data.dart';
+import '../data_handlers/data_manager.dart';
+import '../settings/user_settings_manager.dart';
+import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
+  const PrayerSettingsPage({
+    super.key,
+    required this.prayer,
+    required this.dataManager,
+  });
+
   final Prayer prayer;
   final DataManager dataManager;
 
-  const PrayerSettingsPage({
-    Key? key, 
-    required this.prayer, 
-    required this.dataManager
-    }): super(key: key);
-
   @override
-  _PrayerSettingsPageState createState() => _PrayerSettingsPageState();
+  State<PrayerSettingsPage> createState() => _PrayerSettingsPageState();
 }
 
 class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
@@ -33,14 +33,14 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
   }
 
   Future<void> _loadData() async {
-    final UserSettingsData userSettingsData = await userSettingsManager.loadUserSettings();
+    final userSettingsData = await userSettingsManager.loadUserSettings();
     setState(() {
       _userSettingsData = userSettingsData;
     });
   }
 
   void _updateUserSettings(UserSettingsData userSettingsData) {
-    Future.microtask((){
+    Future.microtask(() {
       setState(() {
         _userSettingsData = userSettingsData;
       });
@@ -48,10 +48,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final Prayer currentPrayer = widget.prayer;
+    final currentPrayer = widget.prayer;
 
     return Scaffold(
       appBar: AppBar(
@@ -61,16 +60,16 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
         padding: const EdgeInsets.all(16.0),
         children: [
           SwitchListTile(
-            title: const Text("Automatic Page Turn"),
+            title: const Text('Automatic Page Turn'),
             value: _userSettingsData.autoPageTurn,
             onChanged: (newValue) {
               _userSettingsData.autoPageTurn = newValue;
               _updateUserSettings(_userSettingsData);
             },
           ),
-          if(!kIsWeb)
+          if (!kIsWeb)
             SwitchListTile(
-              title: const Text("Do Not Disturb"),
+              title: const Text('Do Not Disturb'),
               value: _userSettingsData.dnd,
               onChanged: (newValue) {
                 _userSettingsData.dnd = newValue;
@@ -79,10 +78,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             ),
           if (currentPrayer.voiceOptions != [])
             ListTile(
-              title: const Text("Select Voice"),
+              title: const Text('Select Voice'),
               subtitle: Text(_userSettingsData.voiceChoice),
               trailing: DropdownButton<String>(
-                value: _userSettingsData.voiceChoice, //TODO: check if this voice is available
+                //TODO: check if this voice is available
+                value: _userSettingsData.voiceChoice,
                 onChanged: (newValue) {
                   if (newValue != null) {
                     _userSettingsData.voiceChoice = newValue;
@@ -90,16 +90,18 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                   }
                 },
                 items: currentPrayer.voiceOptions
-                    .map((voice) => DropdownMenuItem(
-                          value: voice,
-                          child: Text(voice),
-                        ))
+                    .map(
+                      (voice) => DropdownMenuItem(
+                        value: voice,
+                        child: Text(voice),
+                      ),
+                    )
                     .toList(),
               ),
             ),
           if (currentPrayer.voiceOptions != [])
             SwitchListTile(
-              title: const Text("Enable Sound"),
+              title: const Text('Enable Sound'),
               value: _userSettingsData.prayerSoundEnabled,
               onChanged: (newValue) {
                 _userSettingsData.prayerSoundEnabled = newValue;
@@ -107,50 +109,49 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               },
             )
           else
-            ListTile(
-              title: Text("Enable Sound"),
-              subtitle: Text("Disabled for this prayer"),
+            const ListTile(
+              title: Text('Enable Sound'),
+              subtitle: Text('Disabled for this prayer'),
               trailing: Switch(value: false, onChanged: null),
             ),
           ListTile(
-            title: Text("Prayer Length"),
-            subtitle: Text("${_userSettingsData.prayerLength} minutes"),
+            title: const Text('Prayer Length'),
+            subtitle: Text('${_userSettingsData.prayerLength} minutes'),
             trailing: IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    int tempLength = _userSettingsData.prayerLength;
+                    var tempLength = _userSettingsData.prayerLength;
                     return AlertDialog(
-                      title: Text("Set Prayer Length"),
+                      title: const Text('Set Prayer Length'),
                       content: StatefulBuilder(
-                        builder: (BuildContext context, StateSetter setState) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Slider(
-                                value: tempLength.toDouble(),
-                                min: currentPrayer.minTimeInMinutes.toDouble(),
-                                max: 60,
-                                divisions: 60 - currentPrayer.minTimeInMinutes,
-                                label: "$tempLength minutes",
-                                onChanged: (value) {
-                                  setState(() {
-                                    tempLength = value.toInt();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
+                        builder: (BuildContext context, StateSetter setState) =>
+                            Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Slider(
+                              value: tempLength.toDouble(),
+                              min: currentPrayer.minTimeInMinutes.toDouble(),
+                              max: 60,
+                              divisions: 60 - currentPrayer.minTimeInMinutes,
+                              label: '$tempLength minutes',
+                              onChanged: (value) {
+                                setState(() {
+                                  tempLength = value.toInt();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text("Cancel"),
+                          child: const Text('Cancel'),
                         ),
                         TextButton(
                           onPressed: () {
@@ -158,7 +159,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                             _updateUserSettings(_userSettingsData);
                             Navigator.pop(context);
                           },
-                          child: Text("Save"),
+                          child: const Text('Save'),
                         ),
                       ],
                     );
@@ -171,18 +172,22 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             onPressed: () {
               Navigator.pushNamed(context, '/settings');
             },
-            child: Text("More settings"),
+            child: const Text('More settings'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PrayerPage(prayer: currentPrayer, userSettingsData: _userSettingsData, dataManager: widget.dataManager),
+                  builder: (context) => PrayerPage(
+                    prayer: currentPrayer,
+                    userSettingsData: _userSettingsData,
+                    dataManager: widget.dataManager,
+                  ),
                 ),
               );
             },
-            child: Text("Start Prayer"),
+            child: const Text('Start Prayer'),
           ),
         ],
       ),

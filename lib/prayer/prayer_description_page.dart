@@ -1,60 +1,60 @@
 import 'package:flutter/material.dart';
-import '../data_handlers/data_manager.dart';
+
 import '../data_descriptors/prayer.dart';
-import '../data_descriptors/data_list.dart'; // Import Json data descriptors
-import '../settings/settings_page.dart';
-import 'dart:io';
+import '../data_handlers/data_manager.dart';
 import 'prayer_settings_page.dart';
 
-
 class PrayerDescriptionPage extends StatelessWidget {
+  const PrayerDescriptionPage({
+    super.key,
+    required this.prayer,
+    required this.dataManager,
+  });
   final Prayer prayer;
   final DataManager dataManager;
 
-  const PrayerDescriptionPage({Key? key, required this.prayer, required this.dataManager}) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(prayer.title),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(prayer.title),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Center(
-        child: Column(
+        body: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width:600.0,
+                width: 600.0,
                 child: Text(
                   prayer.description,
-                  style: TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 24),
                   textAlign: TextAlign.center,
                 ),
               ),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PrayerSettingsPage(prayer: prayer, dataManager: dataManager),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrayerSettingsPage(
+                          prayer: prayer,
+                          dataManager: dataManager,
                         ),
-                      );
-                    },
-                    child: Text("Setup Prayer"),
-                  ),
+                      ),
+                    );
+                  },
+                  child: const Text('Setup Prayer'),
+                ),
               ),
             ],
           ),
         ),
       );
-  }
 }

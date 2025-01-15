@@ -15,16 +15,15 @@ class EnumCard<T extends Enum> extends StatelessWidget {
   final ValueChanged<T?> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return ChoiceCard<T>(
+  Widget build(BuildContext context) => ChoiceCard<T>(
         value: value,
         choices: choices,
         onChanged: onChanged,
         choiceLabels: <T, String>{
           for (final T choice in choices) choice: choice.name,
         },
-        title: value.runtimeType.toString());
-  }
+        title: value.runtimeType.toString(),
+      );
 }
 
 // This is a simple card that presents a set of radio buttons (inside of a
@@ -46,35 +45,33 @@ class ChoiceCard<T extends Object?> extends StatelessWidget {
   final ValueChanged<T?> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      // If the card gets too small, let it scroll both directions.
-      child: SingleChildScrollView(
+  Widget build(BuildContext context) => Card(
+        // If the card gets too small, let it scroll both directions.
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(title),
-                ),
-                for (final T choice in choices)
-                  RadioSelection<T>(
-                    value: choice,
-                    groupValue: value,
-                    onChanged: onChanged,
-                    child: Text(choiceLabels[choice]!),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(title),
                   ),
-              ],
+                  for (final T choice in choices)
+                    RadioSelection<T>(
+                      value: choice,
+                      groupValue: value,
+                      onChanged: onChanged,
+                      child: Text(choiceLabels[choice]!),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 // A button that has a radio button on one side and a label child. Tapping on
@@ -99,21 +96,21 @@ class RadioSelection<T extends Object?> extends StatefulWidget {
 
 class _RadioSelectionState<T extends Object?> extends State<RadioSelection<T>> {
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsetsDirectional.only(end: 8),
-          child: Radio<T>(
-            groupValue: widget.groupValue,
-            value: widget.value,
-            onChanged: widget.onChanged,
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 8),
+            child: Radio<T>(
+              groupValue: widget.groupValue,
+              value: widget.value,
+              onChanged: widget.onChanged,
+            ),
           ),
-        ),
-        GestureDetector(
-            onTap: () => widget.onChanged(widget.value), child: widget.child),
-      ],
-    );
-  }
+          GestureDetector(
+            onTap: () => widget.onChanged(widget.value),
+            child: widget.child,
+          ),
+        ],
+      );
 }

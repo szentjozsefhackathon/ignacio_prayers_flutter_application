@@ -1,11 +1,10 @@
-
 import 'dart:async';
 
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 
 class ExampleAlarmRingScreen extends StatefulWidget {
-  const ExampleAlarmRingScreen({required this.alarmSettings, super.key});
+  const ExampleAlarmRingScreen({super.key, required this.alarmSettings});
 
   final AlarmSettings alarmSettings;
 
@@ -36,43 +35,45 @@ class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              'You alarm (${widget.alarmSettings.id}) is ringing...',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const Text('🔔🙏', style: TextStyle(fontSize: 50)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                RawMaterialButton(
-                  onPressed: () async => Alarm.set(
-                    alarmSettings: widget.alarmSettings.copyWith(
-                      dateTime: DateTime.now().add(const Duration(minutes: 1)),
+  Widget build(BuildContext context) => Scaffold(
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                'You alarm (${widget.alarmSettings.id}) is ringing...',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const Text(
+                '🔔🙏',
+                style: TextStyle(fontSize: 50),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  RawMaterialButton(
+                    onPressed: () async => Alarm.set(
+                      alarmSettings: widget.alarmSettings.copyWith(
+                        dateTime:
+                            DateTime.now().add(const Duration(minutes: 1)),
+                      ),
+                    ),
+                    child: Text(
+                      'Snooze',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
-                  child: Text(
-                    'Snooze',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  RawMaterialButton(
+                    onPressed: () async => Alarm.stop(widget.alarmSettings.id),
+                    child: Text(
+                      'Stop',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                   ),
-                ),
-                RawMaterialButton(
-                  onPressed: () async => Alarm.stop(widget.alarmSettings.id),
-                  child: Text(
-                    'Stop',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

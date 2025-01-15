@@ -16,34 +16,32 @@ class SwitchCard<T extends Object?> extends StatelessWidget {
   final ValueChanged<T> onChanged;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  title,
-                  // style: Theme.of(context).textTheme.headlineSmall,
+  Widget build(BuildContext context) => Card(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    title,
+                    // style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
-              ),
-              for (final T choice in values.keys)
-                SwitchSelection<T>(
-                  value: choice,
-                  isSelected: values[choice]!,
-                  onChanged: onChanged,
-                  label: switchLabels[choice]!,
-                ),
-            ],
+                for (final T choice in values.keys)
+                  SwitchSelection<T>(
+                    value: choice,
+                    isSelected: values[choice]!,
+                    onChanged: onChanged,
+                    label: switchLabels[choice]!,
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 /// A switch with a label that the user can toggle on or off.
@@ -62,18 +60,16 @@ class SwitchSelection<T extends Object?> extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        Expanded(
-          child: Text(label),
-        ),
-        Switch(
-          value: isSelected,
-          onChanged: (bool newValue) => onChanged(value),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Expanded(
+            child: Text(label),
+          ),
+          Switch(
+            value: isSelected,
+            onChanged: (bool newValue) => onChanged(value),
+          ),
+        ],
+      );
 }

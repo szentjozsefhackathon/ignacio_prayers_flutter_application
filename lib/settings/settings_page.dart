@@ -1,32 +1,34 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import '../data_descriptors/user_settings_data.dart';
-import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:alarm/alarm.dart';
-import 'package:flutter/foundation.dart';
 
-import 'impressum_page.dart';
-import 'switch_card.dart';
-import 'enum_card.dart';
+import 'package:alarm/alarm.dart';
+import 'package:do_not_disturb/do_not_disturb.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 
 import '../alarm_service/screens/edit_alarm.dart';
 import '../alarm_service/screens/ring.dart';
-import '../alarm_service/screens/shortcut_button.dart';
 import '../alarm_service/services/permission.dart';
 import '../alarm_service/widgets/tile.dart';
+import '../data_descriptors/user_settings_data.dart';
+import 'enum_card.dart';
+import 'impressum_page.dart';
+import 'switch_card.dart';
+
+final log = Logger('Settings');
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({
+    super.key,
+    required this.userSettings,
+    required this.updateUserSettings,
+  });
+
   final UserSettingsData userSettings;
   final ValueChanged<UserSettingsData> updateUserSettings;
 
-  const SettingsPage({
-    Key? key,
-    required this.userSettings,
-    required this.updateUserSettings
-  }) : super(key: key);
-
-  @override  
-  _SettingsPageState createState() => _SettingsPageState();
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
@@ -47,25 +49,22 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text("Settings"),
+          title: const Text('Settings'),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
-        ),
+          ),
         ),
         body: SettingsOptions(
           userSettings: widget.userSettings,
           setUserSettings: setUserSettings,
         ),
-    );
-  }
+      );
 }
-
 
 class SettingsOptions extends StatefulWidget {
   const SettingsOptions({
@@ -89,13 +88,11 @@ class _SettingsOptionsState extends State<SettingsOptions> {
   MaterialTapTargetSize tapTargetSize = MaterialTapTargetSize.padded;
   bool use24HourTime = true;
 
-  // -----------------------------------------------------------
-
   List<AlarmSettings> alarms = [];
 
   static StreamSubscription<AlarmSettings>? ringSubscription;
   static StreamSubscription<int>? updateSubscription;
-  
+
   @override
   void initState() {
     super.initState();
@@ -117,14 +114,14 @@ class _SettingsOptionsState extends State<SettingsOptions> {
       alarms = updatedAlarms;
     });
   }
-  
 
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) =>
-            ExampleAlarmRingScreen(alarmSettings: alarmSettings),
+        builder: (context) => ExampleAlarmRingScreen(
+          alarmSettings: alarmSettings,
+        ),
       ),
     );
     unawaited(loadAlarms());
@@ -137,12 +134,10 @@ class _SettingsOptionsState extends State<SettingsOptions> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.85,
-          child: ExampleAlarmEditScreen(alarmSettings: settings),
-        );
-      },
+      builder: (context) => FractionallySizedBox(
+        heightFactor: 0.85,
+        child: ExampleAlarmEditScreen(alarmSettings: settings),
+      ),
     );
 
     if (res != null && res == true) unawaited(loadAlarms());
@@ -154,10 +149,6 @@ class _SettingsOptionsState extends State<SettingsOptions> {
     updateSubscription?.cancel();
     super.dispose();
   }
-
-
-
-  // -----------------------------------------------------------
 
   void _themeModeChanged(ThemeMode? value) {
     widget.userSettings.themeMode = value!;
@@ -200,12 +191,14 @@ class _SettingsOptionsState extends State<SettingsOptions> {
 
   @override
   Widget build(BuildContext context) {
-
-    final Map<String, bool> _switchStates = {
+    final switchStates = <String, bool>{
       'DND': widget.userSettings.dnd,
     };
 
-    selectedTime = TimeOfDay(hour: widget.userSettings.dailyNotifierHour, minute: widget.userSettings.dailyNotifierMinute);
+    selectedTime = TimeOfDay(
+      hour: widget.userSettings.dailyNotifierHour,
+      minute: widget.userSettings.dailyNotifierMinute,
+    );
 
     return Material(
       child: Column(
@@ -219,12 +212,13 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                 crossAxisSpacing: 4,
               ),
               children: <Widget>[
-                if(!kIsWeb)
-                  SwitchCard<String>( //TODO: change to EnumCard because of the new way of handling do not disturb
+                if (!kIsWeb)
+                  SwitchCard<String>(
+                    //TODO: change to EnumCard because of the new way of handling do not disturb
                     title: 'Settings',
-                    values: _switchStates,
+                    values: switchStates,
                     onChanged: _dndStateChanged,
-                    switchLabels: {
+                    switchLabels: const {
                       'DND': 'Do Not Disturb',
                     },
                   ),
@@ -233,7 +227,7 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                   value: widget.userSettings.themeMode,
                   onChanged: _themeModeChanged,
                 ),
-                if(!kIsWeb)
+                if (!kIsWeb)
                   Card(
                     child: InkWell(
                       child: Column(
@@ -241,9 +235,13 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                         children: <Widget>[
                           Switch(
                             value: widget.userSettings.dailyNotifier,
-                            onChanged: (bool newValue) => widget.userSettings.dailyNotifier = !widget.userSettings.dailyNotifier,
+                            onChanged: (bool newValue) =>
+                                widget.userSettings.dailyNotifier =
+                                    !widget.userSettings.dailyNotifier,
                           ),
-                          Text('Selected time: ${selectedTime!.format(context)}'),
+                          Text(
+                            'Selected time: ${selectedTime!.format(context)}',
+                          ),
                         ],
                       ),
                       // onTap: () async {
@@ -259,33 +257,34 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                       onTap: () => navigateToAlarmScreen(null),
                     ),
                   ),
-                if(!kIsWeb)
+                if (!kIsWeb)
                   Card(
                     child: SafeArea(
                       child: alarms.isNotEmpty
-                        ? ListView.separated(
-                            itemCount: alarms.length,
-                            separatorBuilder: (context, index) => const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              return ExampleAlarmTile(
+                          ? ListView.separated(
+                              itemCount: alarms.length,
+                              separatorBuilder: (context, index) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) => ExampleAlarmTile(
                                 key: Key(alarms[index].id.toString()),
                                 title: TimeOfDay(
                                   hour: alarms[index].dateTime.hour,
                                   minute: alarms[index].dateTime.minute,
                                 ).format(context),
-                                onPressed: () => navigateToAlarmScreen(alarms[index]),
+                                onPressed: () =>
+                                    navigateToAlarmScreen(alarms[index]),
                                 onDismissed: () {
-                                  Alarm.stop(alarms[index].id).then((_) => loadAlarms());
+                                  Alarm.stop(alarms[index].id)
+                                      .then((_) => loadAlarms());
                                 },
-                              );
-                            },
-                          )
-                        : Center(
-                            child: Text(
-                              'No alarms set',
-                              style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                'No alarms set',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
                             ),
-                          ),
                     ),
                   ),
                 Card(
@@ -293,11 +292,13 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ImpressumPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const ImpressumPage(),
+                        ),
                       );
                     },
-                    child: Center(
-                      child: Text("Impressum"),
+                    child: const Center(
+                      child: Text('Impressum'),
                     ),
                   ),
                 ),
@@ -309,62 +310,57 @@ class _SettingsOptionsState extends State<SettingsOptions> {
     );
   }
 
+  final _dndPlugin = DoNotDisturbPlugin();
 
+  bool _isDndEnabled = false;
+  bool _notifPolicyAccess = false;
+  InterruptionFilter _dndStatus = InterruptionFilter.unknown;
 
-final _dndPlugin = DoNotDisturbPlugin();
-
-bool _isDndEnabled = false;
-bool _notifPolicyAccess = false;
-InterruptionFilter _dndStatus = InterruptionFilter.unknown;
-
-
-Future<void> _checkNotificationPolicyAccessGranted() async {
+  Future<void> _checkNotificationPolicyAccessGranted() async {
     try {
-      final bool isNotificationPolicyAccessGranted =
+      final isNotificationPolicyAccessGranted =
           await _dndPlugin.isNotificationPolicyAccessGranted();
       setState(() {
         _notifPolicyAccess = isNotificationPolicyAccessGranted;
       });
-    } catch (e) {
-      print('Error checking notification policy access: $e');
+    } catch (e, s) {
+      log.severe('Error checking notification policy access', e, s);
     }
   }
 
   Future<void> _checkDndEnabled() async {
     try {
-      final bool isDndEnabled = await _dndPlugin.isDndEnabled();
+      final isDndEnabled = await _dndPlugin.isDndEnabled();
       setState(() {
         _isDndEnabled = isDndEnabled;
       });
-    } catch (e) {
-      print('Error checking DND status: $e');
+    } catch (e, s) {
+      log.severe('Error checking DND status', e, s);
     }
   }
 
   Future<void> _getDndStatus() async {
     try {
-      final InterruptionFilter status = await _dndPlugin.getDNDStatus();
-      setState(() {
-        _dndStatus = status;
-      });
-    } catch (e) {
-      print('Error getting DND status: $e');
+      final status = await _dndPlugin.getDNDStatus();
+      setState(() => _dndStatus = status);
+    } catch (e, s) {
+      log.severe('Error getting DND status', e, s);
     }
   }
 
   Future<void> _openDndSettings() async {
     try {
       await _dndPlugin.openDndSettings();
-    } catch (e) {
-      print('Error opening DND settings: $e');
+    } catch (e, s) {
+      log.severe('Error opening DND settings', e, s);
     }
   }
 
   Future<void> _openNotificationPolicyAccessSettings() async {
     try {
       await _dndPlugin.openNotificationPolicyAccessSettings();
-    } catch (e) {
-      print('Error opening notification policy access settings: $e');
+    } catch (e, s) {
+      log.severe('Error opening notification policy access settings', e, s);
     }
   }
 
@@ -373,8 +369,8 @@ Future<void> _checkNotificationPolicyAccessGranted() async {
       await _dndPlugin.setInterruptionFilter(filter);
       _checkDndEnabled();
       _getDndStatus();
-    } catch (e) {
-      print('Error setting interruption filter: $e');
+    } catch (e, s) {
+      log.severe('Error setting interruption filter', e, s);
     }
   }
 }

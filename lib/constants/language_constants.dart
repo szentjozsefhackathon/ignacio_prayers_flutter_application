@@ -1,42 +1,28 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter_localization_master/localization/demo_localization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String LAGUAGE_CODE = 'languageCode';
+const String kLanguageCode = 'languageCode';
 
-//languages code
-const String ENGLISH = 'en';
-const String FARSI = 'fa';
-const String ARABIC = 'ar';
-const String HINDI = 'hi';
+const String kEnglish = 'en';
+const String kFarsi = 'fa';
+const String kArabic = 'ar';
+const String kHindi = 'hi';
 
 Future<Locale> setLocale(String languageCode) async {
-  SharedPreferences _prefs = await SharedPreferences.getInstance();
-  await _prefs.setString(LAGUAGE_CODE, languageCode);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString(kLanguageCode, languageCode);
   return _locale(languageCode);
 }
 
 Future<Locale> getLocale() async {
-  SharedPreferences _prefs = await SharedPreferences.getInstance();
-  String languageCode = _prefs.getString(LAGUAGE_CODE) ?? "en";
+  final prefs = await SharedPreferences.getInstance();
+  final languageCode = prefs.getString(kLanguageCode) ?? kEnglish;
   return _locale(languageCode);
 }
 
-Locale _locale(String languageCode) {
-  switch (languageCode) {
-    case ENGLISH:
-      return Locale(ENGLISH, 'US');
-    case FARSI:
-      return Locale(FARSI, "IR");
-    case ARABIC:
-      return Locale(ARABIC, "SA");
-    case HINDI:
-      return Locale(HINDI, "IN");
-    default:
-      return Locale(ENGLISH, 'US');
-  }
-}
-
-// String getTranslated(BuildContext context, String key) {
-//   return DemoLocalization.of(context).translate(key);
-// }
+Locale _locale(String languageCode) => switch (languageCode) {
+      kFarsi => const Locale(kFarsi, 'IR'),
+      kArabic => const Locale(kArabic, 'SA'),
+      kHindi => const Locale(kHindi, 'IN'),
+      _ => const Locale(kEnglish, 'US'),
+    };
