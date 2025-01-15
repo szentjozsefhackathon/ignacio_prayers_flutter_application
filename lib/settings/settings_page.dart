@@ -9,6 +9,8 @@ import 'impressum_page.dart';
 import 'switch_card.dart';
 import 'enum_card.dart';
 
+import '../constants/hungarian_language_constants.dart';
+
 import '../alarm_service/screens/edit_alarm.dart';
 import '../alarm_service/screens/ring.dart';
 import '../alarm_service/screens/shortcut_button.dart';
@@ -50,9 +52,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Settings"),
+          title: const Text(SETTINGS),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -221,7 +223,7 @@ class _SettingsOptionsState extends State<SettingsOptions> {
               children: <Widget>[
                 if(!kIsWeb)
                   SwitchCard<String>( //TODO: change to EnumCard because of the new way of handling do not disturb
-                    title: 'Settings',
+                    title: DND_SETTINGS,
                     values: _switchStates,
                     onChanged: _dndStateChanged,
                     switchLabels: {
@@ -297,7 +299,7 @@ class _SettingsOptionsState extends State<SettingsOptions> {
                       );
                     },
                     child: Center(
-                      child: Text("Impressum"),
+                      child: Text(IMPRESSUM),
                     ),
                   ),
                 ),

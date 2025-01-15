@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:ignacio_prayers_flutter_application/data_descriptors/prayer.dart';
 import '../data_handlers/data_manager.dart';
 import '../prayer/prayer_description_page.dart';
-import 'package:grouped_list/grouped_list.dart';
-import 'dart:io';
 import 'package:flutter/foundation.dart'; // For kIsWeb
 
 
@@ -13,7 +11,7 @@ class PrayersPage extends StatelessWidget {
   final String title;
   final DataManager dataManager;
 
-  PrayersPage({required this.title, required this.prayers, required this.dataManager});
+  const PrayersPage({super.key, required this.title, required this.prayers, required this.dataManager});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,7 @@ class PrayersPage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 elevation: 4,
-                margin: EdgeInsets.all(10),
+                margin: const EdgeInsets.all(10),
                 child: InkWell(
                   onTap: () {
                       Navigator.push(

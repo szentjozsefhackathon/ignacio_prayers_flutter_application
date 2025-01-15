@@ -1,8 +1,3 @@
-
-// Layout constants
-const String TITLE = 'Flutter Demo';
-const String APP_BAR_TITLE = 'Flutter Demo Home Page';
-
 // Data constants
 // Shared Preferencies keys
 // Data keys

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+
+import '../constants/hungarian_language_constants.dart';
 import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer.dart';
-import 'prayer_page.dart';
 import '../data_descriptors/user_settings_data.dart';
 import '../settings/user_settings_manager.dart';
-import 'package:flutter/foundation.dart';
+
+import 'prayer_page.dart';
 
 
 class PrayerSettingsPage extends StatefulWidget {
@@ -12,10 +15,10 @@ class PrayerSettingsPage extends StatefulWidget {
   final DataManager dataManager;
 
   const PrayerSettingsPage({
-    Key? key, 
+    super.key, 
     required this.prayer, 
     required this.dataManager
-    }): super(key: key);
+    });
 
   @override
   _PrayerSettingsPageState createState() => _PrayerSettingsPageState();
@@ -53,6 +56,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
   Widget build(BuildContext context) {
     final Prayer currentPrayer = widget.prayer;
 
+    // If there are no voice options, disable sound
+    if (currentPrayer.voiceOptions.isEmpty) {
+      _userSettingsData.prayerSoundEnabled = false;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(currentPrayer.title),
@@ -61,7 +69,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
         padding: const EdgeInsets.all(16.0),
         children: [
           SwitchListTile(
-            title: const Text("Automatic Page Turn"),
+            title: const Text(AUTO_PAGE_TURN),
             value: _userSettingsData.autoPageTurn,
             onChanged: (newValue) {
               _userSettingsData.autoPageTurn = newValue;
@@ -70,19 +78,19 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
           ),
           if(!kIsWeb)
             SwitchListTile(
-              title: const Text("Do Not Disturb"),
+              title: const Text(DND_SETTINGS),
               value: _userSettingsData.dnd,
               onChanged: (newValue) {
                 _userSettingsData.dnd = newValue;
                 _updateUserSettings(_userSettingsData);
               },
             ),
-          if (currentPrayer.voiceOptions != [])
+          if (currentPrayer.voiceOptions.isNotEmpty)
             ListTile(
-              title: const Text("Select Voice"),
+              title: const Text(SELECT_VOICE),
               subtitle: Text(_userSettingsData.voiceChoice),
               trailing: DropdownButton<String>(
-                value: _userSettingsData.voiceChoice, //TODO: check if this voice is available
+                value: _userSettingsData.voiceChoice,
                 onChanged: (newValue) {
                   if (newValue != null) {
                     _userSettingsData.voiceChoice = newValue;
@@ -97,9 +105,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     .toList(),
               ),
             ),
-          if (currentPrayer.voiceOptions != [])
+          if (currentPrayer.voiceOptions.isNotEmpty)
             SwitchListTile(
-              title: const Text("Enable Sound"),
+              title: const Text(ENABLE_SOUND),
               value: _userSettingsData.prayerSoundEnabled,
               onChanged: (newValue) {
                 _userSettingsData.prayerSoundEnabled = newValue;
@@ -108,22 +116,24 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             )
           else
             ListTile(
-              title: Text("Enable Sound"),
-              subtitle: Text("Disabled for this prayer"),
-              trailing: Switch(value: false, onChanged: null),
+              title: const Text(ENABLE_SOUND),
+              subtitle: const Text(DISABLED_FOR_THIS_PRAYER),
+              trailing: Switch(
+                value: _userSettingsData.prayerSoundEnabled,
+                onChanged: null),
             ),
           ListTile(
-            title: Text("Prayer Length"),
+            title: const Text(PRAYER_LENGTH),
             subtitle: Text("${_userSettingsData.prayerLength} minutes"),
             trailing: IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) {
                     int tempLength = _userSettingsData.prayerLength;
                     return AlertDialog(
-                      title: Text("Set Prayer Length"),
+                      title: const Text(SET_PRAYER_LENGTH),
                       content: StatefulBuilder(
                         builder: (BuildContext context, StateSetter setState) {
                           return Column(
@@ -134,7 +144,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                                 min: currentPrayer.minTimeInMinutes.toDouble(),
                                 max: 60,
                                 divisions: 60 - currentPrayer.minTimeInMinutes,
-                                label: "$tempLength minutes",
+                                label: "$tempLength $MINUTES",
                                 onChanged: (value) {
                                   setState(() {
                                     tempLength = value.toInt();
@@ -150,7 +160,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: Text("Cancel"),
+                          child: const Text(CANCEL),
                         ),
                         TextButton(
                           onPressed: () {
@@ -158,7 +168,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                             _updateUserSettings(_userSettingsData);
                             Navigator.pop(context);
                           },
-                          child: Text("Save"),
+                          child: const Text(SAVE),
                         ),
                       ],
                     );
@@ -171,7 +181,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             onPressed: () {
               Navigator.pushNamed(context, '/settings');
             },
-            child: Text("More settings"),
+            child: const Text(MORE_SETTINGS),
           ),
           ElevatedButton(
             onPressed: () {
@@ -182,7 +192,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                 ),
               );
             },
-            child: Text("Start Prayer"),
+            child: const Text(START_PRAYER),
           ),
         ],
       ),

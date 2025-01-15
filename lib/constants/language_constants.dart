@@ -40,3 +40,12 @@ Locale _locale(String languageCode) {
 // String getTranslated(BuildContext context, String key) {
 //   return DemoLocalization.of(context).translate(key);
 // }
+
+// class HungarianConstanst implements LanguageConstants{
+//   static const Map<String, String> hungarian = {
+//     'hello': 'Helló',
+//     'world': 'Világ',
+//     'change_language': 'Nyelv váltása',
+//     'select_language': 'Válassz nyelvet',
+//     'english': 'Angol',
+//   };
