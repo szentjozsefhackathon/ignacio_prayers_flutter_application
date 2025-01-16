@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data_descriptors/prayer.dart';
+import '../data/prayer.dart';
 import '../data_handlers/data_manager.dart';
 import '../prayer/prayer_description_page.dart';
 

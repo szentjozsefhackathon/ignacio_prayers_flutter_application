@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../data_descriptors/prayer.dart';
+import '../data/prayer.dart';
 import '../data_handlers/data_manager.dart';
 import 'prayer_settings_page.dart';
 
@@ -24,37 +24,37 @@ class PrayerDescriptionPage extends StatelessWidget {
             },
           ),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 600.0,
-                child: Text(
-                  prayer.description,
-                  style: const TextStyle(fontSize: 24),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PrayerSettingsPage(
-                          prayer: prayer,
-                          dataManager: dataManager,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Setup Prayer'),
-                ),
-              ),
-            ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            8,
+            16,
+            kMinInteractiveDimension * 2,
           ),
+          child: Center(
+            child: SizedBox(
+              width: 600,
+              child: Text(
+                prayer.description,
+                style: const TextStyle(fontSize: 24),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PrayerSettingsPage(
+                prayer: prayer,
+                dataManager: dataManager,
+              ),
+            ),
+          ),
+          tooltip: 'Ima beállítása',
+          child: const Icon(Icons.check_rounded),
         ),
       );
 }

@@ -6,8 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/constants.dart';
-import '../data_descriptors/data_descriptor.dart';
-import '../data_descriptors/data_list.dart';
+import '../data/common.dart';
 import 'exceptions.dart';
 
 // TODO: move to Hive or SQLite
@@ -22,7 +21,8 @@ class DataSetManager<T extends DataDescriptor> {
     required this.dataType,
   });
 
-  final log = Logger('DataTypeManager');
+  static final log = Logger('DataSetManager');
+
   final String dataKey;
   final String dataUrlEndpoint;
   final T Function(Map<String, dynamic>) fromJson;
@@ -33,20 +33,16 @@ class DataSetManager<T extends DataDescriptor> {
   // Lazy initialization of data
   Future<dynamic> get data async {
     try {
-      _data ??= _readLocalData(); // Cache the result
-      return await _data!;
-    } on NoLocalDataException catch (e) {
-      log.warning('No local data found, attempting to fetch from server: $e');
       try {
+        _data ??= _readLocalData(); // Cache the result
+        return await _data!;
+      } on NoLocalDataException catch (e) {
+        log.warning('No local data found, attempting to fetch from server: $e');
         await downloadAndSaveData();
         return await _readLocalData();
-      } catch (e, stackTrace) {
-        log.severe('Failed to load data: $e', e, stackTrace);
-        // throw DataLoadingException('Failed to load data', e);
-        rethrow;
       }
-    } catch (e, stackTrace) {
-      log.severe('Failed to load data: $e', e, stackTrace);
+    } catch (e, s) {
+      log.severe('Failed to load data: $e', e, s);
       // throw DataLoadingException('Failed to load data', e);
       rethrow;
     }
@@ -60,8 +56,8 @@ class DataSetManager<T extends DataDescriptor> {
       } else {
         return DataList<T>.fromJson(json.decode(response), fromJson);
       }
-    } catch (e, stackTrace) {
-      log.severe('Failed to load server data: $e', e, stackTrace);
+    } catch (e, s) {
+      log.severe('Failed to load server data: $e', e, s);
       rethrow;
     }
   }
@@ -92,9 +88,9 @@ class DataSetManager<T extends DataDescriptor> {
       log.severe('Format Error');
       throw Exception('Invalid response format');
       // throw DataLoadingException('The server URL or response format is invalid.', e);
-    } catch (e, stackTrace) {
+    } catch (e, s) {
       // Handle any other exceptions
-      log.severe('Error: $e', e, stackTrace);
+      log.severe('Error: $e', e, s);
       throw Exception('An unexpected error occurred: $e');
       // throw DataLoadingException('An unexpected error occurred:', e);
     }
@@ -104,8 +100,8 @@ class DataSetManager<T extends DataDescriptor> {
     try {
       final response = await _fetchServerData();
       await saveLocalData(response);
-    } catch (e, stackTrace) {
-      log.severe('Failed to download and save data: $e', e, stackTrace);
+    } catch (e, s) {
+      log.severe('Failed to download and save data: $e', e, s);
       rethrow;
     }
   }
@@ -132,9 +128,9 @@ class DataSetManager<T extends DataDescriptor> {
       } else {
         return DataList<T>.fromJson(json.decode(jsonData), fromJson);
       }
-    } catch (e, stackTrace) {
-      log.severe('Error reading local data: $e', e, stackTrace);
-      rethrow; // Propagate the exception to the caller
+    } catch (e, s) {
+      log.severe('Error reading local data', e, s);
+      rethrow;
     }
   }
 }

@@ -9,12 +9,13 @@ class ImpressumPage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Impresszum'),
         ),
-        body: Center(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
               style: Theme.of(context).textTheme.titleLarge,
-              children: const <InlineSpan>[
+              children: const [
                 TextSpan(
                   text: 'Jézus Társasága Magyarországi Rendtartománya\n'
                       'Ignáci Pedagógiai Műhely\n\n'
@@ -58,11 +59,6 @@ class ImpressumPage extends StatelessWidget {
           ),
         ),
       );
-  //   children: [
-  //   TextSpan(
-  //
-  //   ),
-  // ],
 }
 
 class LinkButton extends StatelessWidget {

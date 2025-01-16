@@ -1,54 +1,62 @@
 import 'dart:async';
 
+import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 
-import '../data_descriptors/prayer.dart';
-import '../data_descriptors/prayer_step.dart';
-import '../data_descriptors/user_settings_data.dart';
+import '../data/prayer.dart';
+import '../data/prayer_step.dart';
+import '../data/settings_data.dart';
 import '../data_handlers/data_manager.dart';
 
 class PrayerPage extends StatefulWidget {
   const PrayerPage({
     super.key,
     required this.prayer,
-    required this.userSettingsData,
     required this.dataManager,
   });
 
   final Prayer prayer;
   final DataManager dataManager; // Shared instance of DataManager
-  final UserSettingsData userSettingsData;
 
   @override
   State<PrayerPage> createState() => _PrayerPageState();
 }
 
 class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
-  final log = Logger('PrayerPage');
+  static final log = Logger('PrayerPage');
+  final _dndPlugin = DoNotDisturbPlugin();
 
-  late AudioPlayer _audioPlayer;
+  late final AudioPlayer _audioPlayer;
   late List<int> _nextPageTimes = [];
   late int _remainingMillis = 0;
   late int _currentPage = 0;
   bool _isRunning = false;
   bool _isPaused = false;
+  late final AnimationController _fabAnimationController;
   Timer? _timer;
 
-  late PageController _pageViewController;
-  late TabController _tabController;
-  late UserSettingsData _userSettingsData;
+  late final PageController _pageViewController;
+  late final TabController _tabController;
+  late final SettingsData _settings;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _pageViewController = PageController();
-    _tabController =
-        TabController(length: widget.prayer.steps.length, vsync: this);
-    _userSettingsData = widget.userSettingsData;
+    _tabController = TabController(
+      length: widget.prayer.steps.length,
+      vsync: this,
+    );
+    _settings = context.read<SettingsData>();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
     _startPrayer();
   }
 
@@ -63,13 +71,15 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   void _startPrayer() {
     _nextPageTimes = _getOptimalPageTimes();
-    _remainingMillis = _userSettingsData.prayerLength * 60 * 1000;
+    _remainingMillis = _settings.prayerLength * 60 * 1000;
     _startTimer();
-    if (_userSettingsData.dnd) _doNotDisturbOn();
-
-    if (_userSettingsData.prayerSoundEnabled) {
-      pageAudioPlayer();
+    if (_settings.dnd) {
+      _doNotDisturbOn();
     }
+    if (_settings.prayerSoundEnabled) {
+      _pageAudioPlayer();
+    }
+    _fabAnimationController.forward();
   }
 
   void _startTimer() {
@@ -79,7 +89,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       } else {
         setState(() {
           _remainingMillis -= 1000;
-          if (_userSettingsData.autoPageTurn) {
+          if (_settings.autoPageTurn) {
             for (final time in _nextPageTimes) {
               if (time == _remainingMillis ~/ 1000) {
                 _turnPage();
@@ -96,15 +106,13 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _onTimerFinish() async {
-    setState(() {
-      _isRunning = false;
-    });
+    setState(() => _isRunning = false);
     _audioPlayer.pause();
-    loadAudio('csengo.mp3');
+    _loadAudio('csengo.mp3');
     _audioPlayer.setVolume(1.0);
     _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
-    if (_userSettingsData.dnd) {
+    if (_settings.dnd) {
       _doNotDisturbOff();
     }
     await Future.delayed(const Duration(seconds: 1));
@@ -113,7 +121,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     }
   }
 
-  void loadAudio(String filename) {
+  void _loadAudio(String filename) {
     widget.dataManager.voicesManager.getFile(filename).then((audio) {
       if (kIsWeb) {
         // For web: Use URL
@@ -127,13 +135,13 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     });
   }
 
-  void pageAudioPlayer() {
+  void _pageAudioPlayer() {
     _audioPlayer.pause();
     final voiceIndex =
-        widget.prayer.voiceOptions.indexOf(_userSettingsData.voiceChoice);
-    final filename =
-        widget.prayer.steps[_currentPage].voices[voiceIndex]; // match voices
-    loadAudio(filename);
+        widget.prayer.voiceOptions.indexOf(_settings.voiceChoice);
+    // match voices
+    final filename = widget.prayer.steps[_currentPage].voices[voiceIndex];
+    _loadAudio(filename);
     _audioPlayer.setVolume(1.0);
     if (_isPaused) {
       _audioPlayer.pause();
@@ -158,8 +166,8 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
         totalFlexTime += step.timeInSeconds;
       }
     }
-    final totalTimeForFlex = _userSettingsData.prayerLength * 60 - totalFixTime;
-    var remainingTime = _userSettingsData.prayerLength * 60;
+    final totalTimeForFlex = _settings.prayerLength * 60 - totalFixTime;
+    var remainingTime = _settings.prayerLength * 60;
     for (final step in widget.prayer.steps) {
       if (step.type == PrayerStepType.fix) {
         remainingTime -= step.timeInSeconds;
@@ -172,13 +180,11 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     return pageTimes;
   }
 
-  void _doNotDisturbOn() {
-    // Implement Do Not Disturb functionality
-  }
+  Future<void> _doNotDisturbOn() =>
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
 
-  void _doNotDisturbOff() {
-    // Implement Do Not Disturb functionality
-  }
+  Future<void> _doNotDisturbOff() =>
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
 
   @override
   Widget build(BuildContext context) {
@@ -190,7 +196,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
-        children: <Widget>[
+        children: [
           PageView.builder(
             /// [PageView.scrollDirection] defaults to [Axis.horizontal].
             /// Use [Axis.vertical] to scroll vertically.
@@ -222,12 +228,8 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ElevatedButton(
-                onPressed: _togglePlayPause,
-                child: Text(_isRunning ? 'Pause' : 'Start'),
-              ),
               Text(
-                "Remaining time: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}",
+                "Hátralévő idő: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}",
               ),
               PageIndicator(
                 tabController: _tabController,
@@ -239,6 +241,14 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _togglePlayPause,
+        tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+        child: AnimatedIcon(
+          icon: AnimatedIcons.play_pause,
+          progress: _fabAnimationController,
+        ),
+      ),
     );
   }
 
@@ -248,10 +258,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
         _audioPlayer.pause();
         _isPaused = true;
         _isRunning = false;
+        _fabAnimationController.reverse();
       } else {
         _isPaused = false;
         _startTimer();
         _audioPlayer.play();
+        _fabAnimationController.forward();
       }
     });
   }
@@ -274,9 +286,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     );
     _currentPage = index;
-    if (_userSettingsData.prayerSoundEnabled) {
-      pageAudioPlayer();
-    } else if (_currentPage > 0 && _userSettingsData.autoPageTurn) {
+    if (_settings.prayerSoundEnabled) {
+      _pageAudioPlayer();
+    } else if (_currentPage > 0 && _settings.autoPageTurn) {
       // Vibration.vibrate(duration: 500);
     }
   }
@@ -331,7 +343,7 @@ class PageIndicator extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           IconButton(
             splashRadius: 16.0,
             padding: EdgeInsets.zero,

@@ -6,13 +6,14 @@ import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../constants/constants.dart';
-import '../data_descriptors/data_list.dart';
-import '../data_descriptors/media_data.dart';
+import '../data/common.dart';
+import '../data/media_data.dart';
 
 class MediaManager {
   MediaManager({required this.mediaType});
 
-  final log = Logger('MediaManager');
+  static final log = Logger('MediaManager');
+
   final String mediaType;
 
   Future<void> syncFiles(DataList<MediaData> serverMediaDatas) async {
@@ -132,8 +133,8 @@ class MediaManager {
 
   Future<File> getLocalFile(filename) async {
     final appDirectoryPath = await _localPath;
-    final fullPath =
-        '$appDirectoryPath/$filename'; // TODO p.join(appDirectoryPath, filename);
+    // TODO p.join(appDirectoryPath, filename);
+    final fullPath = '$appDirectoryPath/$filename';
     return File(fullPath);
   }
 

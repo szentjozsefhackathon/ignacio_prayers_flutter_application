@@ -4,15 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import '../constants/constants.dart';
-import '../data_descriptors/media_data.dart';
-import '../data_descriptors/prayer_group.dart';
-import '../data_descriptors/versions.dart';
+import '../data/media_data.dart';
+import '../data/prayer_group.dart';
+import '../data/versions.dart';
 import 'data_set_manager.dart';
 import 'media_manager.dart';
 
 // TODO: make this a povider
 class DataManager {
-  final log = Logger('DataManager');
+  static final log = Logger('DataManager');
 
   // initialize the data managers
   // versionsDataManager is used to manage the versions data

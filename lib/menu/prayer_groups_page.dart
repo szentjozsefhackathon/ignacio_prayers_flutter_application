@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../data_descriptors/data_list.dart';
-import '../data_descriptors/prayer_group.dart';
+import '../data/common.dart';
+import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
 import 'prayers_page.dart';
 
@@ -29,11 +29,9 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
     try {
       await dataManager.checkForUpdates();
       final prayerGroups = await dataManager.prayerGroupDataManager.data;
-      setState(() {
-        _items = prayerGroups;
-      });
-    } catch (e) {
-      // Show the error to the user
+      setState(() => _items = prayerGroups);
+    } catch (e, s) {
+      debugPrintStack(label: e.toString(), stackTrace: s);
       showErrorDialog(e.toString());
     }
   }
@@ -42,13 +40,10 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
-          actions: <Widget>[
+          actions: [
             IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
-                // Handle settings button press
-                Navigator.pushNamed(context, '/settings');
-              },
+              onPressed: () => Navigator.pushNamed(context, '/settings'),
             ),
           ],
         ),
