@@ -87,9 +87,7 @@ class LinkButton extends StatelessWidget {
           minimumSize: const Size(0, 0),
           textStyle: Theme.of(context).textTheme.bodyLarge,
         ),
-        onPressed: () {
-          _launchUrl(url);
-        },
+        onPressed: () => _launchUrl(url),
         child: Text(urlLabel),
       );
 }

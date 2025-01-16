@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../data/common.dart';
@@ -68,25 +67,23 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     elevation: 4,
                     margin: const EdgeInsets.all(10),
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PrayersPage(
-                              title: item.title,
-                              prayers: item.prayers,
-                              dataManager: dataManager,
-                            ),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PrayersPage(
+                            title: item.title,
+                            prayers: item.prayers,
+                            dataManager: dataManager,
                           ),
-                        );
-                      },
+                        ),
+                      ),
                       child: Stack(
                         children: [
                           // Background Image
                           Positioned.fill(
-                            child: FutureBuilder<dynamic>(
-                              future:
-                                  dataManager.imagesManager.getFile(item.image),
+                            child: FutureBuilder(
+                              future: dataManager.imagesManager
+                                  .getLocalFile(item.image),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
@@ -104,19 +101,10 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                                     ),
                                   );
                                 } else {
-                                  if (kIsWeb) {
-                                    // For web: Use Image.network with a URL
-                                    return Image.network(
-                                      snapshot.data!,
-                                      fit: BoxFit.cover,
-                                    );
-                                  } else {
-                                    // For other platforms: Use Image.file
-                                    return Image.file(
-                                      snapshot.data!,
-                                      fit: BoxFit.cover,
-                                    );
-                                  }
+                                  return Image.file(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                  );
                                 }
                               },
                             ),

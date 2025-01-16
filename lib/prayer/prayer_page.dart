@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
@@ -20,7 +20,7 @@ class PrayerPage extends StatefulWidget {
   });
 
   final Prayer prayer;
-  final DataManager dataManager; // Shared instance of DataManager
+  final DataManager dataManager;
 
   @override
   State<PrayerPage> createState() => _PrayerPageState();
@@ -28,6 +28,7 @@ class PrayerPage extends StatefulWidget {
 
 class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   static final log = Logger('PrayerPage');
+
   final _dndPlugin = DoNotDisturbPlugin();
 
   late final AudioPlayer _audioPlayer;
@@ -64,9 +65,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   void dispose() {
     _audioPlayer.dispose();
     _timer?.cancel();
-    super.dispose();
     _pageViewController.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   void _startPrayer() {
@@ -122,14 +123,8 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   void _loadAudio(String filename) {
-    widget.dataManager.voicesManager.getFile(filename).then((audio) {
-      if (kIsWeb) {
-        // For web: Use URL
-        _audioPlayer.setUrl(audio);
-      } else {
-        // For other platforms: Use local file
-        _audioPlayer.setFilePath(audio.path);
-      }
+    widget.dataManager.voicesManager.getLocalFile(filename).then((audio) {
+      _audioPlayer.setFilePath(audio.path);
     }).catchError((e, s) {
       log.severe('Error loading audio', e, s);
     });
@@ -194,50 +189,44 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text(currentPrayer.title),
       ),
-      body: Stack(
-        alignment: Alignment.bottomCenter,
+      body: Column(
         children: [
-          PageView.builder(
-            /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-            /// Use [Axis.vertical] to scroll vertically.
-            controller: _pageViewController,
-            itemCount: currentPrayer.steps.length, // Dynamic item count
-            onPageChanged: _handlePageViewChanged,
-            itemBuilder: (context, index) {
-              final step = currentPrayer.steps[index];
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(38),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Text("Current page: ${index + 1}"),
-                      Text(
-                        step.description,
-                        style: const TextStyle(
-                          fontSize: 24,
+          Expanded(
+            child: PageView.builder(
+              /// [PageView.scrollDirection] defaults to [Axis.horizontal].
+              /// Use [Axis.vertical] to scroll vertically.
+              controller: _pageViewController,
+              itemCount: currentPrayer.steps.length, // Dynamic item count
+              onPageChanged: _handlePageViewChanged,
+              itemBuilder: (context, index) {
+                final step = currentPrayer.steps[index];
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(38),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Text("Current page: ${index + 1}"),
+                        Text(
+                          step.description,
+                          style: const TextStyle(fontSize: 24),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                "Hátralévő idő: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}",
-              ),
-              PageIndicator(
-                tabController: _tabController,
-                currentPageIndex: _currentPage,
-                onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-                isOnDesktopAndWeb: _isOnDesktopAndWeb,
-              ),
-            ],
+          Text(
+            "Hátralévő idő: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}",
+          ),
+          PageIndicator(
+            tabController: _tabController,
+            currentPageIndex: _currentPage,
+            onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+            isOnDesktopAndWeb: _isOnDesktopAndWeb,
           ),
         ],
       ),

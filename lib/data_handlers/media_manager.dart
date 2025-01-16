@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
@@ -26,34 +27,24 @@ class MediaManager {
         .where((file) => !serverFileNames.contains(file.name))
         .toList();
     // Delete files
-    await Future.forEach(filesToDelete, (file) async {
-      await _deleteFile(file.name);
-    });
+    await Future.forEach(filesToDelete, _deleteFile);
 
     // Find files to update
     final filesToAddOrUpdate = serverMediaDatas.where((serverFile) {
       // Find the corresponding local file
-      final localFile = localMediaDatas.firstWhere(
+      final localFile = localMediaDatas.firstWhereOrNull(
         (file) => file.name == serverFile.name,
-        orElse: () => MediaData(
-          name: '',
-          path: '',
-          size: 0,
-          lastModified: DateTime(0),
-        ), // Return empty if missing from local
       );
       // Check if the file does not exist locally or if the server file is newer
-      return localFile.name == '' ||
+      return localFile == null ||
           serverFile.lastModified.isAfter(
             localFile.lastModified,
-          ); // Return true if file is missing or newer
+          );
     }).toList();
 
     // Add or update files
     // TODO: how to reduce http requests?
-    await Future.forEach(filesToAddOrUpdate, (file) async {
-      await _downloadAndSaveImage(file.name);
-    });
+    await Future.forEach(filesToAddOrUpdate, _downloadAndSaveImage);
   }
 
   Future<List<MediaData>> get _localMediaData async {
@@ -63,18 +54,19 @@ class MediaManager {
     final mediaDataList = <MediaData>[];
 
     if (await directory.exists()) {
-      await for (final entity
-          in directory.list(recursive: true, followLinks: false)) {
-        if (entity is File) {
-          final fileStat = await entity.stat();
-          final mediaData = MediaData(
-            name: entity.uri.pathSegments.last,
-            path: entity.path,
+      final files = directory
+          .list(recursive: true, followLinks: false)
+          .where((entity) => entity is File);
+      await for (final file in files) {
+        final fileStat = await file.stat();
+        mediaDataList.add(
+          MediaData(
+            name: file.uri.pathSegments.last,
+            path: file.path,
             size: fileStat.size,
             lastModified: fileStat.modified,
-          );
-          mediaDataList.add(mediaData);
-        }
+          ),
+        );
       }
     } else {
       log.warning('Directory does not exist: $appDirectoryPath');
@@ -83,58 +75,47 @@ class MediaManager {
     return mediaDataList;
   }
 
-  Future<void> _downloadAndSaveImage(String filename) async {
-    final downloadUrl = _getDownloadUrl(filename);
+  Future<void> _downloadAndSaveImage(MediaData m) async {
+    final downloadUrl = _getDownloadUrl(m);
 
     try {
       final response = await http.get(downloadUrl);
       if (response.statusCode == 200) {
-        await _saveFile(filename, response.bodyBytes);
+        await _saveFile(m, response.bodyBytes);
       } else {
-        log.severe('Error downloading file: $filename');
+        log.severe('Error downloading file: $m');
         throw Exception('Failed to fetch data from server');
       }
     } catch (e) {
-      log.severe('Error during sync: $e');
+      log.severe('Error during sync $m: $e');
     }
   }
 
-  Uri _getDownloadUrl(String filename) =>
-      Uri.parse('$kServerUrl/$kMediaApiUrl/$mediaType/$filename');
+  Uri _getDownloadUrl(MediaData m) =>
+      Uri.parse('$kServerUrl/${kMediaApiUrl(mediaType, m.name)}');
 
-  Future<void> _saveFile(String filename, Uint8List imageBytes) async {
+  Future<void> _saveFile(MediaData m, Uint8List imageBytes) async {
     try {
-      final file = await getLocalFile(filename);
+      final file = await getLocalFile(m.name);
       await file.writeAsBytes(imageBytes);
     } catch (e) {
-      log.severe('Error saving file: $e');
+      log.severe('Error saving file $m: $e');
     }
   }
 
-  Future<void> _deleteFile(filename) async {
+  Future<void> _deleteFile(MediaData m) async {
     try {
-      final file = await getLocalFile(filename);
+      final file = await getLocalFile(m.name);
       await file.delete();
     } catch (e) {
-      log.severe('Error deleting file: $e');
+      log.severe('Error deleting file $m: $e');
     }
   }
 
-  Future<dynamic> getFile(String filename) async {
-    if (kIsWeb) {
-      // Return the URL for web
-      return _getDownloadUrl(filename).toString();
-    } else {
-      // Return the local file for non-web platforms
-      final file = await getLocalFile(filename);
-      return file;
-    }
-  }
-
-  Future<File> getLocalFile(filename) async {
+  Future<File> getLocalFile(String name) async {
     final appDirectoryPath = await _localPath;
     // TODO p.join(appDirectoryPath, filename);
-    final fullPath = '$appDirectoryPath/$filename';
+    final fullPath = '$appDirectoryPath/$name';
     return File(fullPath);
   }
 
@@ -147,7 +128,6 @@ class MediaManager {
 
   Future<void> ensureDirectoryExists(String directoryPath) async {
     final directory = Directory(directoryPath);
-
     if (await directory.exists()) {
       // log.info('Directory exists: $directoryPath');
     } else {

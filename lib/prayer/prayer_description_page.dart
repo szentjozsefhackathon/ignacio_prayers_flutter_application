@@ -10,6 +10,7 @@ class PrayerDescriptionPage extends StatelessWidget {
     required this.prayer,
     required this.dataManager,
   });
+
   final Prayer prayer;
   final DataManager dataManager;
 
@@ -17,12 +18,6 @@ class PrayerDescriptionPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: Text(prayer.title),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(

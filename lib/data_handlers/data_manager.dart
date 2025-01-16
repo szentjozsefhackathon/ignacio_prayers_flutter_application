@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 
 import '../constants/constants.dart';
@@ -16,8 +15,7 @@ class DataManager {
 
   // initialize the data managers
   // versionsDataManager is used to manage the versions data
-  final DataSetManager<Versions> _versionsDataManager =
-      DataSetManager<Versions>(
+  final _versionsDataManager = DataSetManager<Versions>(
     dataKey: kVersions,
     dataUrlEndpoint: kCheckVersionUrl,
     fromJson: Versions.fromJson,
@@ -25,8 +23,7 @@ class DataManager {
   );
 
   // prayerGroupDataManager is used to manage the prayer group data
-  final DataSetManager<PrayerGroup> _prayerGroupDataManager =
-      DataSetManager<PrayerGroup>(
+  final _prayerGroupDataManager = DataSetManager<PrayerGroup>(
     dataKey: kPrayerGroup,
     dataUrlEndpoint: kDownloadDataUrl,
     fromJson: PrayerGroup.fromJson,
@@ -34,8 +31,7 @@ class DataManager {
   );
 
   // imagesDataManager is used to manage the images data
-  final DataSetManager<MediaData> _imagesDataManager =
-      DataSetManager<MediaData>(
+  final _imagesDataManager = DataSetManager<MediaData>(
     dataKey: kImages,
     dataUrlEndpoint: kImageListUrl,
     fromJson: MediaData.fromJson,
@@ -43,8 +39,7 @@ class DataManager {
   );
 
   // voicesDataManager is used to manage the voices data
-  final DataSetManager<MediaData> _voicesDataManager =
-      DataSetManager<MediaData>(
+  final _voicesDataManager = DataSetManager<MediaData>(
     dataKey: kVoices,
     dataUrlEndpoint: kVoicesListUrl,
     fromJson: MediaData.fromJson,
@@ -57,6 +52,7 @@ class DataManager {
 
   Future<void> checkForUpdates() async {
     // Load local version data
+    bool updated = false;
     try {
       final localVersions = await _versionsDataManager.data;
       log.info('Local versions data : ${localVersions.toJson()}');
@@ -71,35 +67,39 @@ class DataManager {
         log.info(
           'Local data updated from version ${localVersions.data} to ${serverVersions.data}',
         );
+        updated = true;
       }
 
       // Check if the map data needs to be updated
       if (localVersions.images != serverVersions.images) {
         final imagesServerDatas = await _imagesDataManager.serverData;
 
-        //dont need this in case of Web app
-        if (!kIsWeb) await imagesManager.syncFiles(imagesServerDatas);
+        await imagesManager.syncFiles(imagesServerDatas);
         log.info(
           'Image files updated from version ${localVersions.images} to ${serverVersions.images}',
         );
+        updated = true;
       }
 
       // Check if the voices need to be updated
       if (localVersions.voices != serverVersions.voices) {
         final voicesServerDatas = await _voicesDataManager.serverData;
 
-        //dont need this in case of Web app
-        if (!kIsWeb) await voicesManager.syncFiles(voicesServerDatas);
+        await voicesManager.syncFiles(voicesServerDatas);
         log.info(
           'Voice files updated from version ${localVersions.voices} to ${serverVersions.voices}',
         );
+        updated = true;
       }
 
       // Save the new version data
-      await _versionsDataManager
-          .saveLocalData(json.encoder.convert(serverVersions.toJson()));
-      // final newLocalVersions = await _versionsDataManager.data;
-      // log.info('Local versions data updated to : ${newLocalVersions.toJson()}');
+      if (updated) {
+        await _versionsDataManager.saveLocalData(
+          json.encoder.convert(serverVersions.toJson()),
+        );
+        final newLocalVersions = await _versionsDataManager.data;
+        log.info('Local versions data updated to : ${newLocalVersions.toJson()}');
+      }
     } catch (e) {
       // log.warning('Failed to load local data: $e');
       rethrow;

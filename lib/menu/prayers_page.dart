@@ -39,24 +39,22 @@ class PrayersPage extends StatelessWidget {
                     elevation: 4,
                     margin: const EdgeInsets.all(10),
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PrayerDescriptionPage(
-                              prayer: prayer,
-                              dataManager: dataManager,
-                            ),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PrayerDescriptionPage(
+                            prayer: prayer,
+                            dataManager: dataManager,
                           ),
-                        );
-                      },
+                        ),
+                      ),
                       child: Stack(
                         children: [
                           // Background Image
                           Positioned.fill(
-                            child: FutureBuilder<dynamic>(
+                            child: FutureBuilder(
                               future: dataManager.imagesManager
-                                  .getFile(prayer.image),
+                                  .getLocalFile(prayer.image),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {

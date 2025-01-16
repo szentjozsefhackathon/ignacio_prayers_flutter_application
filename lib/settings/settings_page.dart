@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Column(
                 children: _alarms
                     .map(
-                      (a) => ExampleAlarmTile(
+                      (a) => AlarmTile(
                         key: Key(a.id.toString()),
                         title: TimeOfDay(
                           hour: a.dateTime.hour,
@@ -148,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => ExampleAlarmRingScreen(
+        builder: (context) => AlarmRingScreen(
           alarmSettings: alarmSettings,
         ),
       ),
@@ -165,7 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       builder: (context) => FractionallySizedBox(
         heightFactor: 0.85,
-        child: ExampleAlarmEditScreen(alarmSettings: settings),
+        child: AlarmEditScreen(alarmSettings: settings),
       ),
     );
 

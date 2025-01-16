@@ -4,21 +4,21 @@ import 'package:alarm/alarm.dart';
 import 'package:alarm/model/volume_settings.dart';
 import 'package:flutter/material.dart';
 
-class ExampleAlarmHomeShortcutButton extends StatefulWidget {
-  const ExampleAlarmHomeShortcutButton({
-    required this.refreshAlarms,
+class AlarmHomeShortcutButton extends StatefulWidget {
+  const AlarmHomeShortcutButton({
     super.key,
+    required this.refreshAlarms,
   });
 
-  final void Function() refreshAlarms;
+  final VoidCallback refreshAlarms;
 
   @override
-  State<ExampleAlarmHomeShortcutButton> createState() =>
-      _ExampleAlarmHomeShortcutButtonState();
+  State<AlarmHomeShortcutButton> createState() =>
+      _AlarmHomeShortcutButtonState();
 }
 
-class _ExampleAlarmHomeShortcutButtonState
-    extends State<ExampleAlarmHomeShortcutButton> {
+class _AlarmHomeShortcutButtonState
+    extends State<AlarmHomeShortcutButton> {
   bool showMenu = false;
 
   Future<void> onPressButton(int delayInHours) async {
@@ -54,9 +54,7 @@ class _ExampleAlarmHomeShortcutButtonState
   Widget build(BuildContext context) => Row(
         children: [
           GestureDetector(
-            onLongPress: () {
-              setState(() => showMenu = true);
-            },
+            onLongPress: () => setState(() => showMenu = true),
             child: FloatingActionButton(
               onPressed: () => onPressButton(0),
               backgroundColor: Colors.green[700],

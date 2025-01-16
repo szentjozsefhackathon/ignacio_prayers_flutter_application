@@ -22,4 +22,7 @@ class MediaData extends DataDescriptor {
 
   @override
   Map<String, dynamic> toJson() => _$MediaDataToJson(this);
+
+  @override
+  String toString() => '$name ($path)';
 }

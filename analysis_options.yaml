@@ -25,7 +25,6 @@ linter:
     always_specify_types: false
     cancel_subscriptions: true
     directives_ordering: true
-    omit_obvious_local_variable_types: true
     prefer_const_constructors: true
     prefer_const_declarations: true
     prefer_const_literals_to_create_immutables: true

@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 
-class ExampleAlarmRingScreen extends StatefulWidget {
-  const ExampleAlarmRingScreen({super.key, required this.alarmSettings});
+class AlarmRingScreen extends StatefulWidget {
+  const AlarmRingScreen({super.key, required this.alarmSettings});
 
   final AlarmSettings alarmSettings;
 
   @override
-  State<ExampleAlarmRingScreen> createState() => _ExampleAlarmRingScreenState();
+  State<AlarmRingScreen> createState() => _AlarmRingScreenState();
 }
 
-class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
+class _AlarmRingScreenState extends State<AlarmRingScreen> {
   @override
   void initState() {
     super.initState();
@@ -30,7 +30,9 @@ class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
 
       alarmPrint('Alarm ${widget.alarmSettings.id} stopped ringing.');
       timer.cancel();
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     });
   }
 
@@ -52,10 +54,11 @@ class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   RawMaterialButton(
-                    onPressed: () async => Alarm.set(
+                    onPressed: () => Alarm.set(
                       alarmSettings: widget.alarmSettings.copyWith(
-                        dateTime:
-                            DateTime.now().add(const Duration(minutes: 1)),
+                        dateTime: DateTime.now().add(
+                          const Duration(minutes: 1),
+                        ),
                       ),
                     ),
                     child: Text(
@@ -64,7 +67,7 @@ class _ExampleAlarmRingScreenState extends State<ExampleAlarmRingScreen> {
                     ),
                   ),
                   RawMaterialButton(
-                    onPressed: () async => Alarm.stop(widget.alarmSettings.id),
+                    onPressed: () => Alarm.stop(widget.alarmSettings.id),
                     child: Text(
                       'Stop',
                       style: Theme.of(context).textTheme.titleLarge,

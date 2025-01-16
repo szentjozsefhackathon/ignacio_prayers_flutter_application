@@ -4,16 +4,16 @@ import 'package:alarm/alarm.dart';
 import 'package:alarm/model/volume_settings.dart';
 import 'package:flutter/material.dart';
 
-class ExampleAlarmEditScreen extends StatefulWidget {
-  const ExampleAlarmEditScreen({super.key, this.alarmSettings});
+class AlarmEditScreen extends StatefulWidget {
+  const AlarmEditScreen({super.key, this.alarmSettings});
 
   final AlarmSettings? alarmSettings;
 
   @override
-  State<ExampleAlarmEditScreen> createState() => _ExampleAlarmEditScreenState();
+  State<AlarmEditScreen> createState() => _AlarmEditScreenState();
 }
 
-class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
+class _AlarmEditScreenState extends State<AlarmEditScreen> {
   bool loading = false;
 
   late bool creating;
@@ -110,7 +110,7 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
       volumeSettings = VolumeSettings.fixed(volume: volume);
     }
 
-    final alarmSettings = AlarmSettings(
+    return AlarmSettings(
       id: id,
       dateTime: selectedDateTime,
       loopAudio: loopAudio,
@@ -126,27 +126,33 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
         icon: 'notification_icon',
       ),
     );
-    return alarmSettings;
   }
 
-  void saveAlarm() {
-    if (loading) return;
+  Future<void> saveAlarm() async {
+    if (loading) {
+      return;
+    }
     setState(() => loading = true);
-    Alarm.set(alarmSettings: buildAlarmSettings()).then((res) {
-      if (res && mounted) Navigator.pop(context, true);
-      setState(() => loading = false);
-    });
+    final res = await Alarm.set(alarmSettings: buildAlarmSettings());
+    if (res && mounted) {
+      Navigator.pop(context, true);
+    }
+    setState(() => loading = false);
   }
 
-  void deleteAlarm() {
-    Alarm.stop(widget.alarmSettings!.id).then((res) {
-      if (res && mounted) Navigator.pop(context, true);
-    });
+  Future<void> deleteAlarm() async {
+    final res = await Alarm.stop(widget.alarmSettings!.id);
+    if (res && mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+        padding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 30,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -343,7 +349,6 @@ class _ExampleAlarmEditScreenState extends State<ExampleAlarmEditScreen> {
                       .copyWith(color: Colors.red),
                 ),
               ),
-            const SizedBox(),
           ],
         ),
       );
