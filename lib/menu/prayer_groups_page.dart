@@ -63,7 +63,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 4,
                     margin: const EdgeInsets.all(10),
@@ -128,7 +128,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                             right: 0,
                             child: Container(
                               color: Colors.black54,
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8),
                               child: Text(
                                 item.title,
                                 textAlign: TextAlign.center,

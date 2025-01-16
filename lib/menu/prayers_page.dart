@@ -34,7 +34,7 @@ class PrayersPage extends StatelessWidget {
                     semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 4,
                     margin: const EdgeInsets.all(10),
@@ -89,7 +89,7 @@ class PrayersPage extends StatelessWidget {
                             right: 0,
                             child: Container(
                               color: Colors.black54,
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8),
                               child: Text(
                                 prayer.title,
                                 textAlign: TextAlign.center,

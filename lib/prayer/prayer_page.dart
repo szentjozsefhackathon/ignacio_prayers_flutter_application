@@ -109,7 +109,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     setState(() => _isRunning = false);
     _audioPlayer.pause();
     _loadAudio('csengo.mp3');
-    _audioPlayer.setVolume(1.0);
+    _audioPlayer.setVolume(1);
     _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
     if (_settings.dnd) {
@@ -142,7 +142,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     // match voices
     final filename = widget.prayer.steps[_currentPage].voices[voiceIndex];
     _loadAudio(filename);
-    _audioPlayer.setVolume(1.0);
+    _audioPlayer.setVolume(1);
     if (_isPaused) {
       _audioPlayer.pause();
     } else {
@@ -207,7 +207,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
               final step = currentPrayer.steps[index];
               return Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(38.0),
+                  padding: const EdgeInsets.all(38),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -215,7 +215,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
                       Text(
                         step.description,
                         style: const TextStyle(
-                          fontSize: 24.0,
+                          fontSize: 24,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -340,12 +340,12 @@ class PageIndicator extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            splashRadius: 16.0,
+            splashRadius: 16,
             padding: EdgeInsets.zero,
             onPressed: () {
               if (currentPageIndex == 0) {
@@ -355,7 +355,7 @@ class PageIndicator extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_left_rounded,
-              size: 32.0,
+              size: 32,
             ),
           ),
           TabPageSelector(
@@ -364,7 +364,7 @@ class PageIndicator extends StatelessWidget {
             selectedColor: colorScheme.primary,
           ),
           IconButton(
-            splashRadius: 16.0,
+            splashRadius: 16,
             padding: EdgeInsets.zero,
             onPressed: () {
               if (currentPageIndex == tabController.length - 1) {
@@ -374,7 +374,7 @@ class PageIndicator extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_right_rounded,
-              size: 32.0,
+              size: 32,
             ),
           ),
         ],

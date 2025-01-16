@@ -24,9 +24,10 @@ linter:
     always_declare_return_types: true
     always_specify_types: false
     avoid_print: true
+    avoid_shadowing_type_parameters: true
     cancel_subscriptions: true
+    curly_braces_in_flow_control_structures: true
     directives_ordering: true
-    omit_local_variable_types: true
     omit_obvious_local_variable_types: true
     prefer_const_constructors: true
     prefer_const_constructors_in_immutables: true
@@ -34,6 +35,7 @@ linter:
     prefer_const_literals_to_create_immutables: true
     prefer_constructors_over_static_methods: true
     prefer_expression_function_bodies: true
+    prefer_int_literals: true
     prefer_final_fields: true
     prefer_final_in_for_each: true
     prefer_final_locals: true
