@@ -29,28 +29,13 @@ class AlarmTile extends StatelessWidget {
           ),
         ),
         onDismissed: (_) => onDismissed?.call(),
-        child: RawMaterialButton(
-          onPressed: onPressed,
-          child: Container(
-            height: 100,
-            padding: const EdgeInsets.all(35),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_right_rounded,
-                  size: 35,
-                ),
-              ],
-            ),
+        child: ListTile(
+          title: Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Text(title),
           ),
+          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+          onTap: onPressed,
         ),
       );
 }
