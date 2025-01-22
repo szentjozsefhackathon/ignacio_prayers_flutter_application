@@ -33,7 +33,7 @@ class IgnacioPrayersApp extends StatelessWidget {
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: settings.themeMode,
-            home: const PrayerGroupsPage(title: 'Ignáci imák'),
+            home: const PrayerGroupsPage(),
             routes: {
               '/settings': (context) => const SettingsPage(),
             },

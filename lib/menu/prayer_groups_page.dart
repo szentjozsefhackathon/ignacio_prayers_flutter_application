@@ -6,8 +6,7 @@ import '../data_handlers/data_manager.dart';
 import 'prayers_page.dart';
 
 class PrayerGroupsPage extends StatefulWidget {
-  const PrayerGroupsPage({super.key, required this.title});
-  final String title;
+  const PrayerGroupsPage({super.key});
 
   @override
   State<PrayerGroupsPage> createState() => _PrayerGroupsPageState();
@@ -38,7 +37,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: const Text('Ignáci imák'),
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
