@@ -19,16 +19,16 @@ class PrayerDescriptionPage extends StatelessWidget {
         appBar: AppBar(
           title: Text(prayer.title),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            kMinInteractiveDimension * 2,
-          ),
-          child: Center(
-            child: SizedBox(
-              width: 600,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              16,
+              8,
+              16,
+              kMinInteractiveDimension * 2,
+            ),
+            child: Container(
+              constraints: BoxConstraints.loose(const Size.fromWidth(600)),
               child: Text(
                 prayer.description,
                 style: const TextStyle(fontSize: 24),
