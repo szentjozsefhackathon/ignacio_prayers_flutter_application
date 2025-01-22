@@ -46,15 +46,14 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     super.initState();
     _audioPlayer = AudioPlayer();
     _pageViewController = PageController();
-    _tabController = TabController(
-      length: widget.prayer.steps.length,
-      vsync: this,
-    );
+    _tabController =
+        TabController(length: widget.prayer.steps.length, vsync: this);
     _settings = context.read<SettingsData>();
     _fabAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
+
     _startPrayer();
     _tabController.addListener(() {
       if (!mounted || _tabController.indexIsChanging) {
@@ -187,75 +186,71 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
 
   @override
-  Widget build(BuildContext context) {
-    final currentPrayer = widget.prayer;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentPrayer.title),
-        leading: const CloseButton(),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageViewController,
-              itemCount: currentPrayer.steps.length,
-              onPageChanged: (index) => _tabController.index = index,
-              itemBuilder: (context, index) {
-                final step = currentPrayer.steps[index];
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(38),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Text("Current page: ${index + 1}"),
-                        Text(
-                          step.description,
-                          style: const TextStyle(fontSize: 24),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.prayer.title),
+          leading: const CloseButton(),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageViewController,
+                itemCount: widget.prayer.steps.length,
+                onPageChanged: (index) => _tabController.index = index,
+                itemBuilder: (context, index) {
+                  final step = widget.prayer.steps[index];
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(38),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Text("Current page: ${index + 1}"),
+                          Text(
+                            step.description,
+                            style: const TextStyle(fontSize: 24),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-          AnimatedOpacity(
-            opacity: _isPaused ? 1.0 : .5,
-            duration: kThemeAnimationDuration,
-            child: Text(
-              "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+            AnimatedOpacity(
+              opacity: _isPaused ? 1.0 : .5,
+              duration: kThemeAnimationDuration,
+              child: Text(
+                "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+              ),
             ),
-          ),
-          Opacity(
-            opacity: .25,
-            child: PageIndicator(
-              tabController: _tabController,
-              currentPageIndex: _currentPage,
-              onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+            Opacity(
+              opacity: .25,
+              child: PageIndicator(
+                tabController: _tabController,
+                currentPageIndex: _currentPage,
+                onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+              ),
             ),
-          ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-      floatingActionButton: AnimatedOpacity(
-        opacity: _isPaused ? 1.0 : .5,
-        duration: kThemeAnimationDuration,
-        child: FloatingActionButton(
-          mini: true,
-          onPressed: _togglePlayPause,
-          tooltip: _isRunning ? 'Szünet' : 'Folytatás',
-          child: AnimatedIcon(
-            icon: AnimatedIcons.play_pause,
-            progress: _fabAnimationController,
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        floatingActionButton: AnimatedOpacity(
+          opacity: _isPaused ? 1.0 : .5,
+          duration: kThemeAnimationDuration,
+          child: FloatingActionButton(
+            mini: true,
+            onPressed: _togglePlayPause,
+            tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+            child: AnimatedIcon(
+              icon: AnimatedIcons.play_pause,
+              progress: _fabAnimationController,
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   void _togglePlayPause() {
     setState(() {

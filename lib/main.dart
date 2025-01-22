@@ -4,7 +4,6 @@ import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import 'data/settings_data.dart';
-import 'menu/prayer_groups_page.dart';
 import 'routes.dart';
 
 void main() async {
@@ -33,7 +32,7 @@ class IgnacioPrayersApp extends StatelessWidget {
             theme: ThemeData.light(),
             darkTheme: ThemeData.dark(),
             themeMode: settings.themeMode,
-            home: const PrayerGroupsPage(),
+            initialRoute: Routes.home,
             routes: Routes.routingTable,
           );
         },

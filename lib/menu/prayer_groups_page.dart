@@ -4,7 +4,6 @@ import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
 import '../routes.dart';
-import 'prayers_page.dart';
 
 class PrayerGroupsPage extends StatefulWidget {
   const PrayerGroupsPage({super.key});
@@ -67,14 +66,10 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     ),
                     elevation: 4,
                     child: InkWell(
-                      onTap: () => Navigator.push(
+                      onTap: () => Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => PrayersPage(
-                            title: item.title,
-                            prayers: item.prayers,
-                          ),
-                        ),
+                        Routes.prayers,
+                        arguments: item,
                       ),
                       child: Stack(
                         children: [

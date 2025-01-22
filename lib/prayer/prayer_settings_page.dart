@@ -4,15 +4,9 @@ import 'package:provider/provider.dart';
 import '../data/prayer.dart';
 import '../data/settings_data.dart';
 import '../routes.dart';
-import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
-  const PrayerSettingsPage({
-    super.key,
-    required this.prayer,
-  });
-
-  final Prayer prayer;
+  const PrayerSettingsPage({super.key});
 
   @override
   State<PrayerSettingsPage> createState() => _PrayerSettingsPageState();
@@ -21,12 +15,12 @@ class PrayerSettingsPage extends StatefulWidget {
 class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
   @override
   Widget build(BuildContext context) {
-    final currentPrayer = widget.prayer;
+    final prayer = context.getRouteArgument<Prayer>();
     final settings = context.watch<SettingsData>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentPrayer.title),
+        title: Text(prayer.title),
       ),
       body: ListView(
         children: [
@@ -40,7 +34,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             value: settings.dnd,
             onChanged: (v) => settings.dnd = v,
           ),
-          if (currentPrayer.voiceOptions.isNotEmpty)
+          if (prayer.voiceOptions.isNotEmpty)
             SwitchListTile(
               title: const Text('Hang'),
               value: settings.prayerSoundEnabled,
@@ -53,7 +47,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               value: false,
               onChanged: null,
             ),
-          ...currentPrayer.voiceOptions.map(
+          ...prayer.voiceOptions.map(
             (voice) => RadioListTile(
               title: Text(voice),
               value: voice,
@@ -85,9 +79,9 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                         StatefulBuilder(
                           builder: (context, setState) => Slider(
                             value: length.toDouble(),
-                            min: currentPrayer.minTimeInMinutes.toDouble(),
+                            min: prayer.minTimeInMinutes.toDouble(),
                             max: 60,
-                            divisions: 60 - currentPrayer.minTimeInMinutes,
+                            divisions: 60 - prayer.minTimeInMinutes,
                             label: '$length perc',
                             onChanged: (v) => setState(
                               () => length = v.toInt(),
@@ -122,14 +116,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PrayerPage(prayer: currentPrayer),
-            ),
-          );
-        },
+        onPressed: () => Navigator.pushNamed(
+          context,
+          Routes.prayer,
+          arguments: prayer,
+        ),
         tooltip: 'Ima indítása',
         child: const Icon(Icons.play_arrow_rounded),
       ),
