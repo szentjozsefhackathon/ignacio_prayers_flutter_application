@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
+import '../routes.dart';
 import 'prayers_page.dart';
 
 class PrayerGroupsPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () => Navigator.pushNamed(context, '/settings'),
+              onPressed: () => Navigator.pushNamed(context, Routes.settings),
             ),
           ],
         ),

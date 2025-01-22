@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../data/prayer.dart';
 import '../data/settings_data.dart';
 import '../data_handlers/data_manager.dart';
+import '../routes.dart';
 import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
@@ -118,7 +119,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
           ),
           ListTile(
             title: const Text('További beállítások'),
-            onTap: () => Navigator.pushNamed(context, '/settings'),
+            onTap: () => Navigator.pushNamed(context, Routes.settings),
           ),
         ],
       ),

@@ -11,7 +11,7 @@ import '../alarm_service/screens/ring.dart';
 import '../alarm_service/services/permission.dart';
 import '../alarm_service/widgets/tile.dart';
 import '../data/settings_data.dart';
-import 'impressum_page.dart';
+import '../routes.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -141,10 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ListTile(
             title: const Text('Impresszum'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ImpressumPage()),
-            ),
+            onTap: () => Navigator.pushNamed(context, Routes.impressum),
           ),
         ],
       ),

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'data/settings_data.dart';
 import 'menu/prayer_groups_page.dart';
-import 'settings/settings_page.dart';
+import 'routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,9 +34,7 @@ class IgnacioPrayersApp extends StatelessWidget {
             darkTheme: ThemeData.dark(),
             themeMode: settings.themeMode,
             home: const PrayerGroupsPage(),
-            routes: {
-              '/settings': (context) => const SettingsPage(),
-            },
+            routes: Routes.routingTable,
           );
         },
       );
