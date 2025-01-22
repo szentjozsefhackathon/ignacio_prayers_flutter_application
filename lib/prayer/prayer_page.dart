@@ -1,7 +1,6 @@
-import 'dart:async';
+import 'dart:async' show Timer;
 
 import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
@@ -33,7 +32,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   late final AudioPlayer _audioPlayer;
   late List<int> _nextPageTimes = [];
-  late int _remainingMillis = 0;
+  late int _remainingSeconds = 0;
   late int _currentPage = 0;
   bool _isRunning = false;
   bool _isPaused = false;
@@ -59,6 +58,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 500),
     );
     _startPrayer();
+    _tabController.addListener(() {
+      if (!mounted || _tabController.indexIsChanging) {
+        return;
+      }
+      setState(() => _currentPage = _tabController.index);
+    });
   }
 
   @override
@@ -72,7 +77,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   void _startPrayer() {
     _nextPageTimes = _getOptimalPageTimes();
-    _remainingMillis = _settings.prayerLength * 60 * 1000;
+    _remainingSeconds = _settings.prayerLength * 60;
     _startTimer();
     if (_settings.dnd) {
       _doNotDisturbOn();
@@ -88,19 +93,23 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       if (_isPaused) {
         timer.cancel();
       } else {
-        setState(() {
-          _remainingMillis -= 1000;
-          if (_settings.autoPageTurn) {
-            for (final time in _nextPageTimes) {
-              if (time == _remainingMillis ~/ 1000) {
-                _turnPage();
+        _remainingSeconds--;
+        if (_settings.autoPageTurn) {
+          for (final time in _nextPageTimes) {
+            if (time == _remainingSeconds) {
+              final pageIndex = _nextPageTimes.indexOf(time);
+              // we're not going back
+              if (pageIndex > _currentPage) {
+                _updateCurrentPageIndex(pageIndex);
               }
+              break;
             }
           }
-          _isRunning = true;
-        });
+        }
+        _isRunning = true;
+        setState(() {});
       }
-      if (_remainingMillis <= 0) {
+      if (_remainingSeconds <= 0) {
         _onTimerFinish();
       }
     });
@@ -148,11 +157,6 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     }
   }
 
-  void _turnPage() {
-    _currentPage++;
-    _updateCurrentPageIndex(_currentPage);
-  }
-
   List<int> _getOptimalPageTimes() {
     final pageTimes = <int>[];
     var totalFixTime = 0;
@@ -191,16 +195,15 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text(currentPrayer.title),
+        leading: const CloseButton(),
       ),
       body: Column(
         children: [
           Expanded(
             child: PageView.builder(
-              /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-              /// Use [Axis.vertical] to scroll vertically.
               controller: _pageViewController,
-              itemCount: currentPrayer.steps.length, // Dynamic item count
-              onPageChanged: _handlePageViewChanged,
+              itemCount: currentPrayer.steps.length,
+              onPageChanged: (index) => _tabController.index = index,
               itemBuilder: (context, index) {
                 final step = currentPrayer.steps[index];
                 return Center(
@@ -222,23 +225,35 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
               },
             ),
           ),
-          Text(
-            "Hátralévő idő: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}",
+          AnimatedOpacity(
+            opacity: _isPaused ? 1.0 : .5,
+            duration: kThemeAnimationDuration,
+            child: Text(
+              "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+            ),
           ),
-          PageIndicator(
-            tabController: _tabController,
-            currentPageIndex: _currentPage,
-            onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-            isOnDesktopAndWeb: _isOnDesktopAndWeb,
+          Opacity(
+            opacity: .25,
+            child: PageIndicator(
+              tabController: _tabController,
+              currentPageIndex: _currentPage,
+              onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+            ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _togglePlayPause,
-        tooltip: _isRunning ? 'Szünet' : 'Folytatás',
-        child: AnimatedIcon(
-          icon: AnimatedIcons.play_pause,
-          progress: _fabAnimationController,
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButton: AnimatedOpacity(
+        opacity: _isPaused ? 1.0 : .5,
+        duration: kThemeAnimationDuration,
+        child: FloatingActionButton(
+          mini: true,
+          onPressed: _togglePlayPause,
+          tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+          child: AnimatedIcon(
+            icon: AnimatedIcons.play_pause,
+            progress: _fabAnimationController,
+          ),
         ),
       ),
     );
@@ -260,16 +275,6 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     });
   }
 
-  void _handlePageViewChanged(int currentPageIndex) {
-    if (!_isOnDesktopAndWeb) {
-      return;
-    }
-    _tabController.index = currentPageIndex;
-    setState(() {
-      _currentPage = currentPageIndex;
-    });
-  }
-
   void _updateCurrentPageIndex(int index) {
     _tabController.index = index;
     _pageViewController.animateToPage(
@@ -277,58 +282,28 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
-    _currentPage = index;
     if (_settings.prayerSoundEnabled) {
       _pageAudioPlayer();
     } else if (_currentPage > 0 && _settings.autoPageTurn) {
       // Vibration.vibrate(duration: 500);
     }
   }
-
-  bool get _isOnDesktopAndWeb {
-    if (kIsWeb) {
-      return true;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.macOS:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-        return true;
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-      case TargetPlatform.fuchsia:
-        return false;
-    }
-  }
 }
 
-/// Page indicator for desktop and web platforms.
-///
-/// On Desktop and Web, drag gesture for horizontal scrolling in a PageView is disabled by default.
-/// You can defined a custom scroll behavior to activate drag gestures,
-/// see https://docs.flutter.dev/release/breaking-changes/default-scroll-behavior-drag.
-///
-/// In this sample, we use a TabPageSelector to navigate between pages,
-/// in order to build natural behavior similar to other desktop applications.
 class PageIndicator extends StatelessWidget {
   const PageIndicator({
     super.key,
     required this.tabController,
     required this.currentPageIndex,
     required this.onUpdateCurrentPageIndex,
-    required this.isOnDesktopAndWeb,
   });
 
   final int currentPageIndex;
   final TabController tabController;
   final void Function(int) onUpdateCurrentPageIndex;
-  final bool isOnDesktopAndWeb;
 
   @override
   Widget build(BuildContext context) {
-    if (!isOnDesktopAndWeb) {
-      return const SizedBox.shrink();
-    }
     final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
