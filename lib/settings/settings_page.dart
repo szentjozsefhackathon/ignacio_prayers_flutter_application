@@ -104,11 +104,17 @@ class _SettingsPageState extends State<SettingsPage> {
           SwitchListTile(
             title: const Text('Napi emlékeztető'),
             value: settings.dailyNotifier,
-            onChanged: (v) => settings.dailyNotifier = v,
+            onChanged: (v) {
+              settings.dailyNotifier = v;
+              if (!v) {
+                Alarm.stopAll();
+              }
+            },
           ),
           ListTile(
-            title: const Text('Emlékeztető ideje'),
-            subtitle: Text(settings.dailyNotifierTime.format(context)),
+            title: const Text('Idő hozzáadása'),
+            // TODO: do we need dailyNotifierTime (we have alarms)?
+            //subtitle: Text(settings.dailyNotifierTime.format(context)),
             enabled: settings.dailyNotifier,
             onTap: () => _navigateToAlarmScreen(null),
           ),
