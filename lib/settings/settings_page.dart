@@ -25,6 +25,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   List<AlarmSettings> _alarms = [];
 
+  static final _alarmRingStream = Alarm.ringStream.stream.asBroadcastStream();
+  static final _alarmUpdateStream =
+      Alarm.updateStream.stream.asBroadcastStream();
+
   late final StreamSubscription<AlarmSettings> _ringSubscription;
   late final StreamSubscription<int> _updateSubscription;
 
@@ -38,13 +42,16 @@ class _SettingsPageState extends State<SettingsPage> {
     if (Alarm.android) {
       AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
     }
-    _ringSubscription = Alarm.ringStream.stream
-        .asBroadcastStream()
-        .listen(navigateToRingScreen);
-    _updateSubscription = Alarm.updateStream.stream
-        .asBroadcastStream()
-        .listen((_) => unawaited(_loadAlarms()));
+    _ringSubscription = _alarmRingStream.listen(_navigateToRingScreen);
+    _updateSubscription = _alarmUpdateStream.listen((_) => _loadAlarms());
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlarms());
+  }
+
+  @override
+  void dispose() {
+    _ringSubscription.cancel();
+    _updateSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -103,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text('Emlékeztető ideje'),
             subtitle: Text(settings.dailyNotifierTime.format(context)),
             enabled: settings.dailyNotifier,
-            onTap: () => navigateToAlarmScreen(null),
+            onTap: () => _navigateToAlarmScreen(null),
           ),
           if (_alarms.isNotEmpty)
             SafeArea(
@@ -116,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           hour: a.dateTime.hour,
                           minute: a.dateTime.minute,
                         ).format(context),
-                        onPressed: () => navigateToAlarmScreen(a),
+                        onPressed: () => _navigateToAlarmScreen(a),
                         onDismissed: () async {
                           await Alarm.stop(a.id);
                           await _loadAlarms();
@@ -144,7 +151,7 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _alarms = updatedAlarms);
   }
 
-  Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
+  Future<void> _navigateToRingScreen(AlarmSettings alarmSettings) async {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -156,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
     unawaited(_loadAlarms());
   }
 
-  Future<void> navigateToAlarmScreen(AlarmSettings? settings) async {
+  Future<void> _navigateToAlarmScreen(AlarmSettings? settings) async {
     final res = await showModalBottomSheet<bool?>(
       context: context,
       isScrollControlled: true,
@@ -170,13 +177,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (res != null && res == true) unawaited(_loadAlarms());
-  }
-
-  @override
-  void dispose() {
-    _ringSubscription.cancel();
-    _updateSubscription.cancel();
-    super.dispose();
   }
 
   Future<void> _checkNotificationPolicyAccessGranted() async {
