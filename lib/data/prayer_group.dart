@@ -13,12 +13,12 @@ class PrayerGroup extends DataDescriptor {
     required this.prayers,
   });
 
-  factory PrayerGroup.fromJson(Map<String, dynamic> json) => _$PrayerGroupFromJson(json);
+  factory PrayerGroup.fromJson(Json json) => _$PrayerGroupFromJson(json);
 
   final String title;
   final String image;
   final List<Prayer> prayers;
 
   @override
-  Map<String, dynamic> toJson() => _$PrayerGroupToJson(this);
+  Json toJson() => _$PrayerGroupToJson(this);
 }

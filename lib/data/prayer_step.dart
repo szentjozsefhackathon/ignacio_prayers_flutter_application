@@ -15,8 +15,7 @@ class PrayerStep extends DataDescriptor {
     required this.type,
   });
 
-  factory PrayerStep.fromJson(Map<String, dynamic> json) =>
-      _$PrayerStepFromJson(json);
+  factory PrayerStep.fromJson(Json json) => _$PrayerStepFromJson(json);
 
   final String description;
   final List<String> voices;
@@ -25,10 +24,12 @@ class PrayerStep extends DataDescriptor {
   @JsonKey(fromJson: _prayerStepTypeFromJson, toJson: _prayerStepTypeToJson)
   final PrayerStepType type;
 
-  static PrayerStepType _prayerStepTypeFromJson(String json) => PrayerStepType.values.singleWhere((t) => t.name.toUpperCase() == json);
+  static PrayerStepType _prayerStepTypeFromJson(String json) =>
+      PrayerStepType.values.singleWhere((t) => t.name.toUpperCase() == json);
 
-  static String _prayerStepTypeToJson(PrayerStepType object) => object.name.toUpperCase();
+  static String _prayerStepTypeToJson(PrayerStepType object) =>
+      object.name.toUpperCase();
 
   @override
-  Map<String, dynamic> toJson() => _$PrayerStepToJson(this);
+  Json toJson() => _$PrayerStepToJson(this);
 }

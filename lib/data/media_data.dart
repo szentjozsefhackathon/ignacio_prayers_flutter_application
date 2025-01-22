@@ -13,7 +13,7 @@ class MediaData extends DataDescriptor {
     required this.lastModified,
   });
 
-  factory MediaData.fromJson(Map<String, dynamic> json) => _$MediaDataFromJson(json);
+  factory MediaData.fromJson(Json json) => _$MediaDataFromJson(json);
 
   final String name;
   final String path;
@@ -21,7 +21,7 @@ class MediaData extends DataDescriptor {
   final DateTime lastModified;
 
   @override
-  Map<String, dynamic> toJson() => _$MediaDataToJson(this);
+  Json toJson() => _$MediaDataToJson(this);
 
   @override
   String toString() => '$name ($path)';

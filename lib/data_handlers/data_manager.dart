@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import '../data/media_data.dart';
 import '../data/prayer_group.dart';
 import '../data/versions.dart';
 import '../urls.dart';
@@ -17,95 +16,109 @@ const _kImages = 'images';
 const _kVoices = 'voices';
 
 class DataManager {
+  DataManager._();
+
+  static DataManager? _instance;
+  // ignore: prefer_constructors_over_static_methods
+  static DataManager get instance => _instance ??= DataManager._();
+
+  DataSetManager<Versions> get versions => _versions;
+  ListDataSetManager<PrayerGroup> get prayerGroups => _prayerGroups;
+  MediaManager get images => _images;
+  MediaManager get voices => _voices;
+
   static final log = Logger('DataManager');
 
-  // initialize the data managers
-  // versionsDataManager is used to manage the versions data
-  final _versionsDataManager = DataSetManager<Versions>(
+  final _versions = DataSetManager<Versions>(
     dataKey: _kVersions,
     dataUrlEndpoint: Uri.parse(kCheckVersionUrl),
     fromJson: Versions.fromJson,
-    dataType: DataType.single,
   );
 
-  // prayerGroupDataManager is used to manage the prayer group data
-  final _prayerGroupDataManager = DataSetManager<PrayerGroup>(
+  final _prayerGroups = ListDataSetManager<PrayerGroup>(
     dataKey: _kPrayerGroup,
     dataUrlEndpoint: Uri.parse(kDownloadDataUrl),
     fromJson: PrayerGroup.fromJson,
-    dataType: DataType.list,
   );
 
-  // imagesDataManager is used to manage the images data
-  final _imagesDataManager = DataSetManager<MediaData>(
+  final _images = MediaManager(
     dataKey: _kImages,
     dataUrlEndpoint: Uri.parse(kImageListUrl),
-    fromJson: MediaData.fromJson,
-    dataType: DataType.list,
   );
 
-  // voicesDataManager is used to manage the voices data
-  final _voicesDataManager = DataSetManager<MediaData>(
+  final _voices = MediaManager(
     dataKey: _kVoices,
     dataUrlEndpoint: Uri.parse(kVoicesListUrl),
-    fromJson: MediaData.fromJson,
-    dataType: DataType.list,
   );
 
-  final MediaManager _imagesManager = MediaManager(mediaType: _kImages);
-
-  final MediaManager _voicesManager = MediaManager(mediaType: _kVoices);
-
-  Future<void> checkForUpdates() async {
+  Future<void> checkForUpdates({required bool stopOnError}) async {
     // Load local version data
-    bool updated = false;
+    bool saveVersions = false;
+    bool success;
     try {
-      final localVersions = await _versionsDataManager.data;
-      log.info('Local versions data : ${localVersions.toJson()}');
+      final localVersionsExist = await _versions.localDataExists;
+      final localVersions = localVersionsExist ? (await _versions.data) : null;
+      log.info('Local versions: ${localVersions?.toJson()}');
       // Load server version data
-      final serverVersions = await _versionsDataManager.serverData;
-      log.info('Server versions data : ${serverVersions.toJson()}');
+      final serverVersions = await _versions.serverData;
+      log.info('Server versions: ${serverVersions.toJson()}');
 
       // Check if the data needs to be updated
-      if (localVersions.data != serverVersions.data) {
-        await _prayerGroupDataManager.downloadAndSaveData();
-        await _prayerGroupDataManager.data; // new data applied
+      if (localVersions?.data != serverVersions.data) {
+        await _prayerGroups.downloadAndSaveData();
+        await _prayerGroups.data; // new data applied
         log.info(
-          'Local data updated from version ${localVersions.data} to ${serverVersions.data}',
+          'Updating data from version ${localVersions?.data} to ${serverVersions.data}',
         );
-        updated = true;
+        saveVersions = true;
       }
 
       // Check if the map data needs to be updated
-      if (localVersions.images != serverVersions.images) {
-        final imagesServerDatas = await _imagesDataManager.serverData;
+      if (localVersions?.images != serverVersions.images) {
+        final imagesServerDatas = await _images.serverData;
 
-        await imagesManager.syncFiles(imagesServerDatas);
-        log.info(
-          'Image files updated from version ${localVersions.images} to ${serverVersions.images}',
+        success = await _images.syncFiles(
+          imagesServerDatas,
+          stopOnError: stopOnError,
         );
-        updated = true;
+        if (success) {
+          log.info(
+            'Image files updated from version ${localVersions?.images} to ${serverVersions.images}',
+          );
+          saveVersions = true;
+        } else if (localVersions?.images.isNotEmpty ?? true) {
+          serverVersions.images = '';
+          saveVersions = true;
+        }
       }
 
       // Check if the voices need to be updated
-      if (localVersions.voices != serverVersions.voices) {
-        final voicesServerDatas = await _voicesDataManager.serverData;
+      if (localVersions?.voices != serverVersions.voices) {
+        final voicesServerDatas = await _voices.serverData;
 
-        await voicesManager.syncFiles(voicesServerDatas);
-        log.info(
-          'Voice files updated from version ${localVersions.voices} to ${serverVersions.voices}',
+        success = await _images.syncFiles(
+          voicesServerDatas,
+          stopOnError: stopOnError,
         );
-        updated = true;
+        if (success) {
+          log.info(
+            'Voice files updated from version ${localVersions?.voices} to ${serverVersions.voices}',
+          );
+          saveVersions = true;
+        } else if (localVersions?.voices.isNotEmpty ?? true) {
+          serverVersions.voices = '';
+          saveVersions = true;
+        }
       }
 
       // Save the new version data
-      if (updated) {
-        await _versionsDataManager.saveLocalData(
+      if (saveVersions) {
+        await _versions.saveLocalData(
           json.encoder.convert(serverVersions.toJson()),
         );
-        final newLocalVersions = await _versionsDataManager.data;
+        final newLocalVersions = await _versions.data;
         log.info(
-          'Local versions data updated to : ${newLocalVersions.toJson()}',
+          'Local versions updated to ${newLocalVersions.toJson()}',
         );
       }
     } catch (e) {
@@ -113,11 +126,4 @@ class DataManager {
       rethrow;
     }
   }
-
-  DataSetManager<PrayerGroup> get prayerGroupDataManager =>
-      _prayerGroupDataManager;
-  // DataSetManager<MediaData> get imagesDataManager => _imagesDataManager;
-  // DataSetManager<MediaData> get voicesDataManager => _voicesDataManager;
-  MediaManager get imagesManager => _imagesManager;
-  MediaManager get voicesManager => _voicesManager;
 }

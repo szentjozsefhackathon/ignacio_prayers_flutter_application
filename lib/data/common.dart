@@ -1,15 +1,20 @@
 import 'package:collection/collection.dart';
 
-abstract class DataDescriptor {
-  Map<String, dynamic> toJson();
+typedef Json = Map<String, dynamic>;
+
+abstract class ToJson<T> {
+  T toJson();
 }
 
-class DataList<T extends DataDescriptor> extends DelegatingList<T> {
+abstract class DataDescriptor extends ToJson<Json> {}
+
+class DataList<T extends DataDescriptor> extends DelegatingList<T>
+    implements ToJson<List<Json>> {
   DataList({required this.items}) : super(items);
 
   factory DataList.fromJson(
     List<dynamic> jsonList,
-    T Function(Map<String, dynamic>) fromJson,
+    T Function(Json) fromJson,
   ) =>
       DataList(
         items: jsonList.map((json) => fromJson(json)).toList(),
@@ -17,8 +22,8 @@ class DataList<T extends DataDescriptor> extends DelegatingList<T> {
 
   List<T> items;
 
-  List<Map<String, dynamic>> toJson() =>
-      items.map((item) => item.toJson()).toList();
+  @override
+  List<Json> toJson() => items.map((item) => item.toJson()).toList();
 
   void addItem(T item) => items.add(item);
 

@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../data/prayer.dart';
-import '../data_handlers/data_manager.dart';
 import 'prayer_settings_page.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
   const PrayerDescriptionPage({
     super.key,
     required this.prayer,
-    required this.dataManager,
   });
 
   final Prayer prayer;
-  final DataManager dataManager;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -42,10 +39,7 @@ class PrayerDescriptionPage extends StatelessWidget {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PrayerSettingsPage(
-                prayer: prayer,
-                dataManager: dataManager,
-              ),
+              builder: (context) => PrayerSettingsPage(prayer: prayer),
             ),
           ),
           tooltip: 'Ima beállítása',

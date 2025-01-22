@@ -9,11 +9,10 @@ class PrayersPage extends StatelessWidget {
     super.key,
     required this.title,
     required this.prayers,
-    required this.dataManager,
   });
+
   final List<Prayer> prayers;
   final String title;
-  final DataManager dataManager;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -42,10 +41,8 @@ class PrayersPage extends StatelessWidget {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PrayerDescriptionPage(
-                            prayer: prayer,
-                            dataManager: dataManager,
-                          ),
+                          builder: (context) =>
+                              PrayerDescriptionPage(prayer: prayer),
                         ),
                       ),
                       child: Stack(
@@ -53,7 +50,7 @@ class PrayersPage extends StatelessWidget {
                           // Background Image
                           Positioned.fill(
                             child: FutureBuilder(
-                              future: dataManager.imagesManager
+                              future: DataManager.instance.images
                                   .getLocalFile(prayer.image),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==

@@ -16,7 +16,7 @@ class Prayer extends DataDescriptor {
     required this.steps,
   });
 
-  factory Prayer.fromJson(Map<String, dynamic> json) => _$PrayerFromJson(json);
+  factory Prayer.fromJson(Json json) => _$PrayerFromJson(json);
 
   final String title;
   final String description;
@@ -29,7 +29,7 @@ class Prayer extends DataDescriptor {
   final List<PrayerStep> steps;
 
   @override
-  Map<String, dynamic> toJson() => _$PrayerToJson(this);
+  Json toJson() => _$PrayerToJson(this);
 
   int get weightSum {
     int sum = 0;

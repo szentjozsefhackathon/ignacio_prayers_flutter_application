@@ -10,51 +10,51 @@ import 'exceptions.dart';
 
 // TODO: move to Hive or SQLite
 
-enum DataType { single, list }
-
-class DataSetManager<T extends DataDescriptor> {
-  DataSetManager({
+abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
+  DataSetManagerBase({
+    required String logName,
     required this.dataKey,
     required this.dataUrlEndpoint,
     required this.fromJson,
-    required this.dataType,
-  });
+  }) : log = Logger('$logName ($dataKey)');
 
-  static final log = Logger('DataSetManager');
-
+  final Logger log;
   final String dataKey;
   final Uri dataUrlEndpoint;
-  final T Function(Map<String, dynamic>) fromJson;
-  final DataType dataType;
+  final Item Function(Map<String, dynamic>) fromJson;
 
-  Future<dynamic>? _data; // Backing field for caching
+  T? _cachedData;
+
+  T? get cachedData => _cachedData;
+
+  Future<bool> get localDataExists async =>
+      (_cachedData ??= await _readLocalData()) != null;
 
   // Lazy initialization of data
-  Future<dynamic> get data async {
+  Future<T> get data async {
     try {
-      try {
-        _data ??= _readLocalData(); // Cache the result
-        return await _data!;
-      } on NoLocalDataException catch (e) {
-        log.warning('No local data found, attempting to fetch from server: $e');
+      T? local = (_cachedData ??= await _readLocalData());
+      if (local == null) {
+        log.warning('No local data found');
         await downloadAndSaveData();
-        return await _readLocalData();
+        local = _cachedData = await _readLocalData();
+        if (local == null) {
+          throw DataLoadingException('Failed to load downloaded data');
+        }
       }
+      return local;
     } catch (e, s) {
       log.severe('Failed to load data: $e', e, s);
-      // throw DataLoadingException('Failed to load data', e);
       rethrow;
     }
   }
 
-  Future<dynamic> get serverData async {
+  T _decodeData(String data);
+
+  Future<T> get serverData async {
     try {
       final response = await _fetchServerData();
-      if (dataType == DataType.single) {
-        return fromJson(json.decode(response));
-      } else {
-        return DataList<T>.fromJson(json.decode(response), fromJson);
-      }
+      return _decodeData(response);
     } catch (e, s) {
       log.severe('Failed to load server data: $e', e, s);
       rethrow;
@@ -111,7 +111,7 @@ class DataSetManager<T extends DataDescriptor> {
     log.info('Data saved to storage');
   }
 
-  Future<dynamic> _readLocalData() async {
+  Future<T?> _readLocalData() async {
     log.info('Reading data from storage');
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -119,17 +119,44 @@ class DataSetManager<T extends DataDescriptor> {
 
       if (jsonData == null) {
         log.warning('No local data found');
-        throw NoLocalDataException('No local data found');
+        return null;
       }
-
-      if (dataType == DataType.single) {
-        return fromJson(json.decode(jsonData));
-      } else {
-        return DataList<T>.fromJson(json.decode(jsonData), fromJson);
-      }
+      return _decodeData(jsonData);
     } catch (e, s) {
       log.severe('Error reading local data', e, s);
       rethrow;
     }
   }
+
+  Future<void> deleteLocalData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(dataKey);
+    _cachedData = null;
+    log.info('Data deleted');
+  }
+}
+
+class DataSetManager<T extends DataDescriptor>
+    extends DataSetManagerBase<T, T> {
+  DataSetManager({
+    required super.dataKey,
+    required super.dataUrlEndpoint,
+    required super.fromJson,
+  }) : super(logName: 'DataSetManager');
+
+  @override
+  T _decodeData(String data) => fromJson(json.decode(data));
+}
+
+class ListDataSetManager<T extends DataDescriptor>
+    extends DataSetManagerBase<DataList<T>, T> {
+  ListDataSetManager({
+    required super.dataKey,
+    required super.dataUrlEndpoint,
+    required super.fromJson,
+  }) : super(logName: 'ListDataSetManager');
+
+  @override
+  DataList<T> _decodeData(String data) =>
+      DataList<T>.fromJson(json.decode(data), fromJson);
 }

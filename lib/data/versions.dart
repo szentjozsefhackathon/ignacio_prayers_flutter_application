@@ -12,12 +12,12 @@ class Versions extends DataDescriptor {
     required this.voices,
   });
 
-  factory Versions.fromJson(Map<String, dynamic> json) => _$VersionsFromJson(json);
+  factory Versions.fromJson(Json json) => _$VersionsFromJson(json);
 
   String data;
   String images;
   String voices;
 
   @override
-  Map<String, dynamic> toJson() => _$VersionsToJson(this);
+  Json toJson() => _$VersionsToJson(this);
 }

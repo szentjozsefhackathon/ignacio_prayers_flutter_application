@@ -14,9 +14,7 @@ class PrayerGroupsPage extends StatefulWidget {
 }
 
 class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
-  DataList<PrayerGroup> _items = DataList<PrayerGroup>(items: []);
-
-  final dataManager = DataManager();
+  DataList<PrayerGroup> _items = DataList(items: []);
 
   @override
   void initState() {
@@ -26,9 +24,11 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
 
   Future<void> _loadData() async {
     try {
-      await dataManager.checkForUpdates();
-      final prayerGroups = await dataManager.prayerGroupDataManager.data;
-      setState(() => _items = prayerGroups);
+      await DataManager.instance.checkForUpdates(stopOnError: true);
+      final prayerGroups = await DataManager.instance.prayerGroups.data;
+      if (mounted) {
+        setState(() => _items = prayerGroups);
+      }
     } catch (e, s) {
       debugPrintStack(label: e.toString(), stackTrace: s);
       showErrorDialog(e.toString());
@@ -73,7 +73,6 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                           builder: (context) => PrayersPage(
                             title: item.title,
                             prayers: item.prayers,
-                            dataManager: dataManager,
                           ),
                         ),
                       ),
@@ -81,8 +80,9 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                         children: [
                           // Background Image
                           Positioned.fill(
+                            // TODO: images are not loaded
                             child: FutureBuilder(
-                              future: dataManager.imagesManager
+                              future: DataManager.instance.images
                                   .getLocalFile(item.image),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==

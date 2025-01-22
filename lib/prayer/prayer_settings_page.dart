@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../data/prayer.dart';
 import '../data/settings_data.dart';
-import '../data_handlers/data_manager.dart';
 import '../routes.dart';
 import 'prayer_page.dart';
 
@@ -11,11 +10,9 @@ class PrayerSettingsPage extends StatefulWidget {
   const PrayerSettingsPage({
     super.key,
     required this.prayer,
-    required this.dataManager,
   });
 
   final Prayer prayer;
-  final DataManager dataManager;
 
   @override
   State<PrayerSettingsPage> createState() => _PrayerSettingsPageState();
@@ -129,10 +126,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PrayerPage(
-                prayer: currentPrayer,
-                dataManager: widget.dataManager,
-              ),
+              builder: (context) => PrayerPage(prayer: currentPrayer),
             ),
           );
         },

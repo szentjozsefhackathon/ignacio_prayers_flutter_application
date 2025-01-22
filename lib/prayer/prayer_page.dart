@@ -15,11 +15,9 @@ class PrayerPage extends StatefulWidget {
   const PrayerPage({
     super.key,
     required this.prayer,
-    required this.dataManager,
   });
 
   final Prayer prayer;
-  final DataManager dataManager;
 
   @override
   State<PrayerPage> createState() => _PrayerPageState();
@@ -132,7 +130,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   void _loadAudio(String filename) {
-    widget.dataManager.voicesManager.getLocalFile(filename).then((audio) {
+    DataManager.instance.voices.getLocalFile(filename).then((audio) {
       _audioPlayer.setFilePath(audio.path);
     }).catchError((e, s) {
       log.severe('Error loading audio', e, s);

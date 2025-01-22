@@ -31,8 +31,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
         _prayerSoundEnabled = prayerSoundEnabled,
         _voiceChoice = voiceChoice;
 
-  factory SettingsData.fromJson(Map<String, dynamic> json) =>
-      _$SettingsDataFromJson(json);
+  factory SettingsData.fromJson(Json json) => _$SettingsDataFromJson(json);
 
   static final log = Logger('UserSettingsData');
 
@@ -118,7 +117,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   }
 
   @override
-  Map<String, dynamic> toJson() => _$SettingsDataToJson(this);
+  Json toJson() => _$SettingsDataToJson(this);
 
   Future<void> load() async {
     log.info('Reading user preferences from storage');
