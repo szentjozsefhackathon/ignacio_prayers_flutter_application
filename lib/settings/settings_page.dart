@@ -94,7 +94,13 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ...ThemeMode.values.map(
             (mode) => RadioListTile(
-              title: Text(mode.name),
+              title: Text(
+                switch (mode) {
+                  ThemeMode.system => 'rendszer',
+                  ThemeMode.light => 'világos',
+                  ThemeMode.dark => 'sötét',
+                },
+              ),
               value: mode,
               groupValue: settings.themeMode,
               onChanged: (v) {
@@ -105,7 +111,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           SwitchListTile(
-            title: const Text('Napi emlékeztető'),
+            title: const Text('Napi emlékeztetők'),
             value: settings.dailyNotifier,
             onChanged: (v) {
               settings.dailyNotifier = v;
@@ -115,7 +121,8 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           ListTile(
-            title: const Text('Idő hozzáadása'),
+            title: const Text('Emlékeztető hozzáadása'),
+            leading: const Icon(Icons.add_rounded),
             // TODO: do we need dailyNotifierTime (we have alarms)?
             //subtitle: Text(settings.dailyNotifierTime.format(context)),
             enabled: settings.dailyNotifier,
