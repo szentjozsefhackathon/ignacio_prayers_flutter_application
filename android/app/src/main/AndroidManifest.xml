@@ -25,7 +25,7 @@
 
 
     <application
-        android:label="ignacio_prayers_flutter_application"
+        android:label="Ignáci imák"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
