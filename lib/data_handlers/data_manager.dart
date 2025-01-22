@@ -2,53 +2,59 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import '../constants/constants.dart';
 import '../data/media_data.dart';
 import '../data/prayer_group.dart';
 import '../data/versions.dart';
+import '../urls.dart';
 import 'data_set_manager.dart';
 import 'media_manager.dart';
 
 // TODO: make this a povider
+
+const _kPrayerGroup = 'prayerGroupsData';
+const _kVersions = 'versionsData';
+const _kImages = 'images';
+const _kVoices = 'voices';
+
 class DataManager {
   static final log = Logger('DataManager');
 
   // initialize the data managers
   // versionsDataManager is used to manage the versions data
   final _versionsDataManager = DataSetManager<Versions>(
-    dataKey: kVersions,
-    dataUrlEndpoint: kCheckVersionUrl,
+    dataKey: _kVersions,
+    dataUrlEndpoint: Uri.parse(kCheckVersionUrl),
     fromJson: Versions.fromJson,
     dataType: DataType.single,
   );
 
   // prayerGroupDataManager is used to manage the prayer group data
   final _prayerGroupDataManager = DataSetManager<PrayerGroup>(
-    dataKey: kPrayerGroup,
-    dataUrlEndpoint: kDownloadDataUrl,
+    dataKey: _kPrayerGroup,
+    dataUrlEndpoint: Uri.parse(kDownloadDataUrl),
     fromJson: PrayerGroup.fromJson,
     dataType: DataType.list,
   );
 
   // imagesDataManager is used to manage the images data
   final _imagesDataManager = DataSetManager<MediaData>(
-    dataKey: kImages,
-    dataUrlEndpoint: kImageListUrl,
+    dataKey: _kImages,
+    dataUrlEndpoint: Uri.parse(kImageListUrl),
     fromJson: MediaData.fromJson,
     dataType: DataType.list,
   );
 
   // voicesDataManager is used to manage the voices data
   final _voicesDataManager = DataSetManager<MediaData>(
-    dataKey: kVoices,
-    dataUrlEndpoint: kVoicesListUrl,
+    dataKey: _kVoices,
+    dataUrlEndpoint: Uri.parse(kVoicesListUrl),
     fromJson: MediaData.fromJson,
     dataType: DataType.list,
   );
 
-  final MediaManager _imagesManager = MediaManager(mediaType: kImages);
+  final MediaManager _imagesManager = MediaManager(mediaType: _kImages);
 
-  final MediaManager _voicesManager = MediaManager(mediaType: kVoices);
+  final MediaManager _voicesManager = MediaManager(mediaType: _kVoices);
 
   Future<void> checkForUpdates() async {
     // Load local version data
@@ -98,7 +104,9 @@ class DataManager {
           json.encoder.convert(serverVersions.toJson()),
         );
         final newLocalVersions = await _versionsDataManager.data;
-        log.info('Local versions data updated to : ${newLocalVersions.toJson()}');
+        log.info(
+          'Local versions data updated to : ${newLocalVersions.toJson()}',
+        );
       }
     } catch (e) {
       // log.warning('Failed to load local data: $e');

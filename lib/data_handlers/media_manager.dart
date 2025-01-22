@@ -6,9 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../constants/constants.dart';
 import '../data/common.dart';
 import '../data/media_data.dart';
+import '../urls.dart';
 
 class MediaManager {
   MediaManager({required this.mediaType});
@@ -76,10 +76,10 @@ class MediaManager {
   }
 
   Future<void> _downloadAndSaveImage(MediaData m) async {
-    final downloadUrl = _getDownloadUrl(m);
-
     try {
-      final response = await http.get(downloadUrl);
+      final response = await http.get(
+        Uri.parse(mediaApiUrl(mediaType, m.name)),
+      );
       if (response.statusCode == 200) {
         await _saveFile(m, response.bodyBytes);
       } else {
@@ -90,9 +90,6 @@ class MediaManager {
       log.severe('Error during sync $m: $e');
     }
   }
-
-  Uri _getDownloadUrl(MediaData m) =>
-      Uri.parse('$kServerUrl/${kMediaApiUrl(mediaType, m.name)}');
 
   Future<void> _saveFile(MediaData m, Uint8List imageBytes) async {
     try {

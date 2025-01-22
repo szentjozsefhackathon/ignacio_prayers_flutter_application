@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/constants.dart';
 import '../data/common.dart';
 import 'exceptions.dart';
 
@@ -24,7 +23,7 @@ class DataSetManager<T extends DataDescriptor> {
   static final log = Logger('DataSetManager');
 
   final String dataKey;
-  final String dataUrlEndpoint;
+  final Uri dataUrlEndpoint;
   final T Function(Map<String, dynamic>) fromJson;
   final DataType dataType;
 
@@ -64,7 +63,7 @@ class DataSetManager<T extends DataDescriptor> {
 
   Future<String> _fetchServerData() async {
     try {
-      final response = await http.get(Uri.parse(kServerUrl + dataUrlEndpoint));
+      final response = await http.get(dataUrlEndpoint);
       if (response.statusCode == 200) {
         return response.body;
       } else {

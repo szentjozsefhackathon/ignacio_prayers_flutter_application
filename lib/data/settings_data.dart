@@ -5,10 +5,11 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/constants.dart';
 import 'common.dart';
 
 part 'settings_data.g.dart';
+
+const _kUserSettings = 'userData';
 
 @JsonSerializable()
 class SettingsData extends ChangeNotifier implements DataDescriptor {
@@ -123,7 +124,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
     log.info('Reading user preferences from storage');
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonData = prefs.getString(kUserSettings);
+      final jsonData = prefs.getString(_kUserSettings);
 
       final SettingsData newData;
       if (jsonData == null) {
@@ -152,7 +153,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = json.encode(toJson());
-    await prefs.setString(kUserSettings, jsonString);
+    await prefs.setString(_kUserSettings, jsonString);
     log.info('User preferences are saved to storage');
   }
 }
