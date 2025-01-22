@@ -131,6 +131,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   void _pageAudioPlayer() {
+    if (widget.prayer.voiceOptions.isEmpty) {
+      return;
+    }
     _audioPlayer.pause();
     final voiceIndex =
         widget.prayer.voiceOptions.indexOf(_settings.voiceChoice);
