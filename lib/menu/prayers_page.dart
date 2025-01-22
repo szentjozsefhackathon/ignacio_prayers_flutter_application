@@ -23,10 +23,11 @@ class PrayersPage extends StatelessWidget {
             : GridView.builder(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 350,
-                  mainAxisSpacing: 4,
+                  mainAxisSpacing: 8,
                   mainAxisExtent: 200,
-                  crossAxisSpacing: 4,
+                  crossAxisSpacing: 8,
                 ),
+                padding: const EdgeInsets.all(8),
                 itemCount: prayers.length,
                 itemBuilder: (context, index) {
                   final prayer = prayers[index];
@@ -37,7 +38,6 @@ class PrayersPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 4,
-                    margin: const EdgeInsets.all(10),
                     child: InkWell(
                       onTap: () => Navigator.push(
                         context,
