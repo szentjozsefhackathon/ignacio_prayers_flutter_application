@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ignacio_prayers_flutter_application/constants/hungarian_language_constants.dart';
-
 import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer.dart';
+import '../data_descriptors/data_list.dart'; // Import Json data descriptors
+import '../settings/settings_page.dart';
+import 'dart:io';
 import 'prayer_settings_page.dart';
 
 
@@ -19,7 +20,7 @@ class PrayerDescriptionPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(prayer.title),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -33,7 +34,7 @@ class PrayerDescriptionPage extends StatelessWidget {
                 width:600.0,
                 child: Text(
                   prayer.description,
-                  style: const TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -48,7 +49,7 @@ class PrayerDescriptionPage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text(SETUP_PRAYER),
+                    child: Text("Setup Prayer"),
                   ),
               ),
             ],

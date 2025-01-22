@@ -4,7 +4,7 @@ import '../data_handlers/data_manager.dart';
 import '../data_descriptors/prayer_group.dart';
 import '../data_descriptors/data_list.dart'; // Import Json data descriptors
 import 'prayers_page.dart';
-import '../constants/hungarian_language_constants.dart';
+import '../settings/settings_page.dart';
 
 class PrayerGroupsPage extends StatefulWidget {
   final String title;
@@ -47,7 +47,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
         title: Text(widget.title),
                 actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: Icon(Icons.settings),
             onPressed: () {
               // Handle settings button press
               Navigator.pushNamed(context, '/settings');
@@ -74,7 +74,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                   elevation: 4,
-                  margin: const EdgeInsets.all(10),
+                  margin: EdgeInsets.all(10),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
@@ -150,7 +150,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text(ERROR),
+          title: Text("Error"),
           content: Text(errorMessage),
           actions: [
             TextButton(
@@ -158,7 +158,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                Navigator.of(context).pop();
                _loadData();
               },
-              child: const Text(OK),
+              child: Text("OK"),
             ),
           ],
         ),

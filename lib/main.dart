@@ -6,17 +6,16 @@ import 'data_descriptors/user_settings_data.dart';
 import 'dart:io' show Platform;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:alarm/alarm.dart';
-import 'constants/hungarian_language_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Alarm.init();
 
-  runApp(const IgnacioPrayersApp());
+  runApp(IgnacioPrayersApp());
 }
 
 class IgnacioPrayersApp extends StatefulWidget {
-  const IgnacioPrayersApp({super.key});
+  const IgnacioPrayersApp({Key? key}) : super(key: key);
 
   @override
   State<IgnacioPrayersApp> createState() => _IgnacioPrayersAppState();
@@ -29,8 +28,6 @@ class _IgnacioPrayersAppState extends State<IgnacioPrayersApp> {
 
   // TODO: multiple languages
   // final String defaultLocale = Platform.localeName;
-
-  // TODO: Permission handling
 
   // Add any state variables you need to update
   UserSettingsData _userSettingsData = UserSettingsData.withDefaults();
@@ -61,15 +58,16 @@ class _IgnacioPrayersAppState extends State<IgnacioPrayersApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: TITLE,
+      title: 'Ignáci imák',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: _userSettingsData.themeMode,
+      home: PrayerGroupsPage(title: 'Ignáci imák'),
       // theme: ThemeData(
       //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.cyan.shade900),
       //   useMaterial3: true,
       // ),
-      home: const PrayerGroupsPage(title: APP_BAR_TITLE),
+      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
         '/settings': (context) => SettingsPage(
           userSettings: _userSettingsData,
