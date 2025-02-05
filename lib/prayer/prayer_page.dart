@@ -1,134 +1,152 @@
-import 'package:flutter/foundation.dart';
+import 'dart:async' show Timer;
+
+import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:ignacio_prayers_flutter_application/data_descriptors/user_settings_data.dart';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:vibration/vibration.dart';
+import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
+
+import '../data/prayer.dart';
+import '../data/prayer_step.dart';
+import '../data/settings_data.dart';
 import '../data_handlers/data_manager.dart';
-import '../data_descriptors/prayer.dart';
-import '../data_descriptors/prayer_step.dart';
-import 'dart:async';
-// import 'package:flutter_dnd/flutter_dnd.dart';
 
 class PrayerPage extends StatefulWidget {
-  final Prayer prayer;
-  final DataManager dataManager; // Shared instance of DataManager
-  final UserSettingsData userSettingsData;
-
   const PrayerPage({
-    Key? key, 
+    super.key,
     required this.prayer,
-    required this.userSettingsData,
-    required this.dataManager
-    }) : super(key: key);
+  });
+
+  final Prayer prayer;
 
   @override
-  _PrayerPageState createState() => _PrayerPageState();
+  State<PrayerPage> createState() => _PrayerPageState();
 }
 
+class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
+  static final log = Logger('PrayerPage');
 
-class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
-  late AudioPlayer _audioPlayer;
+  final _dndPlugin = DoNotDisturbPlugin();
+
+  late final AudioPlayer _audioPlayer;
   late List<int> _nextPageTimes = [];
-  late int _remainingMillis = 0;
+  late int _remainingSeconds = 0;
   late int _currentPage = 0;
   bool _isRunning = false;
   bool _isPaused = false;
+  late final AnimationController _fabAnimationController;
   Timer? _timer;
 
-  late PageController _pageViewController;
-  late TabController _tabController;
-  late UserSettingsData _userSettingsData;
+  late final PageController _pageViewController;
+  late final TabController _tabController;
+  late final SettingsData _settings;
 
   @override
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
     _pageViewController = PageController();
-    _tabController = TabController(length: widget.prayer.steps.length, vsync: this);
-    _userSettingsData = widget.userSettingsData;
+    _tabController =
+        TabController(length: widget.prayer.steps.length, vsync: this);
+    _settings = context.read<SettingsData>();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
     _startPrayer();
+    _tabController.addListener(() {
+      if (!mounted || _tabController.indexIsChanging) {
+        return;
+      }
+      setState(() => _currentPage = _tabController.index);
+    });
   }
 
   @override
   void dispose() {
     _audioPlayer.dispose();
     _timer?.cancel();
-    super.dispose();
     _pageViewController.dispose();
     _tabController.dispose();
+    super.dispose();
   }
 
   void _startPrayer() {
     _nextPageTimes = _getOptimalPageTimes();
-    _remainingMillis = _userSettingsData.prayerLength * 60 * 1000;
+    _remainingSeconds = _settings.prayerLength * 60;
     _startTimer();
-    if (_userSettingsData.dnd) _doNotDisturbOn();
-
-    if (_userSettingsData.prayerSoundEnabled) {
-      pageAudioPlayer();
+    if (_settings.dnd) {
+      _doNotDisturbOn();
     }
+    if (_settings.prayerSoundEnabled) {
+      _pageAudioPlayer();
+    }
+    _fabAnimationController.forward();
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_isPaused) {
         timer.cancel();
       } else {
-        setState(() {
-          _remainingMillis -= 1000;
-          if (_userSettingsData.autoPageTurn) {
-            for (int time in _nextPageTimes) {
-              if (time == _remainingMillis ~/ 1000) {
-                _turnPage();
+        _remainingSeconds--;
+        if (_settings.autoPageTurn) {
+          for (final time in _nextPageTimes) {
+            if (time == _remainingSeconds) {
+              final pageIndex = _nextPageTimes.indexOf(time);
+              // we're not going back
+              if (pageIndex > _currentPage) {
+                _updateCurrentPageIndex(pageIndex);
               }
+              break;
             }
           }
-          _isRunning = true;
-        });
+        }
+        _isRunning = true;
+        setState(() {});
       }
-      if (_remainingMillis <= 0) {
+      if (_remainingSeconds <= 0) {
         _onTimerFinish();
       }
     });
   }
 
-  void _onTimerFinish() {
-    setState(() {
-      _isRunning = false;
-    });
+  Future<void> _onTimerFinish() async {
+    setState(() => _isRunning = false);
     _audioPlayer.pause();
-    loadAudio('csengo.mp3');
-    _audioPlayer.setVolume(1.0);
+    _loadAudio('csengo.mp3');
+    _audioPlayer.setVolume(1);
     _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
-    if (_userSettingsData.dnd) _doNotDisturbOff();
-    Future.delayed(Duration(seconds: 1), () {
+    if (_settings.dnd) {
+      _doNotDisturbOff();
+    }
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
       Navigator.of(context).pop();
+    }
+  }
+
+  void _loadAudio(String filename) {
+    DataManager.instance.voices.getLocalFile(filename).then((audio) {
+      _audioPlayer.setFilePath(audio.path);
+    }).catchError((e, s) {
+      log.severe('Error loading audio', e, s);
     });
   }
 
-  void loadAudio(String filename) {
-    widget.dataManager.voicesManager.getFile(filename).then((audio) {
-      if (kIsWeb) {
-        // For web: Use URL
-        _audioPlayer.setUrl(audio);
-      } else {
-        // For other platforms: Use local file
-        _audioPlayer.setFilePath(audio.path);
-      }
-    }).catchError((error) {
-      print('Error loading audio: $error');
-    });
-  }
-
-  void pageAudioPlayer(){
+  void _pageAudioPlayer() {
+    if (widget.prayer.voiceOptions.isEmpty) {
+      return;
+    }
     _audioPlayer.pause();
-    final int voiceIndex = widget.prayer.voiceOptions.indexOf(_userSettingsData.voiceChoice);
-    final filename = widget.prayer.steps[_currentPage].voices[voiceIndex]; // match voices
-    loadAudio(filename);
-    _audioPlayer.setVolume(1.0);
+    final voiceIndex =
+        widget.prayer.voiceOptions.indexOf(_settings.voiceChoice);
+    // match voices
+    final filename = widget.prayer.steps[_currentPage].voices[voiceIndex];
+    _loadAudio(filename);
+    _audioPlayer.setVolume(1);
     if (_isPaused) {
       _audioPlayer.pause();
     } else {
@@ -136,28 +154,23 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
     }
   }
 
-  void _turnPage() {
-      _currentPage++;
-      _updateCurrentPageIndex(_currentPage);
-  }
-
   List<int> _getOptimalPageTimes() {
-    List<int> pageTimes = [];
-    int totalFixTime = 0;
-    int totalFlexTime = 0;
-    for (var step in widget.prayer.steps) {
-      if (step.type == PrayerStepType.FIX) {
+    final pageTimes = <int>[];
+    var totalFixTime = 0;
+    var totalFlexTime = 0;
+    for (final step in widget.prayer.steps) {
+      if (step.type == PrayerStepType.fix) {
         totalFixTime += step.timeInSeconds;
-      } else if (step.type == PrayerStepType.FLEX) {
+      } else if (step.type == PrayerStepType.flex) {
         totalFlexTime += step.timeInSeconds;
       }
     }
-    int totalTimeForFlex = _userSettingsData.prayerLength * 60 - totalFixTime;
-    int remainingTime = _userSettingsData.prayerLength * 60;
-    for (var step in widget.prayer.steps) {
-      if (step.type == PrayerStepType.FIX) {
+    final totalTimeForFlex = _settings.prayerLength * 60 - totalFixTime;
+    var remainingTime = _settings.prayerLength * 60;
+    for (final step in widget.prayer.steps) {
+      if (step.type == PrayerStepType.fix) {
         remainingTime -= step.timeInSeconds;
-      } else if (step.type == PrayerStepType.FLEX) {
+      } else if (step.type == PrayerStepType.flex) {
         remainingTime -= totalTimeForFlex * step.timeInSeconds ~/ totalFlexTime;
       }
       pageTimes.add(remainingTime);
@@ -166,73 +179,78 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
     return pageTimes;
   }
 
-  void _doNotDisturbOn() {
-    // Implement Do Not Disturb functionality
-  }
+  Future<void> _doNotDisturbOn() =>
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
 
-  void _doNotDisturbOff() {
-    // Implement Do Not Disturb functionality
-  }
+  Future<void> _doNotDisturbOff() =>
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
 
   @override
-  Widget build(BuildContext context) {
-    final Prayer currentPrayer = widget.prayer;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentPrayer.title),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(widget.prayer.title),
+          leading: const CloseButton(),
         ),
-      body: Stack(
-        alignment: Alignment.bottomCenter,
-        children: <Widget>[
-          PageView.builder(
-            /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-            /// Use [Axis.vertical] to scroll vertically.
-            controller: _pageViewController,
-            itemCount: currentPrayer.steps.length, // Dynamic item count
-            onPageChanged: _handlePageViewChanged,
-            itemBuilder: (context, index){
-              final step = currentPrayer.steps[index];
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(38.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Text("Current page: ${index + 1}"),
-                      Text(
-                        step.description,
-                        style: TextStyle(
-                          fontSize: 24.0,
-                        ),
-                        textAlign: TextAlign.center,
+        body: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageViewController,
+                itemCount: widget.prayer.steps.length,
+                onPageChanged: (index) => _tabController.index = index,
+                itemBuilder: (context, index) {
+                  final step = widget.prayer.steps[index];
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(38),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Text("Current page: ${index + 1}"),
+                          Text(
+                            step.description,
+                            style: const TextStyle(fontSize: 24),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              );
-            }
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                onPressed: _togglePlayPause,
-                child: Text(_isRunning ? 'Pause' : 'Start'),
+                    ),
+                  );
+                },
               ),
-              Text("Remaining time: ${_remainingMillis ~/ 1000 ~/ 60}:${(_remainingMillis ~/ 1000 % 60).toString().padLeft(2, '0')}"),
-              PageIndicator(
+            ),
+            AnimatedOpacity(
+              opacity: _isPaused ? 1.0 : .5,
+              duration: kThemeAnimationDuration,
+              child: Text(
+                "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+              ),
+            ),
+            Opacity(
+              opacity: .25,
+              child: PageIndicator(
                 tabController: _tabController,
                 currentPageIndex: _currentPage,
                 onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-                isOnDesktopAndWeb: _isOnDesktopAndWeb,
               ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
+            ),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        floatingActionButton: AnimatedOpacity(
+          opacity: _isPaused ? 1.0 : .5,
+          duration: kThemeAnimationDuration,
+          child: FloatingActionButton(
+            mini: true,
+            onPressed: _togglePlayPause,
+            tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+            child: AnimatedIcon(
+              icon: AnimatedIcons.play_pause,
+              progress: _fabAnimationController,
+            ),
+          ),
+        ),
+      );
 
   void _togglePlayPause() {
     setState(() {
@@ -240,21 +258,13 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
         _audioPlayer.pause();
         _isPaused = true;
         _isRunning = false;
+        _fabAnimationController.reverse();
       } else {
         _isPaused = false;
         _startTimer();
         _audioPlayer.play();
+        _fabAnimationController.forward();
       }
-    });
-  }
-
-  void _handlePageViewChanged(int currentPageIndex) {
-    if (!_isOnDesktopAndWeb) {
-      return;
-    }
-    _tabController.index = currentPageIndex;
-    setState(() {
-      _currentPage = currentPageIndex;
     });
   }
 
@@ -265,68 +275,37 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin{
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
-    _currentPage = index;
-    if (_userSettingsData.prayerSoundEnabled) {
-      pageAudioPlayer();
-    } else if (_currentPage > 0 && _userSettingsData.autoPageTurn) {
+    if (_settings.prayerSoundEnabled) {
+      _pageAudioPlayer();
+    } else if (_currentPage > 0 && _settings.autoPageTurn) {
       // Vibration.vibrate(duration: 500);
-    }
-  }
-
-  bool get _isOnDesktopAndWeb {
-    if (kIsWeb) {
-      return true;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.macOS:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-        return true;
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-      case TargetPlatform.fuchsia:
-        return false;
     }
   }
 }
 
-
-/// Page indicator for desktop and web platforms.
-///
-/// On Desktop and Web, drag gesture for horizontal scrolling in a PageView is disabled by default.
-/// You can defined a custom scroll behavior to activate drag gestures,
-/// see https://docs.flutter.dev/release/breaking-changes/default-scroll-behavior-drag.
-///
-/// In this sample, we use a TabPageSelector to navigate between pages,
-/// in order to build natural behavior similar to other desktop applications.
 class PageIndicator extends StatelessWidget {
   const PageIndicator({
     super.key,
     required this.tabController,
     required this.currentPageIndex,
     required this.onUpdateCurrentPageIndex,
-    required this.isOnDesktopAndWeb,
   });
 
   final int currentPageIndex;
   final TabController tabController;
   final void Function(int) onUpdateCurrentPageIndex;
-  final bool isOnDesktopAndWeb;
 
   @override
   Widget build(BuildContext context) {
-    if (!isOnDesktopAndWeb) {
-      return const SizedBox.shrink();
-    }
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           IconButton(
-            splashRadius: 16.0,
+            splashRadius: 16,
             padding: EdgeInsets.zero,
             onPressed: () {
               if (currentPageIndex == 0) {
@@ -336,7 +315,7 @@ class PageIndicator extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_left_rounded,
-              size: 32.0,
+              size: 32,
             ),
           ),
           TabPageSelector(
@@ -345,7 +324,7 @@ class PageIndicator extends StatelessWidget {
             selectedColor: colorScheme.primary,
           ),
           IconButton(
-            splashRadius: 16.0,
+            splashRadius: 16,
             padding: EdgeInsets.zero,
             onPressed: () {
               if (currentPageIndex == tabController.length - 1) {
@@ -355,7 +334,7 @@ class PageIndicator extends StatelessWidget {
             },
             icon: const Icon(
               Icons.arrow_right_rounded,
-              size: 32.0,
+              size: 32,
             ),
           ),
         ],

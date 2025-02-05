@@ -1,60 +1,47 @@
 import 'package:flutter/material.dart';
-import '../data_handlers/data_manager.dart';
-import '../data_descriptors/prayer.dart';
-import '../data_descriptors/data_list.dart'; // Import Json data descriptors
-import '../settings/settings_page.dart';
-import 'dart:io';
-import 'prayer_settings_page.dart';
 
+import '../data/prayer.dart';
+import '../routes.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
-  final Prayer prayer;
-  final DataManager dataManager;
-
-  const PrayerDescriptionPage({Key? key, required this.prayer, required this.dataManager}) : super(key: key);
+  const PrayerDescriptionPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final prayer = context.getRouteArgument<Prayer>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(prayer.title),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width:600.0,
-                child: Text(
-                  prayer.description,
-                  style: TextStyle(fontSize: 24),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PrayerSettingsPage(prayer: prayer, dataManager: dataManager),
-                        ),
-                      );
-                    },
-                    child: Text("Setup Prayer"),
-                  ),
-              ),
-            ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            8,
+            16,
+            kMinInteractiveDimension * 2,
+          ),
+          child: Container(
+            constraints: BoxConstraints.loose(const Size.fromWidth(600)),
+            child: Text(
+              prayer.description,
+              style: const TextStyle(fontSize: 24),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
-      );
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(
+          context,
+          Routes.prayerSettings,
+          arguments: prayer,
+        ),
+        tooltip: 'Ima beállítása',
+        child: const Icon(Icons.check_rounded),
+      ),
+    );
   }
 }

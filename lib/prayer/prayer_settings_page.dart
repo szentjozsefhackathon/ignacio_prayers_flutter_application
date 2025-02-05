@@ -1,190 +1,128 @@
 import 'package:flutter/material.dart';
-import '../data_handlers/data_manager.dart';
-import '../data_descriptors/prayer.dart';
-import 'prayer_page.dart';
-import '../data_descriptors/user_settings_data.dart';
-import '../settings/user_settings_manager.dart';
-import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 
+import '../data/prayer.dart';
+import '../data/settings_data.dart';
+import '../routes.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
-  final Prayer prayer;
-  final DataManager dataManager;
-
-  const PrayerSettingsPage({
-    Key? key, 
-    required this.prayer, 
-    required this.dataManager
-    }): super(key: key);
+  const PrayerSettingsPage({super.key});
 
   @override
-  _PrayerSettingsPageState createState() => _PrayerSettingsPageState();
+  State<PrayerSettingsPage> createState() => _PrayerSettingsPageState();
 }
 
 class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
-  // Add any state variables you need to update
-  final userSettingsManager = UserSettingsManager();
-  UserSettingsData _userSettingsData = UserSettingsData.withDefaults();
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final UserSettingsData userSettingsData = await userSettingsManager.loadUserSettings();
-    setState(() {
-      _userSettingsData = userSettingsData;
-    });
-  }
-
-  void _updateUserSettings(UserSettingsData userSettingsData) {
-    Future.microtask((){
-      setState(() {
-        _userSettingsData = userSettingsData;
-      });
-      userSettingsManager.saveSaveSettings(userSettingsData);
-    });
-  }
-
-
   @override
   Widget build(BuildContext context) {
-    final Prayer currentPrayer = widget.prayer;
+    final prayer = context.getRouteArgument<Prayer>();
+    final settings = context.watch<SettingsData>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentPrayer.title),
+        title: Text(prayer.title),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16.0),
         children: [
           SwitchListTile(
-            title: const Text("Automatic Page Turn"),
-            value: _userSettingsData.autoPageTurn,
-            onChanged: (newValue) {
-              _userSettingsData.autoPageTurn = newValue;
-              _updateUserSettings(_userSettingsData);
-            },
+            title: const Text('Automatikus lapozás'),
+            value: settings.autoPageTurn,
+            onChanged: (v) => settings.autoPageTurn = v,
           ),
-          if(!kIsWeb)
+          SwitchListTile(
+            title: const Text('Ne zavarjanak'),
+            value: settings.dnd,
+            onChanged: (v) => settings.dnd = v,
+          ),
+          if (prayer.voiceOptions.isNotEmpty)
             SwitchListTile(
-              title: const Text("Do Not Disturb"),
-              value: _userSettingsData.dnd,
-              onChanged: (newValue) {
-                _userSettingsData.dnd = newValue;
-                _updateUserSettings(_userSettingsData);
-              },
-            ),
-          if (currentPrayer.voiceOptions != [])
-            ListTile(
-              title: const Text("Select Voice"),
-              subtitle: Text(_userSettingsData.voiceChoice),
-              trailing: DropdownButton<String>(
-                value: _userSettingsData.voiceChoice, //TODO: check if this voice is available
-                onChanged: (newValue) {
-                  if (newValue != null) {
-                    _userSettingsData.voiceChoice = newValue;
-                    _updateUserSettings(_userSettingsData);
-                  }
-                },
-                items: currentPrayer.voiceOptions
-                    .map((voice) => DropdownMenuItem(
-                          value: voice,
-                          child: Text(voice),
-                        ))
-                    .toList(),
-              ),
-            ),
-          if (currentPrayer.voiceOptions != [])
-            SwitchListTile(
-              title: const Text("Enable Sound"),
-              value: _userSettingsData.prayerSoundEnabled,
-              onChanged: (newValue) {
-                _userSettingsData.prayerSoundEnabled = newValue;
-                _updateUserSettings(_userSettingsData);
-              },
+              title: const Text('Hang'),
+              value: settings.prayerSoundEnabled,
+              onChanged: (v) => settings.prayerSoundEnabled = v,
             )
           else
-            ListTile(
-              title: Text("Enable Sound"),
-              subtitle: Text("Disabled for this prayer"),
-              trailing: Switch(value: false, onChanged: null),
+            const SwitchListTile(
+              title: Text('Hang'),
+              subtitle: Text('Nincs ehhez az imához'),
+              value: false,
+              onChanged: null,
             ),
+          ...prayer.voiceOptions.map(
+            (voice) => RadioListTile(
+              title: Text(voice),
+              value: voice,
+              // TODO: check if this voice is available
+              groupValue: settings.voiceChoice,
+              onChanged: settings.prayerSoundEnabled
+                  ? (String? v) {
+                      if (v != null) {
+                        settings.voiceChoice = v;
+                      }
+                    }
+                  : null,
+            ),
+          ),
           ListTile(
-            title: Text("Prayer Length"),
-            subtitle: Text("${_userSettingsData.prayerLength} minutes"),
-            trailing: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    int tempLength = _userSettingsData.prayerLength;
-                    return AlertDialog(
-                      title: Text("Set Prayer Length"),
-                      content: StatefulBuilder(
-                        builder: (BuildContext context, StateSetter setState) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Slider(
-                                value: tempLength.toDouble(),
-                                min: currentPrayer.minTimeInMinutes.toDouble(),
-                                max: 60,
-                                divisions: 60 - currentPrayer.minTimeInMinutes,
-                                label: "$tempLength minutes",
-                                onChanged: (value) {
-                                  setState(() {
-                                    tempLength = value.toInt();
-                                  });
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Cancel"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            _userSettingsData.prayerLength = tempLength;
-                            _updateUserSettings(_userSettingsData);
-                            Navigator.pop(context);
-                          },
-                          child: Text("Save"),
+            title: const Text('Ima hossza'),
+            subtitle: Text('${settings.prayerLength} perc'),
+            trailing: const Icon(Icons.edit),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  var length = settings.prayerLength;
+                  return AlertDialog(
+                    title: const Text('Ima hossza'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StatefulBuilder(
+                          builder: (context, setState) => Slider(
+                            value: length.toDouble(),
+                            min: prayer.minTimeInMinutes.toDouble(),
+                            max: 60,
+                            divisions: 60 - prayer.minTimeInMinutes,
+                            label: '$length perc',
+                            onChanged: (v) => setState(
+                              () => length = v.toInt(),
+                            ),
+                          ),
                         ),
                       ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-            child: Text("More settings"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PrayerPage(prayer: currentPrayer, userSettingsData: _userSettingsData, dataManager: widget.dataManager),
-                ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Mégsem'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          settings.prayerLength = length;
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Beállítás'),
+                      ),
+                    ],
+                  );
+                },
               );
             },
-            child: Text("Start Prayer"),
+          ),
+          ListTile(
+            title: const Text('További beállítások'),
+            onTap: () => Navigator.pushNamed(context, Routes.settings),
           ),
         ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(
+          context,
+          Routes.prayer,
+          arguments: prayer,
+        ),
+        tooltip: 'Ima indítása',
+        child: const Icon(Icons.play_arrow_rounded),
       ),
     );
   }

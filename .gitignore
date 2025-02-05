@@ -44,3 +44,6 @@ app.*.map.json
 
 # VS Code
 .vscode/
+
+# Generated files
+*.g.dart
