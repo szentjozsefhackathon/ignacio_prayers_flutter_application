@@ -75,4 +75,5 @@ ios/Podfile.lock
 android/.gradle/
 android/app/build/
 android/build/
-android/app/.cxx
+android/app/.cxx/
+android/.kotlin/

@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -5,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import 'data/settings_data.dart';
 import 'routes.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +16,12 @@ void main() async {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-  await Alarm.init();
+
+  if (Platform.isAndroid || Platform.isIOS) {
+    // Android-specific code
+    await Alarm.init();
+  }
+
 
   runApp(const IgnacioPrayersApp());
 }
