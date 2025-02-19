@@ -47,3 +47,32 @@ app.*.map.json
 
 # Generated files
 *.g.dart
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS Flutter Build & Generated Files
+macos/Flutter/ephemeral/
+macos/Flutter/Flutter.podspec
+macos/.symlinks/
+macos/.generated/
+macos/build/
+
+# Windows Build & Generated Files
+windows/flutter/ephemeral/
+windows/build/
+
+# Xcode (for macOS/iOS)
+ios/Flutter/ephemeral/
+ios/.symlinks/
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+
+# Gradle (for Android)
+android/.gradle/
+android/app/build/
+android/build/
+android/app/.cxx
