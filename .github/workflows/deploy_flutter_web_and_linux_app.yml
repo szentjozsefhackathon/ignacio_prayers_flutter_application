@@ -39,7 +39,7 @@ jobs:
         run: flutter pub get
 
       #6 Build JSON Serialization
-      - name: Install Dependencies
+      - name: Run build_runner
         run: dart run build_runner build
       
       # #11 Check if Tag Exists
