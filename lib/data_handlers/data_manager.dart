@@ -96,7 +96,7 @@ class DataManager {
       if (localVersions?.voices != serverVersions.voices) {
         final voicesServerDatas = await _voices.serverData;
 
-        success = await _images.syncFiles(
+        success = await _voices.syncFiles(
           voicesServerDatas,
           stopOnError: stopOnError,
         );
