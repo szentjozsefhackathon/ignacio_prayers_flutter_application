@@ -17,7 +17,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   SettingsData({
     ThemeMode themeMode = ThemeMode.system,
     bool dnd = !kIsWeb,
-    bool dailyNotifier = true,
+    bool dailyNotifier = !kIsWeb,
     TimeOfDay dailyNotifierTime = const TimeOfDay(hour: 8, minute: 0),
     bool autoPageTurn = true,
     int prayerLength = 30,
