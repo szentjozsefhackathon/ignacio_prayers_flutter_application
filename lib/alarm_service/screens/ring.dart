@@ -23,10 +23,14 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   void initState() {
     super.initState();
       _ringingSubscription = Alarm.ringing.listen((alarms) {
-      if (alarms.containsId(widget.alarmSettings.id)) return;
+      if (alarms.containsId(widget.alarmSettings.id)) {
+        return;
+      }
       _log.info('Alarm ${widget.alarmSettings.id} stopped ringing.');
       _ringingSubscription?.cancel();
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     });
   }
 
