@@ -37,6 +37,10 @@ jobs:
       #5 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
+
+      #6 Build JSON Serialization
+      - name: Run build_runner
+        run: dart run build_runner build
       
       # #11 Check if Tag Exists
       # - name: Check if Tag Exists

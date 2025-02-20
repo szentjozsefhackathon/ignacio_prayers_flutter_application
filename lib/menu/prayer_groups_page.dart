@@ -4,6 +4,8 @@ import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
 import '../routes.dart';
+import '../alarm_service/services/permission.dart';
+import 'dart:io' show Platform;
 
 class PrayerGroupsPage extends StatefulWidget {
   const PrayerGroupsPage({super.key});
@@ -23,6 +25,12 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
 
   Future<void> _loadData() async {
     try {
+      if (Platform.isAndroid) {
+        await AlarmPermissions.checkAndroidPhotosPermission();
+        await AlarmPermissions.checkAndroidExternalAudioPermission();
+        await AlarmPermissions.checkAndroidExternalVideosPermission();
+      }
+
       await DataManager.instance.checkForUpdates(stopOnError: true);
       final prayerGroups = await DataManager.instance.prayerGroups.data;
       if (mounted) {

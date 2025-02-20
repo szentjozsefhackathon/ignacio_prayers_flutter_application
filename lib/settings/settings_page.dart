@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:alarm/alarm.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
@@ -41,7 +42,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    AlarmPermissions.checkNotificationPermission();
+    if (Platform.isAndroid || Platform.isIOS) {
+      AlarmPermissions.checkNotificationPermission();
+    }
     if (Alarm.android) {
       AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
     }

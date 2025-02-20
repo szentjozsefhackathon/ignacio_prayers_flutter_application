@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:alarm/alarm.dart';
+import 'package:alarm/utils/alarm_set.dart';
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
 
 class AlarmRingScreen extends StatefulWidget {
   const AlarmRingScreen({super.key, required this.alarmSettings});
@@ -13,27 +15,29 @@ class AlarmRingScreen extends StatefulWidget {
 }
 
 class _AlarmRingScreenState extends State<AlarmRingScreen> {
+  static final _log = Logger('ExampleAlarmRingScreenState');
+
+  StreamSubscription<AlarmSet>? _ringingSubscription;
+
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (timer) async {
-      if (!mounted) {
-        timer.cancel();
+      _ringingSubscription = Alarm.ringing.listen((alarms) {
+      if (alarms.containsId(widget.alarmSettings.id)) {
         return;
       }
-
-      final isRinging = await Alarm.isRinging(widget.alarmSettings.id);
-      if (isRinging) {
-        alarmPrint('Alarm ${widget.alarmSettings.id} is still ringing...');
-        return;
-      }
-
-      alarmPrint('Alarm ${widget.alarmSettings.id} stopped ringing.');
-      timer.cancel();
+      _log.info('Alarm ${widget.alarmSettings.id} stopped ringing.');
+      _ringingSubscription?.cancel();
       if (mounted) {
         Navigator.pop(context);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _ringingSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -54,7 +58,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   RawMaterialButton(
-                    onPressed: () => Alarm.set(
+                    onPressed: () async => Alarm.set(
                       alarmSettings: widget.alarmSettings.copyWith(
                         dateTime: DateTime.now().add(
                           const Duration(minutes: 1),
