@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../data/prayer.dart';
 import '../data/settings_data.dart';
 import '../routes.dart';
+import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
   const PrayerSettingsPage({
@@ -122,10 +123,11 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(
+        onPressed: () => Navigator.push(
           context,
-          Routes.prayer(widget.prayer),
-          arguments: widget.prayer,
+          MaterialPageRoute(
+            builder: (context) => PrayerPage(prayer: widget.prayer),
+          ),
         ),
         tooltip: 'Ima indítása',
         child: const Icon(Icons.play_arrow_rounded),

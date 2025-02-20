@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../data/prayer.dart';
-import '../routes.dart';
+import '../data/prayer_group.dart';
+import 'prayer_settings_page.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
   const PrayerDescriptionPage({
     super.key,
+    required this.group,
     required this.prayer,
   });
 
+  final PrayerGroup group;
   final Prayer prayer;
 
   @override
@@ -36,10 +39,11 @@ class PrayerDescriptionPage extends StatelessWidget {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(
+          onPressed: () => Navigator.push(
             context,
-            Routes.prayerSettings(prayer),
-            arguments: prayer,
+            MaterialPageRoute(
+              builder: (context) => PrayerSettingsPage(prayer: prayer),
+            ),
           ),
           tooltip: 'Ima beállítása',
           child: const Icon(Icons.check_rounded),

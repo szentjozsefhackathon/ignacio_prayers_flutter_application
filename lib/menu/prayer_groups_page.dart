@@ -52,6 +52,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Ignáci imák'),
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),

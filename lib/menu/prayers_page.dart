@@ -38,8 +38,8 @@ class PrayersPage extends StatelessWidget {
                     child: InkWell(
                       onTap: () => Navigator.pushNamed(
                         context,
-                        Routes.prayerDescription(prayer),
-                        arguments: prayer,
+                        Routes.prayer(group, prayer),
+                        arguments: [group, prayer],
                       ),
                       child: Stack(
                         children: [
