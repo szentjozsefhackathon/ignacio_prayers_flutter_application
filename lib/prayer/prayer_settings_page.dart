@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,11 +30,12 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             value: settings.autoPageTurn,
             onChanged: (v) => settings.autoPageTurn = v,
           ),
-          SwitchListTile(
-            title: const Text('Ne zavarjanak'),
-            value: settings.dnd,
-            onChanged: (v) => settings.dnd = v,
-          ),
+          if (!kIsWeb)
+            SwitchListTile(
+              title: const Text('Ne zavarjanak'),
+              value: settings.dnd,
+              onChanged: (v) => settings.dnd = v,
+            ),
           if (prayer.voiceOptions.isNotEmpty)
             SwitchListTile(
               title: const Text('Hang'),

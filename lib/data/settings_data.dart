@@ -1,5 +1,6 @@
 import 'dart:convert' show json;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:logging/logging.dart';
@@ -15,7 +16,7 @@ const _kUserSettings = 'userData';
 class SettingsData extends ChangeNotifier implements DataDescriptor {
   SettingsData({
     ThemeMode themeMode = ThemeMode.system,
-    bool dnd = true,
+    bool dnd = !kIsWeb,
     bool dailyNotifier = true,
     TimeOfDay dailyNotifierTime = const TimeOfDay(hour: 8, minute: 0),
     bool autoPageTurn = true,
@@ -48,6 +49,9 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   bool _dnd;
   bool get dnd => _dnd;
   set dnd(bool newValue) {
+    if (kIsWeb) {
+      return;
+    }
     if (_dnd != newValue) {
       _dnd = newValue;
       save();
@@ -58,6 +62,9 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   bool _dailyNotifier;
   bool get dailyNotifier => _dailyNotifier;
   set dailyNotifier(bool newValue) {
+    if (kIsWeb) {
+      return;
+    }
     if (_dailyNotifier != newValue) {
       _dailyNotifier = newValue;
       save();
@@ -69,6 +76,9 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   @TimeOfDayConverter()
   TimeOfDay get dailyNotifierTime => _dailyNotifierTime;
   set dailyNotifierTime(TimeOfDay newValue) {
+    if (kIsWeb) {
+      return;
+    }
     if (_dailyNotifierTime != newValue) {
       _dailyNotifierTime = newValue;
       save();

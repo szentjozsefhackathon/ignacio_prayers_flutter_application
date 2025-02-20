@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:alarm/alarm.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -42,11 +42,11 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       AlarmPermissions.checkNotificationPermission();
-    }
-    if (Alarm.android) {
-      AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
+      if (Platform.isAndroid) {
+        AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
+      }
     }
     _ringSubscription = _alarmRingStream.listen(_navigateToRingScreen);
     _updateSubscription = _alarmUpdateStream.listen((_) => _loadAlarms());
@@ -68,23 +68,24 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(title: const Text('Beállítások')),
       body: ListView(
         children: [
-          SwitchListTile(
-            title: const Text('Ne zavarjanak'),
-            subtitle: const Text(
-              'Értesítések és egyéb hangok némítása az ima alatt',
-            ),
-            value: settings.dnd,
-            onChanged: (v) async {
-              if (v && _notifPolicyAccess != true) {
-                _checkNotificationPolicyAccessGranted();
-                // TODO: update state when user returns from system settings
-                if (_notifPolicyAccess == null) {
-                  return;
+          if (!kIsWeb)
+            SwitchListTile(
+              title: const Text('Ne zavarjanak'),
+              subtitle: const Text(
+                'Értesítések és egyéb hangok némítása az ima alatt',
+              ),
+              value: settings.dnd,
+              onChanged: (v) async {
+                if (v && _notifPolicyAccess != true) {
+                  _checkNotificationPolicyAccessGranted();
+                  // TODO: update state when user returns from system settings
+                  if (_notifPolicyAccess == null) {
+                    return;
+                  }
                 }
-              }
-              settings.dnd = v;
-            },
-          ),
+                settings.dnd = v;
+              },
+            ),
           if (settings.dnd)
             ListTile(
               title: const Text('Ne zavarjanak további beállításai'),
@@ -113,24 +114,26 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          SwitchListTile(
-            title: const Text('Napi emlékeztetők'),
-            value: settings.dailyNotifier,
-            onChanged: (v) {
-              settings.dailyNotifier = v;
-              if (!v) {
-                Alarm.stopAll();
-              }
-            },
-          ),
-          ListTile(
-            title: const Text('Emlékeztető hozzáadása'),
-            leading: const Icon(Icons.add_rounded),
-            // TODO: do we need dailyNotifierTime (we have alarms)?
-            //subtitle: Text(settings.dailyNotifierTime.format(context)),
-            enabled: settings.dailyNotifier,
-            onTap: () => _navigateToAlarmScreen(null),
-          ),
+          if (!kIsWeb)
+            SwitchListTile(
+              title: const Text('Napi emlékeztetők'),
+              value: settings.dailyNotifier,
+              onChanged: (v) {
+                settings.dailyNotifier = v;
+                if (!v) {
+                  Alarm.stopAll();
+                }
+              },
+            ),
+          if (!kIsWeb)
+            ListTile(
+              title: const Text('Emlékeztető hozzáadása'),
+              leading: const Icon(Icons.add_rounded),
+              // TODO: do we need dailyNotifierTime (we have alarms)?
+              //subtitle: Text(settings.dailyNotifierTime.format(context)),
+              enabled: settings.dailyNotifier,
+              onTap: () => _navigateToAlarmScreen(null),
+            ),
           if (_alarms.isNotEmpty)
             SafeArea(
               child: Column(
@@ -156,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
             title: const Text('Impresszum'),
             onTap: () => Navigator.pushNamed(context, Routes.impressum),
           ),
-          if (kDebugMode)
+          if (kDebugMode && !kIsWeb)
             ListTile(
               title: const Text('Adatok újra-letöltése'),
               enabled: !_updatingData,
