@@ -82,7 +82,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     child: InkWell(
                       onTap: () => Navigator.pushNamed(
                         context,
-                        Routes.prayers,
+                        Routes.prayers(item),
                         arguments: item,
                       ),
                       child: Stack(
