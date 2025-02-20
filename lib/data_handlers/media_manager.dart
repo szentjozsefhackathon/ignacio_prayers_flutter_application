@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -20,6 +20,8 @@ class MediaManager extends ListDataSetManager<MediaData> {
     DataList<MediaData> serverFiles, {
     required bool stopOnError,
   }) async {
+    assert(!kIsWeb, 'syncFiles is not supported on web');
+
     // Get local media data from file system
     final localFiles = await _localFiles;
 
@@ -120,6 +122,8 @@ class MediaManager extends ListDataSetManager<MediaData> {
   }
 
   Future<File> getLocalFile(String name) async {
+    assert(!kIsWeb, 'getLocalFile is not supported on web');
+
     final appDirectoryPath = await _localPath;
     // TODO p.join(appDirectoryPath, filename);
     final fullPath = '$appDirectoryPath/$name';
@@ -129,11 +133,11 @@ class MediaManager extends ListDataSetManager<MediaData> {
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     final directoryPath = '${directory.path}/$dataKey';
-    await ensureDirectoryExists(directoryPath);
+    await _ensureDirectoryExists(directoryPath);
     return directoryPath;
   }
 
-  Future<void> ensureDirectoryExists(String directoryPath) async {
+  Future<void> _ensureDirectoryExists(String directoryPath) async {
     final directory = Directory(directoryPath);
     if (await directory.exists()) {
       // log.info('Directory exists: $directoryPath');
@@ -145,6 +149,8 @@ class MediaManager extends ListDataSetManager<MediaData> {
 
   @override
   Future<void> deleteLocalData() async {
+    assert(!kIsWeb, 'deleteLocalData is not supported on web');
+
     final localFiles = await _localFiles;
     await Future.forEach(localFiles, _deleteFile);
     return super.deleteLocalData();
