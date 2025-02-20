@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:slugify/slugify.dart';
 
@@ -15,7 +16,7 @@ class Prayer extends DataDescriptor with SlugMixin {
     required this.voiceOptions,
     required this.minTimeInMinutes,
     required this.steps,
-  }) : slug = slugify(title); // TODO: do this on server side?
+  }) : slug = slugify(removeDiacritics(title)); // TODO: do this on server side?
 
   factory Prayer.fromJson(Json json) => _$PrayerFromJson(json);
 
