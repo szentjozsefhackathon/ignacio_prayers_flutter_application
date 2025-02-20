@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/prayer.dart';
 import '../data/prayer_group.dart';
+import 'prayer_image.dart';
 import 'prayer_settings_page.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
@@ -16,26 +17,42 @@ class PrayerDescriptionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text(prayer.title),
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              16,
-              8,
-              16,
-              kMinInteractiveDimension * 2,
-            ),
-            child: Container(
-              constraints: BoxConstraints.loose(const Size.fromWidth(600)),
-              child: Text(
-                prayer.description,
-                style: const TextStyle(fontSize: 24),
-                textAlign: TextAlign.center,
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar.large(
+              expandedHeight: MediaQuery.of(context).size.height * 0.3,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Text(prayer.title),
+                background: PrayerImage(
+                  name: prayer.image,
+                  opacity: const AlwaysStoppedAnimation(.3),
+                ),
+                collapseMode: CollapseMode.parallax,
               ),
             ),
-          ),
+            SliverToBoxAdapter(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  32,
+                  16,
+                  kMinInteractiveDimension * 2,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints.loose(
+                      const Size.fromWidth(600),
+                    ),
+                    child: Text(
+                      prayer.description,
+                      style: const TextStyle(fontSize: 24),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton(

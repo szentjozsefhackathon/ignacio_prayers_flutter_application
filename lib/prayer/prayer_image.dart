@@ -7,9 +7,11 @@ class PrayerImage extends StatelessWidget {
   const PrayerImage({
     super.key,
     required this.name,
+    this.opacity,
   });
 
   final String name;
+  final Animation<double>? opacity;
 
   Widget _buildError() => const Center(
         child: Icon(
@@ -29,6 +31,7 @@ class PrayerImage extends StatelessWidget {
       return Image.network(
         DataManager.instance.images.getDownloadUri(name).toString(),
         fit: BoxFit.cover,
+        opacity: opacity,
         loadingBuilder: (context, child, progress) {
           if (progress == null) {
             return child;
@@ -56,6 +59,7 @@ class PrayerImage extends StatelessWidget {
         return Image.file(
           snapshot.data!,
           fit: BoxFit.cover,
+          opacity: opacity,
           errorBuilder: (context, error, stack) => _buildError(),
         );
       },
