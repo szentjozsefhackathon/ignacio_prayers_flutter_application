@@ -81,9 +81,11 @@ class MediaManager extends ListDataSetManager<MediaData> {
     return list;
   }
 
+  Uri getDownloadUri(String name) => Uri.parse(mediaApiUrl(dataKey, name));
+
   Future<bool> _downloadAndSaveFile(MediaData m) async {
     try {
-      final response = await http.get(Uri.parse(mediaApiUrl(dataKey, m.name)));
+      final response = await http.get(getDownloadUri(m.name));
       if (response.statusCode == 200) {
         return await _saveFile(m, response.bodyBytes);
       } else {

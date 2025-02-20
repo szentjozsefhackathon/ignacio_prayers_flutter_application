@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/prayer_group.dart';
-import '../data_handlers/data_manager.dart';
+import '../prayer/prayer_image.dart';
 import '../routes.dart';
 
 class PrayersPage extends StatelessWidget {
@@ -41,37 +41,9 @@ class PrayersPage extends StatelessWidget {
                     ),
                     child: Stack(
                       children: [
-                        // Background Image
                         Positioned.fill(
-                          child: FutureBuilder(
-                            future: DataManager.instance.images
-                                .getLocalFile(prayer.image),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError ||
-                                  !snapshot.hasData) {
-                                // !snapshot.data!.existsSync()
-                                return const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    size: 50,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              } else {
-                                return Image.file(
-                                  snapshot.data!,
-                                  fit: BoxFit.cover,
-                                );
-                              }
-                            },
-                          ),
+                          child: PrayerImage(name: prayer.image),
                         ),
-                        // Overlay for Title
                         Positioned(
                           bottom: 0,
                           left: 0,

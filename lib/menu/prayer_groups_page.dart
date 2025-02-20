@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
+import '../prayer/prayer_image.dart';
 import '../routes.dart';
 import '../alarm_service/services/permission.dart';
 import 'dart:io' show Platform;
@@ -81,38 +82,9 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                       ),
                       child: Stack(
                         children: [
-                          // Background Image
                           Positioned.fill(
-                            // TODO: images are not loaded
-                            child: FutureBuilder(
-                              future: DataManager.instance.images
-                                  .getLocalFile(item.image),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                } else if (snapshot.hasError ||
-                                    !snapshot.hasData) {
-                                  // !snapshot.data!.existsSync()
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                } else {
-                                  return Image.file(
-                                    snapshot.data!,
-                                    fit: BoxFit.cover,
-                                  );
-                                }
-                              },
-                            ),
+                            child: PrayerImage(name: item.image),
                           ),
-                          // Overlay for Title
                           Positioned(
                             bottom: 0,
                             left: 0,
