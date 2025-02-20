@@ -25,7 +25,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
 
   Future<void> _loadData() async {
     try {
-      if(!Platform.isLinux){
+      if (Platform.isAndroid) {
         await AlarmPermissions.checkAndroidPhotosPermission();
         await AlarmPermissions.checkAndroidExternalAudioPermission();
         await AlarmPermissions.checkAndroidExternalVideosPermission();
