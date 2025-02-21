@@ -54,7 +54,7 @@ class PrayerDescriptionPage extends StatelessWidget {
               prayer.description,
               padding: const EdgeInsets.fromLTRB(
                 16,
-                8,
+                32,
                 16,
                 kMinInteractiveDimension * 2,
               ),
