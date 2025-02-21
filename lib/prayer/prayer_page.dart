@@ -200,8 +200,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text(widget.prayer.title),
           leading: const CloseButton(),
+          title: AnimatedOpacity(
+            opacity: _isPaused ? 1.0 : .4,
+            duration: kThemeAnimationDuration,
+            child: Text(widget.prayer.title),
+          ),
         ),
         body: Column(
           children: [
