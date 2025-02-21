@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:logging/logging.dart';
 import 'package:permission_handler/permission_handler.dart';
 

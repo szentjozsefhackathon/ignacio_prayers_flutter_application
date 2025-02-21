@@ -1,6 +1,7 @@
 import 'dart:async' show Timer;
 
 import 'package:do_not_disturb/do_not_disturb.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
@@ -130,11 +131,22 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   void _loadAudio(String filename) {
-    DataManager.instance.voices.getLocalFile(filename).then((audio) {
-      _audioPlayer.setFilePath(audio.path);
-    }).catchError((e, s) {
-      log.severe('Error loading audio', e, s);
-    });
+    if (kIsWeb) {
+      try {
+        _audioPlayer.setAudioSource(
+          AudioSource.uri(DataManager.instance.voices.getDownloadUri(filename)),
+          initialPosition: Duration.zero,
+        );
+      } catch (e, s) {
+        log.severe('Error loading audio', e, s);
+      }
+    } else {
+      DataManager.instance.voices.getLocalFile(filename).then((audio) {
+        _audioPlayer.setFilePath(audio.path);
+      }).catchError((e, s) {
+        log.severe('Error loading audio', e, s);
+      });
+    }
   }
 
   void _pageAudioPlayer() {
