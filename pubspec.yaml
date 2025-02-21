@@ -37,6 +37,8 @@ dependencies:
   do_not_disturb: ^1.0.3
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_web_plugins:
     sdk: flutter
   grouped_list: ^6.0.0
