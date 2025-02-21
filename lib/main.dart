@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+
 import 'package:alarm/alarm.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -7,9 +8,9 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
-import 'theme/theme.dart'; // Import the colors file
 import 'data/settings_data.dart';
 import 'routes.dart';
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,8 +39,8 @@ class IgnacioPrayersApp extends StatelessWidget {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
             title: 'Ignáci imák',
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,
