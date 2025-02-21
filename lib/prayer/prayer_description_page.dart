@@ -4,6 +4,7 @@ import '../data/prayer.dart';
 import '../data/prayer_group.dart';
 import 'prayer_image.dart';
 import 'prayer_settings_page.dart';
+import 'prayer_text.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
   const PrayerDescriptionPage({
@@ -49,24 +50,13 @@ class PrayerDescriptionPage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: SingleChildScrollView(
+            child: PrayerText(
+              prayer.description,
               padding: const EdgeInsets.fromLTRB(
                 16,
                 32,
                 16,
                 kMinInteractiveDimension * 2,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.loose(
-                    const Size.fromWidth(600),
-                  ),
-                  child: Text(
-                    prayer.description,
-                    style: const TextStyle(fontSize: 24),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               ),
             ),
           ),
