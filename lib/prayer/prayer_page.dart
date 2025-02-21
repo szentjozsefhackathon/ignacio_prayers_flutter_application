@@ -325,10 +325,8 @@ class PageIndicator extends StatelessWidget {
               }
               onUpdateCurrentPageIndex(currentPageIndex - 1);
             },
-            icon: const Icon(
-              Icons.arrow_left_rounded,
-              size: 32,
-            ),
+            icon: const Icon(Icons.chevron_left_rounded),
+            tooltip: 'Előző oldal',
           ),
           TabPageSelector(
             controller: tabController,
@@ -344,10 +342,8 @@ class PageIndicator extends StatelessWidget {
               }
               onUpdateCurrentPageIndex(currentPageIndex + 1);
             },
-            icon: const Icon(
-              Icons.arrow_right_rounded,
-              size: 32,
-            ),
+            icon: const Icon(Icons.chevron_right_rounded),
+            tooltip: 'Következő oldal',
           ),
         ],
       ),
