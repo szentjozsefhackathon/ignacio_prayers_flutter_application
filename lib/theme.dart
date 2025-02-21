@@ -3,26 +3,16 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static const _kPrimaryColor = Color(0xFFBA0527);
-  static const _kPrimaryColorDark = Color(0xFFBA0527);
+  static ThemeData _createTheme(Brightness brightness, Color seed) => ThemeData(
+        brightness: brightness,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: brightness,
+          dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
+          contrastLevel: 1,
+        ),
+      );
 
-  static final light = ThemeData(
-    brightness: Brightness.light,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _kPrimaryColor,
-      brightness: Brightness.light,
-      dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
-      contrastLevel: 1,
-    ),
-  );
-
-  static final dark = ThemeData(
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: _kPrimaryColorDark,
-      brightness: Brightness.dark,
-      dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
-      contrastLevel: 1,
-    ),
-  );
+  static final light = _createTheme(Brightness.light, const Color(0xFFBA0527));
+  static final dark = _createTheme(Brightness.dark, const Color(0xFFBA0527));
 }
