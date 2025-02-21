@@ -36,3 +36,7 @@ class DataList<T extends DataDescriptor> extends DelegatingList<T>
     return null;
   }
 }
+
+mixin SlugMixin {
+  String get slug;
+}
