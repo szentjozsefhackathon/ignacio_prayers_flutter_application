@@ -1,13 +1,16 @@
 import 'dart:io' show Platform;
+
 import 'package:alarm/alarm.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import 'data/settings_data.dart';
 import 'routes.dart';
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,12 +39,19 @@ class IgnacioPrayersApp extends StatelessWidget {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
             title: 'Ignáci imák',
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,
             onUnknownRoute: Routes.onUnknownRoute,
+            locale: const Locale('hu'),
+            supportedLocales: const [Locale('hu')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
           );
         },
       );
