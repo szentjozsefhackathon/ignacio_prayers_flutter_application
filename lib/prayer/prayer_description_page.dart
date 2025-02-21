@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/prayer.dart';
 import '../routes.dart';
+import 'prayer_text.dart';
 
 class PrayerDescriptionPage extends StatelessWidget {
   const PrayerDescriptionPage({super.key});
@@ -14,22 +15,13 @@ class PrayerDescriptionPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(prayer.title),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            kMinInteractiveDimension * 2,
-          ),
-          child: Container(
-            constraints: BoxConstraints.loose(const Size.fromWidth(600)),
-            child: Text(
-              prayer.description,
-              style: const TextStyle(fontSize: 24),
-              textAlign: TextAlign.center,
-            ),
-          ),
+      body: PrayerText(
+        prayer.description,
+        padding: const EdgeInsets.fromLTRB(
+          16,
+          8,
+          16,
+          kMinInteractiveDimension * 2,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
