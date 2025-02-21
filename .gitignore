@@ -79,8 +79,8 @@ android/app/.cxx/
 android/.kotlin/
 
 # flutter_launcher_icons
-android/app/src/main/res/**/*.png
-ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
+android/app/src/main/res/**/launcher_icon.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
 web/favicon.png
-web/icons/*.png
+web/icons/Icon-*.png
