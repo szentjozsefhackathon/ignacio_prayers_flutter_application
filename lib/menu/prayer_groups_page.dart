@@ -1,11 +1,14 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import '../alarm_service/services/permission.dart';
 import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
+import '../prayer/prayer_image.dart';
 import '../routes.dart';
-import '../alarm_service/services/permission.dart';
-import 'dart:io' show Platform;
 
 class PrayerGroupsPage extends StatefulWidget {
   const PrayerGroupsPage({super.key});
@@ -25,13 +28,16 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
 
   Future<void> _loadData() async {
     try {
-      if (Platform.isAndroid) {
-        await AlarmPermissions.checkAndroidPhotosPermission();
-        await AlarmPermissions.checkAndroidExternalAudioPermission();
-        await AlarmPermissions.checkAndroidExternalVideosPermission();
+      if (!kIsWeb) {
+        if (Platform.isAndroid) {
+          await AlarmPermissions.checkAndroidPhotosPermission();
+          await AlarmPermissions.checkAndroidExternalAudioPermission();
+          await AlarmPermissions.checkAndroidExternalVideosPermission();
+        }
+
+        await DataManager.instance.checkForUpdates(stopOnError: true);
       }
 
-      await DataManager.instance.checkForUpdates(stopOnError: true);
       final prayerGroups = await DataManager.instance.prayerGroups.data;
       if (mounted) {
         setState(() => _items = prayerGroups);
@@ -46,6 +52,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('Ignáci imák'),
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
@@ -76,43 +83,14 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                     child: InkWell(
                       onTap: () => Navigator.pushNamed(
                         context,
-                        Routes.prayers,
+                        Routes.prayers(item),
                         arguments: item,
                       ),
                       child: Stack(
                         children: [
-                          // Background Image
                           Positioned.fill(
-                            // TODO: images are not loaded
-                            child: FutureBuilder(
-                              future: DataManager.instance.images
-                                  .getLocalFile(item.image),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                } else if (snapshot.hasError ||
-                                    !snapshot.hasData) {
-                                  // !snapshot.data!.existsSync()
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                } else {
-                                  return Image.file(
-                                    snapshot.data!,
-                                    fit: BoxFit.cover,
-                                  );
-                                }
-                              },
-                            ),
+                            child: PrayerImage(name: item.image),
                           ),
-                          // Overlay for Title
                           Positioned(
                             bottom: 0,
                             left: 0,

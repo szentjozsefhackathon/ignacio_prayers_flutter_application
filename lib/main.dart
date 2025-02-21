@@ -1,13 +1,14 @@
 import 'dart:io' show Platform;
 import 'package:alarm/alarm.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import 'theme/theme.dart'; // Import the colors file
 import 'data/settings_data.dart';
 import 'routes.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,12 +18,11 @@ void main() async {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
 
-
-  if (Platform.isAndroid || Platform.isIOS) {
-    // Android-specific code
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  } else if (Platform.isAndroid || Platform.isIOS) {
     await Alarm.init();
   }
-
 
   runApp(const IgnacioPrayersApp());
 }
@@ -41,7 +41,8 @@ class IgnacioPrayersApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
-            routes: Routes.routingTable,
+            onGenerateRoute: Routes.onGenerateRoute,
+            onUnknownRoute: Routes.onUnknownRoute,
           );
         },
       );
