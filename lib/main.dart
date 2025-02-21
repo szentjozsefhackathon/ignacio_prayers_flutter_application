@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
+import 'theme/theme.dart'; // Import the colors file
 import 'data/settings_data.dart';
 import 'routes.dart';
 
@@ -36,8 +37,8 @@ class IgnacioPrayersApp extends StatelessWidget {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
             title: 'Ignáci imák',
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
             routes: Routes.routingTable,
