@@ -39,7 +39,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
         final hasData = await DataManager.instance.versions.localDataExists;
         await DataManager.instance.checkForUpdates(stopOnError: true);
         if (!hasData) {
-          // just downloaded it
+          // there was no local data before checkForUpdates
           _showDownloadDataNotification = true;
         }
       }
@@ -122,12 +122,14 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () =>
-                          setState(() => _showDownloadDataNotification = false),
+                      onPressed: () => setState(
+                        () => _showDownloadDataNotification = false,
+                      ),
                       child: const Text('Elrejtés'),
                     ),
                     TextButton(
                       onPressed: () async {
+                        setState(() => _showDownloadDataNotification = false);
                         await Navigator.pushNamed(context, Routes.dataSync);
                         if (mounted) {
                           _loadData();
