@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:logging/logging.dart';
 
 import '../data/prayer_group.dart';
@@ -51,23 +49,18 @@ class DataManager {
     dataUrlEndpoint: Uri.parse(kVoicesListUrl),
   );
 
-  Versions? _localVersions;
-  Versions? get localVersions => _localVersions;
-
   DateTime? _lastUpdateCheck;
   DateTime? get lastUpdateCheck => _lastUpdateCheck;
 
   Future<void> _updateLocalVersions(Versions newLocalVersions) async {
-    final map = newLocalVersions.toJson();
-    await _versions.saveLocalData(json.encode(map));
-    _localVersions = newLocalVersions;
-    log.info('Local versions updated to $map');
+    await _versions.saveLocalData(newLocalVersions);
+    log.info('Local versions updated to ${newLocalVersions.toJson()}');
   }
 
   Future<Versions> checkForUpdates({required bool stopOnError}) async {
     final localVersionsExist = await _versions.localDataExists;
-    _localVersions = localVersionsExist ? (await _versions.data) : null;
-    log.info('Local versions: ${_localVersions?.toJson()}');
+    final localVersions = localVersionsExist ? (await _versions.data) : null;
+    log.info('Local versions: ${localVersions?.toJson()}');
 
     // Load server version data
     final serverVersions = await _versions.serverData;
@@ -76,32 +69,32 @@ class DataManager {
     _lastUpdateCheck = DateTime.now();
 
     // Check if the data needs to be updated
-    final oldVersion = _localVersions?.data;
+    final oldVersion = localVersions?.data;
     final newVersion = serverVersions.data;
     if (oldVersion != newVersion) {
       await _prayerGroups.downloadAndSaveData();
-      await _prayerGroups.data; // new data applied
       log.info('Updating data from version $oldVersion to $newVersion');
       await _updateLocalVersions(
-        _localVersions == null
+        localVersions == null
             ? serverVersions.copyWith(images: '', voices: '')
-            : _localVersions!.copyWith(data: newVersion),
+            : localVersions.copyWith(data: newVersion),
       );
     }
     return serverVersions;
   }
 
   Future<bool> updateImages(Versions serverVersions) async {
-    final oldVersion = _localVersions?.images;
+    final localVersions = _versions.cachedLocalData;
+    final oldVersion = localVersions?.images;
     final newVersion = serverVersions.images;
     if (oldVersion != newVersion) {
       final serverData = await _images.serverData;
       if (await _images.syncFiles(serverData, stopOnError: true)) {
         log.info('Image files updated from version $oldVersion to $newVersion');
         await _updateLocalVersions(
-          _localVersions == null
+          localVersions == null
               ? serverVersions.copyWith(images: newVersion, voices: '')
-              : _localVersions!.copyWith(images: newVersion),
+              : localVersions.copyWith(images: newVersion),
         );
         return true;
       }
@@ -110,16 +103,17 @@ class DataManager {
   }
 
   Future<bool> updateVoices(Versions serverVersions) async {
-    final oldVersion = _localVersions?.voices;
+    final localVersions = _versions.cachedLocalData;
+    final oldVersion = localVersions?.voices;
     final newVersion = serverVersions.voices;
     if (oldVersion != newVersion) {
       final serverData = await _voices.serverData;
       if (await _voices.syncFiles(serverData, stopOnError: true)) {
         log.info('Voice files updated from version $oldVersion to $newVersion');
         await _updateLocalVersions(
-          _localVersions == null
+          localVersions == null
               ? serverVersions.copyWith(voices: newVersion, images: '')
-              : _localVersions!.copyWith(voices: newVersion),
+              : localVersions.copyWith(voices: newVersion),
         );
         return true;
       }

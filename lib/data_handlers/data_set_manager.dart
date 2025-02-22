@@ -23,21 +23,22 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   final Uri dataUrlEndpoint;
   final Item Function(Map<String, dynamic>) fromJson;
 
-  T? _cachedData;
+  T? _cachedLocalData, _cachedServerData;
 
-  T? get cachedData => _cachedData;
+  T? get cachedLocalData => _cachedLocalData;
+  T? get cachedServerData => _cachedServerData;
 
   Future<bool> get localDataExists async =>
-      (_cachedData ??= await _readLocalData()) != null;
+      (_cachedLocalData ??= await _readLocalData()) != null;
 
   // Lazy initialization of data
   Future<T> get data async {
     try {
-      T? local = (_cachedData ??= await _readLocalData());
+      T? local = (_cachedLocalData ??= await _readLocalData());
       if (local == null) {
         log.warning('No local data found');
         await downloadAndSaveData();
-        local = _cachedData = await _readLocalData();
+        local = _cachedLocalData = await _readLocalData();
         if (local == null) {
           throw DataLoadingException('Failed to load downloaded data');
         }
@@ -54,7 +55,7 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   Future<T> get serverData async {
     try {
       final response = await _fetchServerData();
-      return _decodeData(response);
+      return _cachedServerData = _decodeData(response);
     } catch (e, s) {
       log.severe('Failed to load server data: $e', e, s);
       rethrow;
@@ -98,16 +99,22 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   Future<void> downloadAndSaveData() async {
     try {
       final response = await _fetchServerData();
-      await saveLocalData(response);
+      await _saveLocalDataString(response);
+      _cachedLocalData = _cachedServerData = _decodeData(response);
     } catch (e, s) {
       log.severe('Failed to download and save data: $e', e, s);
       rethrow;
     }
   }
 
-  Future<void> saveLocalData(String jsonData) async {
+  Future<void> saveLocalData(T data) async {
+    await _saveLocalDataString(json.encode(data.toJson()));
+    _cachedLocalData = data;
+  }
+
+  Future<void> _saveLocalDataString(String data) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(dataKey, jsonData);
+    await prefs.setString(dataKey, data);
     log.info('Data saved to storage');
   }
 
@@ -131,7 +138,7 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   Future<void> deleteLocalData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(dataKey);
-    _cachedData = null;
+    _cachedLocalData = null;
     log.info('Data deleted');
   }
 }

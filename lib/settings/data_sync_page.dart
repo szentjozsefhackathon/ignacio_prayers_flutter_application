@@ -17,11 +17,15 @@ class _DataSyncPageState extends State<DataSyncPage> {
   @override
   void initState() {
     super.initState();
-    _checkForUpdates();
+    _serverVersions = DataManager.instance.versions.cachedServerData;
   }
 
   Future<void> _checkForUpdates() async {
-    final v = await DataManager.instance.checkForUpdates(stopOnError: true);
+    setState(() => _serverVersions = null);
+    final [v, _] = await Future.wait([
+      DataManager.instance.checkForUpdates(stopOnError: true),
+      Future.delayed(const Duration(seconds: 2)),
+    ]);
     if (mounted) {
       setState(() => _serverVersions = v);
     }
@@ -107,7 +111,7 @@ class _DataSyncListItemState extends State<_DataSyncListItem> {
   Widget build(BuildContext context) {
     final updater = widget.updater;
     final server = widget.server;
-    final local = DataManager.instance.localVersions;
+    final local = DataManager.instance.versions.cachedLocalData;
 
     final Widget? subtitle;
     VoidCallback? onTap;

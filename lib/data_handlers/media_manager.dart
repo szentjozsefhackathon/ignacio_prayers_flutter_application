@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../data/common.dart';
@@ -23,7 +24,7 @@ class MediaManager extends ListDataSetManager<MediaData> {
     assert(!kIsWeb, 'syncFiles is not supported on web');
 
     // Get local media data from file system
-    final localFiles = await _localFiles;
+    final localFiles = await _getLocalFiles();
 
     // Find files to delete
     final serverFileNames = serverFiles.map((file) => file.name).toSet();
@@ -56,9 +57,8 @@ class MediaManager extends ListDataSetManager<MediaData> {
     return success;
   }
 
-  Future<List<MediaData>> get _localFiles async {
-    final appDirectoryPath = await _localPath;
-    final directory = Directory(appDirectoryPath);
+  Future<List<MediaData>> _getLocalFiles({bool ensureExists = true}) async {
+    final directory = await _getLocalPath(ensureExists: ensureExists);
 
     final list = <MediaData>[];
     if (await directory.exists()) {
@@ -77,7 +77,7 @@ class MediaManager extends ListDataSetManager<MediaData> {
         );
       }
     } else {
-      log.warning('Directory does not exist: $appDirectoryPath');
+      log.warning('Directory does not exist: ${directory.path}');
     }
 
     return list;
@@ -124,34 +124,27 @@ class MediaManager extends ListDataSetManager<MediaData> {
   Future<File> getLocalFile(String name) async {
     assert(!kIsWeb, 'getLocalFile is not supported on web');
 
-    final appDirectoryPath = await _localPath;
-    // TODO p.join(appDirectoryPath, filename);
-    final fullPath = '$appDirectoryPath/$name';
-    return File(fullPath);
+    final directory = await _getLocalPath();
+    return File(p.join(directory.path, name));
   }
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    final directoryPath = '${directory.path}/$dataKey';
-    await _ensureDirectoryExists(directoryPath);
-    return directoryPath;
-  }
-
-  Future<void> _ensureDirectoryExists(String directoryPath) async {
-    final directory = Directory(directoryPath);
-    if (await directory.exists()) {
-      // log.info('Directory exists: $directoryPath');
-    } else {
-      await directory.create(recursive: true);
-      log.info('Directory created: $directoryPath');
+  Future<Directory> _getLocalPath({bool ensureExists = true}) async {
+    final rootDirectory = await getApplicationDocumentsDirectory();
+    final directory = Directory(p.join(rootDirectory.path, dataKey));
+    if (ensureExists) {
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+        log.info('Directory created: ${directory.path}');
+      }
     }
+    return directory;
   }
 
   @override
   Future<void> deleteLocalData() async {
     assert(!kIsWeb, 'deleteLocalData is not supported on web');
 
-    final localFiles = await _localFiles;
+    final localFiles = await _getLocalFiles(ensureExists: false);
     await Future.forEach(localFiles, _deleteFile);
     return super.deleteLocalData();
   }
