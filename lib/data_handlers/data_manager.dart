@@ -51,79 +51,79 @@ class DataManager {
     dataUrlEndpoint: Uri.parse(kVoicesListUrl),
   );
 
-  Future<void> checkForUpdates({required bool stopOnError}) async {
-    // Load local version data
-    bool saveVersions = false;
-    bool success;
-    try {
-      final localVersionsExist = await _versions.localDataExists;
-      final localVersions = localVersionsExist ? (await _versions.data) : null;
-      log.info('Local versions: ${localVersions?.toJson()}');
-      // Load server version data
-      final serverVersions = await _versions.serverData;
-      log.info('Server versions: ${serverVersions.toJson()}');
+  Versions? _localVersions;
+  Versions? get localVersions => _localVersions;
 
-      // Check if the data needs to be updated
-      if (localVersions?.data != serverVersions.data) {
-        await _prayerGroups.downloadAndSaveData();
-        await _prayerGroups.data; // new data applied
-        log.info(
-          'Updating data from version ${localVersions?.data} to ${serverVersions.data}',
-        );
-        saveVersions = true;
-      }
+  DateTime? _lastUpdateCheck;
+  DateTime? get lastUpdateCheck => _lastUpdateCheck;
 
-      // Check if the map data needs to be updated
-      if (localVersions?.images != serverVersions.images) {
-        final imagesServerDatas = await _images.serverData;
+  Future<void> _updateLocalVersions(Versions newLocalVersions) async {
+    final map = newLocalVersions.toJson();
+    await _versions.saveLocalData(json.encode(map));
+    _localVersions = newLocalVersions;
+    log.info('Local versions updated to $map');
+  }
 
-        success = await _images.syncFiles(
-          imagesServerDatas,
-          stopOnError: stopOnError,
-        );
-        if (success) {
-          log.info(
-            'Image files updated from version ${localVersions?.images} to ${serverVersions.images}',
-          );
-          saveVersions = true;
-        } else if (localVersions?.images.isNotEmpty ?? true) {
-          serverVersions.images = '';
-          saveVersions = true;
-        }
-      }
+  Future<Versions> checkForUpdates({required bool stopOnError}) async {
+    final localVersionsExist = await _versions.localDataExists;
+    _localVersions = localVersionsExist ? (await _versions.data) : null;
+    log.info('Local versions: ${_localVersions?.toJson()}');
 
-      // Check if the voices need to be updated
-      if (localVersions?.voices != serverVersions.voices) {
-        final voicesServerDatas = await _voices.serverData;
+    // Load server version data
+    final serverVersions = await _versions.serverData;
+    log.info('Server versions: ${serverVersions.toJson()}');
 
-        success = await _voices.syncFiles(
-          voicesServerDatas,
-          stopOnError: stopOnError,
-        );
-        if (success) {
-          log.info(
-            'Voice files updated from version ${localVersions?.voices} to ${serverVersions.voices}',
-          );
-          saveVersions = true;
-        } else if (localVersions?.voices.isNotEmpty ?? true) {
-          serverVersions.voices = '';
-          saveVersions = true;
-        }
-      }
+    _lastUpdateCheck = DateTime.now();
 
-      // Save the new version data
-      if (saveVersions) {
-        await _versions.saveLocalData(
-          json.encoder.convert(serverVersions.toJson()),
-        );
-        final newLocalVersions = await _versions.data;
-        log.info(
-          'Local versions updated to ${newLocalVersions.toJson()}',
-        );
-      }
-    } catch (e) {
-      // log.warning('Failed to load local data: $e');
-      rethrow;
+    // Check if the data needs to be updated
+    final oldVersion = _localVersions?.data;
+    final newVersion = serverVersions.data;
+    if (oldVersion != newVersion) {
+      await _prayerGroups.downloadAndSaveData();
+      await _prayerGroups.data; // new data applied
+      log.info('Updating data from version $oldVersion to $newVersion');
+      await _updateLocalVersions(
+        _localVersions == null
+            ? serverVersions.copyWith(images: '', voices: '')
+            : _localVersions!.copyWith(data: newVersion),
+      );
     }
+    return serverVersions;
+  }
+
+  Future<bool> updateImages(Versions serverVersions) async {
+    final oldVersion = _localVersions?.images;
+    final newVersion = serverVersions.images;
+    if (oldVersion != newVersion) {
+      final serverData = await _images.serverData;
+      if (await _images.syncFiles(serverData, stopOnError: true)) {
+        log.info('Image files updated from version $oldVersion to $newVersion');
+        await _updateLocalVersions(
+          _localVersions == null
+              ? serverVersions.copyWith(images: newVersion, voices: '')
+              : _localVersions!.copyWith(images: newVersion),
+        );
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<bool> updateVoices(Versions serverVersions) async {
+    final oldVersion = _localVersions?.voices;
+    final newVersion = serverVersions.voices;
+    if (oldVersion != newVersion) {
+      final serverData = await _voices.serverData;
+      if (await _voices.syncFiles(serverData, stopOnError: true)) {
+        log.info('Voice files updated from version $oldVersion to $newVersion');
+        await _updateLocalVersions(
+          _localVersions == null
+              ? serverVersions.copyWith(voices: newVersion, images: '')
+              : _localVersions!.copyWith(voices: newVersion),
+        );
+        return true;
+      }
+    }
+    return false;
   }
 }
