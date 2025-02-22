@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../data/versions.dart';
 import '../data_handlers/data_manager.dart';
@@ -13,11 +14,13 @@ class DataSyncPage extends StatefulWidget {
 
 class _DataSyncPageState extends State<DataSyncPage> {
   Versions? _serverVersions;
+  DateTime? _lastUpdate;
 
   @override
   void initState() {
     super.initState();
     _serverVersions = DataManager.instance.versions.cachedServerData;
+    _lastUpdate = DataManager.instance.lastUpdateCheck;
   }
 
   Future<void> _checkForUpdates() async {
@@ -27,7 +30,10 @@ class _DataSyncPageState extends State<DataSyncPage> {
       Future.delayed(const Duration(seconds: 2)),
     ]);
     if (mounted) {
-      setState(() => _serverVersions = v);
+      setState(() {
+        _serverVersions = v;
+        _lastUpdate = DataManager.instance.lastUpdateCheck;
+      });
     }
   }
 
@@ -67,6 +73,12 @@ class _DataSyncPageState extends State<DataSyncPage> {
                 updater: DataManager.instance.updateVoices,
                 onUpdated: () => setState(() {}),
               ),
+              if (_serverVersions != null && _lastUpdate != null)
+                ListTile(
+                  title: const Text('Verziók lekérdezve'),
+                  subtitle: Text(timeago.format(_lastUpdate!)),
+                  onTap: _checkForUpdates,
+                ),
               if (kDebugMode)
                 ListTile(
                   title: const Text('Adatok újra-letöltése'),
