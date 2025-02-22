@@ -36,8 +36,16 @@ class IgnacioPrayersApp extends StatelessWidget {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
             title: 'Ignáci imák',
-            theme: ThemeData.light(),
-            darkTheme: ThemeData.dark(),
+            theme: ThemeData.light().copyWith(
+              snackBarTheme: const SnackBarThemeData(
+                behavior: SnackBarBehavior.floating,
+              ),
+            ),
+            darkTheme: ThemeData.dark().copyWith(
+              snackBarTheme: const SnackBarThemeData(
+                behavior: SnackBarBehavior.floating,
+              ),
+            ),
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,

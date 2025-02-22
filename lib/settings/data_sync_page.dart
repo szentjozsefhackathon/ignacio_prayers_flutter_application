@@ -141,6 +141,10 @@ class _DataSyncListItemState extends State<_DataSyncListItem> {
                   SnackBar(content: Text('${widget.title} letöltve')),
                 );
                 widget.onUpdated();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('A letöltés nem sikerült')),
+                );
               }
             };
           }
@@ -163,6 +167,10 @@ class _DataSyncListItemState extends State<_DataSyncListItem> {
                   SnackBar(content: Text('${widget.title} frissítve')),
                 );
                 widget.onUpdated();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('A frissítés nem sikerült')),
+                );
               }
             };
           }
