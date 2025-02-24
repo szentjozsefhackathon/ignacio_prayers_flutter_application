@@ -81,14 +81,19 @@ class _DataSyncPageState extends State<DataSyncPage> {
                 ),
               if (kDebugMode)
                 ListTile(
-                  title: const Text('Adatok újra-letöltése'),
+                  title: const Text('Adatok törlése'),
                   enabled: _serverVersions != null,
                   onTap: _serverVersions == null
                       ? null
                       : () async {
                           setState(() => _serverVersions = null);
-                          await DataManager.instance.versions.deleteLocalData();
-                          _checkForUpdates();
+                          final dm = DataManager.instance;
+                          await dm.versions.deleteLocalData();
+                          await dm.images.deleteLocalData();
+                          await dm.voices.deleteLocalData();
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
                         },
                 ),
             ],
