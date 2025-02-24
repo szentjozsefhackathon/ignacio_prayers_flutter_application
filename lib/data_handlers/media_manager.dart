@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -11,11 +11,14 @@ import '../data/media_data.dart';
 import '../urls.dart';
 import 'data_set_manager.dart';
 
-class MediaManager extends ListDataSetManager<MediaData> {
+class MediaManager extends ListDataSetManagerBase<MediaData> {
   MediaManager({
     required super.dataKey,
     required super.dataUrlEndpoint,
-  }) : super(fromJson: MediaData.fromJson);
+  }) : super(
+          logName: 'MediaManager',
+          fromJson: MediaData.fromJson,
+        );
 
   Future<bool> syncFiles(
     DataList<MediaData> serverFiles, {
@@ -89,23 +92,17 @@ class MediaManager extends ListDataSetManager<MediaData> {
     try {
       final response = await http.get(getDownloadUri(m.name));
       if (response.statusCode == 200) {
-        return await _saveFile(m, response.bodyBytes);
+        final file = await getLocalFile(m.name);
+        await file.writeAsBytes(response.bodyBytes);
+        //log.info('Saved file $m to ${file.path}');
+        return true;
       } else {
-        log.severe('Failed to download file: $m');
+        log.severe(
+          'Failed to download $m, status code: ${response.statusCode}',
+        );
       }
     } catch (e) {
       log.severe('Error during sync $m: $e');
-    }
-    return false;
-  }
-
-  Future<bool> _saveFile(MediaData m, Uint8List bytes) async {
-    try {
-      final file = await getLocalFile(m.name);
-      await file.writeAsBytes(bytes);
-      return true;
-    } catch (e) {
-      log.severe('Error saving file $m: $e');
     }
     return false;
   }
@@ -114,6 +111,7 @@ class MediaManager extends ListDataSetManager<MediaData> {
     try {
       final file = await getLocalFile(m.name);
       await file.delete();
+      //log.severe('Deleted file $m at ${file.path}');
       return true;
     } catch (e) {
       log.severe('Error deleting file $m: $e');
@@ -140,12 +138,10 @@ class MediaManager extends ListDataSetManager<MediaData> {
     return directory;
   }
 
-  @override
   Future<void> deleteLocalData() async {
     assert(!kIsWeb, 'deleteLocalData is not supported on web');
 
     final localFiles = await _getLocalFiles(ensureExists: false);
     await Future.forEach(localFiles, _deleteFile);
-    return super.deleteLocalData();
   }
 }
