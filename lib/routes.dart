@@ -9,6 +9,7 @@ import 'data_handlers/data_manager.dart';
 import 'menu/prayer_groups_page.dart';
 import 'menu/prayers_page.dart';
 import 'prayer/prayer_description_page.dart';
+import 'settings/data_sync_page.dart';
 import 'settings/impressum_page.dart';
 import 'settings/settings_page.dart';
 
@@ -24,6 +25,7 @@ class Routes {
       '${prayers(group)}/${prayer.slug}';
 
   static const settings = '/beallitasok';
+  static const dataSync = '$settings/adatok';
   static const impressum = '$settings/impresszum';
 
   static Route? onGenerateRoute(RouteSettings s) {
@@ -40,6 +42,12 @@ class Routes {
           settings: s,
           builder: (context) => const SettingsPage(),
         ),
+      dataSync => kIsWeb
+          ? onUnknownRoute(s)
+          : MaterialPageRoute(
+              settings: s,
+              builder: (context) => const DataSyncPage(),
+            ),
       impressum => MaterialPageRoute(
           settings: s,
           builder: (context) => const ImpressumPage(),

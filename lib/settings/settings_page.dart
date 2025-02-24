@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:alarm/alarm.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,6 @@ import '../alarm_service/screens/ring.dart';
 import '../alarm_service/services/permission.dart';
 import '../alarm_service/widgets/tile.dart';
 import '../data/settings_data.dart';
-import '../data_handlers/data_manager.dart';
 import '../routes.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -37,7 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final _dndPlugin = DoNotDisturbPlugin();
   bool? _notifPolicyAccess;
-  bool _updatingData = false;
 
   @override
   void initState() {
@@ -155,33 +153,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     .toList(),
               ),
             ),
+          if (!kIsWeb)
+            ListTile(
+              title: const Text('Adatok kezelése'),
+              onTap: () => Navigator.pushNamed(context, Routes.dataSync),
+            ),
           ListTile(
             title: const Text('Impresszum'),
             onTap: () => Navigator.pushNamed(context, Routes.impressum),
           ),
-          if (kDebugMode && !kIsWeb)
-            ListTile(
-              title: const Text('Adatok újra-letöltése'),
-              enabled: !_updatingData,
-              trailing: _updatingData
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 3),
-                    )
-                  : null,
-              onTap: _updatingData
-                  ? null
-                  : () async {
-                      setState(() => _updatingData = true);
-                      await DataManager.instance.versions.deleteLocalData();
-                      await DataManager.instance
-                          .checkForUpdates(stopOnError: true);
-                      if (mounted) {
-                        setState(() => _updatingData = false);
-                      }
-                    },
-            ),
         ],
       ),
     );

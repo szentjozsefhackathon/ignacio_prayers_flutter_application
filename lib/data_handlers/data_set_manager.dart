@@ -23,38 +23,15 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   final Uri dataUrlEndpoint;
   final Item Function(Map<String, dynamic>) fromJson;
 
-  T? _cachedData;
-
-  T? get cachedData => _cachedData;
-
-  Future<bool> get localDataExists async =>
-      (_cachedData ??= await _readLocalData()) != null;
-
-  // Lazy initialization of data
-  Future<T> get data async {
-    try {
-      T? local = (_cachedData ??= await _readLocalData());
-      if (local == null) {
-        log.warning('No local data found');
-        await downloadAndSaveData();
-        local = _cachedData = await _readLocalData();
-        if (local == null) {
-          throw DataLoadingException('Failed to load downloaded data');
-        }
-      }
-      return local;
-    } catch (e, s) {
-      log.severe('Failed to load data: $e', e, s);
-      rethrow;
-    }
-  }
+  T? _cachedServerData;
+  T? get cachedServerData => _cachedServerData;
 
   T _decodeData(String data);
 
   Future<T> get serverData async {
     try {
       final response = await _fetchServerData();
-      return _decodeData(response);
+      return _cachedServerData = _decodeData(response);
     } catch (e, s) {
       log.severe('Failed to load server data: $e', e, s);
       rethrow;
@@ -94,20 +71,54 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
       // throw DataLoadingException('An unexpected error occurred:', e);
     }
   }
+}
+
+mixin LocalDataMixin<T extends ToJson, Item extends ToJson>
+    on DataSetManagerBase<T, Item> {
+  T? _cachedLocalData;
+  T? get cachedLocalData => _cachedLocalData;
+
+  Future<bool> get localDataExists async =>
+      (_cachedLocalData ??= await _readLocalData()) != null;
+
+  // Lazy initialization of data
+  Future<T> get data async {
+    try {
+      T? local = (_cachedLocalData ??= await _readLocalData());
+      if (local == null) {
+        log.warning('No local data found');
+        await downloadAndSaveData();
+        local = _cachedLocalData = await _readLocalData();
+        if (local == null) {
+          throw DataLoadingException('Failed to load downloaded data');
+        }
+      }
+      return local;
+    } catch (e, s) {
+      log.severe('Failed to load data: $e', e, s);
+      rethrow;
+    }
+  }
 
   Future<void> downloadAndSaveData() async {
     try {
       final response = await _fetchServerData();
-      await saveLocalData(response);
+      await _saveLocalDataString(response);
+      _cachedLocalData = _cachedServerData = _decodeData(response);
     } catch (e, s) {
       log.severe('Failed to download and save data: $e', e, s);
       rethrow;
     }
   }
 
-  Future<void> saveLocalData(String jsonData) async {
+  Future<void> saveLocalData(T data) async {
+    await _saveLocalDataString(json.encode(data.toJson()));
+    _cachedLocalData = data;
+  }
+
+  Future<void> _saveLocalDataString(String data) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(dataKey, jsonData);
+    await prefs.setString(dataKey, data);
     log.info('Data saved to storage');
   }
 
@@ -131,13 +142,13 @@ abstract class DataSetManagerBase<T extends ToJson, Item extends ToJson> {
   Future<void> deleteLocalData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(dataKey);
-    _cachedData = null;
+    _cachedLocalData = null;
     log.info('Data deleted');
   }
 }
 
-class DataSetManager<T extends DataDescriptor>
-    extends DataSetManagerBase<T, T> {
+class DataSetManager<T extends DataDescriptor> extends DataSetManagerBase<T, T>
+    with LocalDataMixin<T, T> {
   DataSetManager({
     required super.dataKey,
     required super.dataUrlEndpoint,
@@ -148,8 +159,22 @@ class DataSetManager<T extends DataDescriptor>
   T _decodeData(String data) => fromJson(json.decode(data));
 }
 
-class ListDataSetManager<T extends DataDescriptor>
+abstract class ListDataSetManagerBase<T extends DataDescriptor>
     extends DataSetManagerBase<DataList<T>, T> {
+  ListDataSetManagerBase({
+    required super.logName,
+    required super.dataKey,
+    required super.dataUrlEndpoint,
+    required super.fromJson,
+  });
+
+  @override
+  DataList<T> _decodeData(String data) =>
+      DataList<T>.fromJson(json.decode(data), fromJson);
+}
+
+class ListDataSetManager<T extends DataDescriptor>
+    extends ListDataSetManagerBase<T> with LocalDataMixin<DataList<T>, T> {
   ListDataSetManager({
     required super.dataKey,
     required super.dataUrlEndpoint,
