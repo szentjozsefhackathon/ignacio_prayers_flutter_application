@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:relative_time/relative_time.dart';
 
 import '../data/versions.dart';
 import '../data_handlers/data_manager.dart';
@@ -76,7 +76,12 @@ class _DataSyncPageState extends State<DataSyncPage> {
               if (_serverVersions != null && _lastUpdate != null)
                 ListTile(
                   title: const Text('Verziók lekérdezve'),
-                  subtitle: Text(timeago.format(_lastUpdate!)),
+                  subtitle: Text(
+                    RelativeTime(
+                      context,
+                      timeUnits: [TimeUnit.minute, TimeUnit.hour, TimeUnit.day],
+                    ).format(_lastUpdate!),
+                  ),
                   onTap: _checkForUpdates,
                 ),
               if (kDebugMode)

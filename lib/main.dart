@@ -1,11 +1,13 @@
 import 'dart:io' show Platform;
+
 import 'package:alarm/alarm.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:relative_time/relative_time.dart';
 
 import 'data/settings_data.dart';
 import 'routes.dart';
@@ -17,9 +19,6 @@ void main() async {
   Logger.root.onRecord.listen((record) {
     debugPrint('${record.level.name}: ${record.time}: ${record.message}');
   });
-
-  timeago.setLocaleMessages('hu', _TimeagoHuMessages());
-  timeago.setDefaultLocale('hu');
 
   if (kIsWeb) {
     usePathUrlStrategy();
@@ -54,21 +53,14 @@ class IgnacioPrayersApp extends StatelessWidget {
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,
             onUnknownRoute: Routes.onUnknownRoute,
+            localizationsDelegates: const [
+              RelativeTimeLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('hu')],
           );
         },
       );
-}
-
-class _TimeagoHuMessages extends timeago.HuMessages {
-  @override
-  String wordSeparator() => '';
-
-  @override
-  String prefixAgo() => '';
-
-  @override
-  String suffixFromNow() => '';
-
-  @override
-  String prefixFromNow() => '';
 }
