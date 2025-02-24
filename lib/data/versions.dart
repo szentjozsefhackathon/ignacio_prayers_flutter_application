@@ -31,4 +31,9 @@ class Versions extends DataDescriptor {
         images: images ?? this.images,
         voices: voices ?? this.voices,
       );
+
+  bool isUpdateAvailable(Versions v) =>
+      (data.isNotEmpty && v.data.isNotEmpty && data != v.data) ||
+      (images.isNotEmpty && v.images.isNotEmpty && images != v.images) ||
+      (voices.isNotEmpty && v.voices.isNotEmpty && voices != v.voices);
 }
