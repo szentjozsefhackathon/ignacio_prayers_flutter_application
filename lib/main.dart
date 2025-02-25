@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:relative_time/relative_time.dart';
 
 import 'data/settings_data.dart';
 import 'routes.dart';
@@ -45,13 +46,13 @@ class IgnacioPrayersApp extends StatelessWidget {
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,
             onUnknownRoute: Routes.onUnknownRoute,
-            locale: const Locale('hu'),
-            supportedLocales: const [Locale('hu')],
             localizationsDelegates: const [
+              RelativeTimeLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
             ],
+            supportedLocales: const [Locale('hu')],
           );
         },
       );

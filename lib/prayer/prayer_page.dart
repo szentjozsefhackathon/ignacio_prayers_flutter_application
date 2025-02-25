@@ -11,6 +11,7 @@ import '../data/prayer.dart';
 import '../data/prayer_step.dart';
 import '../data/settings_data.dart';
 import '../data_handlers/data_manager.dart';
+import 'prayer_text.dart';
 
 class PrayerPage extends StatefulWidget {
   const PrayerPage({
@@ -214,25 +215,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
                 controller: _pageViewController,
                 itemCount: widget.prayer.steps.length,
                 onPageChanged: (index) => _tabController.index = index,
-                itemBuilder: (context, index) {
-                  final step = widget.prayer.steps[index];
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(38),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Text("Current page: ${index + 1}"),
-                          Text(
-                            step.description,
-                            style: const TextStyle(fontSize: 24),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                itemBuilder: (context, index) => PrayerText(
+                  widget.prayer.steps[index].description,
+                ),
               ),
             ),
             AnimatedOpacity(

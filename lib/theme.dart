@@ -11,6 +11,9 @@ class AppTheme {
           dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
           contrastLevel: 1,
         ),
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+        ),
       );
 
   static final light = _createTheme(Brightness.light, const Color(0xFFBA0527));
