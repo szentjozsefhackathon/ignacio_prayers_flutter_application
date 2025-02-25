@@ -28,24 +28,21 @@ class PrayerImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      return Hero(
-        tag: name,
-        child: Image.network(
-          DataManager.instance.images.getDownloadUri(name).toString(),
-          fit: BoxFit.cover,
-          opacity: opacity,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) {
-              return child;
-            }
-            return _buildLoading(
-              progress.expectedTotalBytes != null
-                  ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                  : null,
-            );
-          },
-          errorBuilder: (context, error, stack) => _buildError(),
-        ),
+      return Image.network(
+        DataManager.instance.images.getDownloadUri(name).toString(),
+        fit: BoxFit.cover,
+        opacity: opacity,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) {
+            return child;
+          }
+          return _buildLoading(
+            progress.expectedTotalBytes != null
+                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                : null,
+          );
+        },
+        errorBuilder: (context, error, stack) => _buildError(),
       );
     }
 
@@ -59,14 +56,11 @@ class PrayerImage extends StatelessWidget {
           // !snapshot.data!.existsSync()
           return _buildError();
         }
-        return Hero(
-          tag: name,
-          child: Image.file(
-            snapshot.data!,
-            fit: BoxFit.cover,
-            opacity: opacity,
-            errorBuilder: (context, error, stack) => _buildError(),
-          ),
+        return Image.file(
+          snapshot.data!,
+          fit: BoxFit.cover,
+          opacity: opacity,
+          errorBuilder: (context, error, stack) => _buildError(),
         );
       },
     );
