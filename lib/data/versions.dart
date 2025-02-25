@@ -20,4 +20,20 @@ class Versions extends DataDescriptor {
 
   @override
   Json toJson() => _$VersionsToJson(this);
+
+  Versions copyWith({
+    String? data,
+    String? images,
+    String? voices,
+  }) =>
+      Versions(
+        data: data ?? this.data,
+        images: images ?? this.images,
+        voices: voices ?? this.voices,
+      );
+
+  bool isUpdateAvailable(Versions v) =>
+      (data.isNotEmpty && v.data.isNotEmpty && data != v.data) ||
+      (images.isNotEmpty && v.images.isNotEmpty && images != v.images) ||
+      (voices.isNotEmpty && v.voices.isNotEmpty && voices != v.voices);
 }
