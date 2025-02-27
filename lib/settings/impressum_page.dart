@@ -70,13 +70,9 @@ class LinkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton(
         style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           overlayColor: Colors.transparent,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-          minimumSize: Size.zero,
-          textStyle: Theme.of(context).textTheme.bodyLarge,
+          textStyle: Theme.of(context).textTheme.titleLarge,
         ),
         onPressed: () => _launchUrl(url),
         child: Text(urlLabel),
