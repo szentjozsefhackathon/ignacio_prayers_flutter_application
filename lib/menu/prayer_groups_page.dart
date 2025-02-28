@@ -156,6 +156,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
+            tooltip: 'Beállítások',
             onPressed: () => Navigator.pushNamed(context, Routes.settings),
           ),
         ],

@@ -41,7 +41,10 @@ jobs:
       #6 Build JSON Serialization
       - name: Run build_runner
         run: dart run build_runner build
-      
+
+      - name: Run flutter_launcher_icons
+        run: dart run flutter_launcher_icons
+
       # #11 Check if Tag Exists
       # - name: Check if Tag Exists
       #   id: check_tag
