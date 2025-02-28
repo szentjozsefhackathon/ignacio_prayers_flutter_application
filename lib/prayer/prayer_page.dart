@@ -48,8 +48,10 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     super.initState();
     _audioPlayer = AudioPlayer();
     _pageViewController = PageController();
-    _tabController =
-        TabController(length: widget.prayer.steps.length, vsync: this);
+    _tabController = TabController(
+      length: widget.prayer.steps.length,
+      vsync: this,
+    );
     _settings = context.read<SettingsData>();
     _fabAnimationController = AnimationController(
       vsync: this,
@@ -62,6 +64,11 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
         return;
       }
       setState(() => _currentPage = _tabController.index);
+      if (_settings.prayerSoundEnabled) {
+        _pageAudioPlayer();
+      } else if (_currentPage > 0 && _settings.autoPageTurn) {
+        // Vibration.vibrate(duration: 500);
+      }
     });
   }
 
@@ -272,11 +279,6 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
-    if (_settings.prayerSoundEnabled) {
-      _pageAudioPlayer();
-    } else if (_currentPage > 0 && _settings.autoPageTurn) {
-      // Vibration.vibrate(duration: 500);
-    }
   }
 }
 
