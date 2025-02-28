@@ -78,6 +78,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     _timer?.cancel();
     _pageViewController.dispose();
     _tabController.dispose();
+    _doNotDisturbOff();
     super.dispose();
   }
 
@@ -200,10 +201,10 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _doNotDisturbOn() =>
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
 
   Future<void> _doNotDisturbOff() =>
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.none);
+      _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
 
   @override
   Widget build(BuildContext context) => Scaffold(
