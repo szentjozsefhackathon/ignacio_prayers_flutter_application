@@ -78,15 +78,9 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           if (!kIsWeb)
-            SwitchListTile(
-              title: const Text('Napi emlékeztetők'),
+            NotificationsSwitchListTile(
               value: settings.dailyNotifier,
-              onChanged: (v) {
-                settings.dailyNotifier = v;
-                if (!v) {
-                  context.read<Notifications>().cancelAll();
-                }
-              },
+              onChanged: (v) => settings.dailyNotifier = v,
             ),
           if (!kIsWeb)
             ListTile(

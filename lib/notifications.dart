@@ -31,10 +31,15 @@ class Notifications with ChangeNotifier {
       ),
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
     );
+
+    // TODO: set _hasPermission
   }
 
   static final _log = Logger('Notifications');
   final _n = FlutterLocalNotificationsPlugin();
+
+  bool? _hasPermission;
+  bool? get hasPermission => _hasPermission;
 
   void _onDidReceiveNotificationResponse(NotificationResponse details) {
     _log.fine('onDidReceiveNotificationResponse payload: ${details.payload}');
@@ -63,6 +68,10 @@ class Notifications with ChangeNotifier {
       throw UnimplementedError(
         'requestPermissions is not implemented on ${Platform.operatingSystem}',
       );
+    }
+    if (result != null && result != _hasPermission) {
+      _hasPermission = result;
+      notifyListeners();
     }
     return result;
   }
@@ -97,6 +106,48 @@ class Notifications with ChangeNotifier {
   Future<void> cancelAll() async {
     await _n.cancelAll();
     notifyListeners();
+  }
+}
+
+class NotificationsSwitchListTile extends StatelessWidget {
+  const NotificationsSwitchListTile({
+    super.key,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final notifications = context.watch<Notifications>();
+
+    if (notifications.hasPermission == null) {
+      return const SizedBox();
+    }
+
+    if (notifications.hasPermission == true) {
+      return SwitchListTile(
+        title: const Text('Emlékeztető értesítések'),
+        value: value,
+        onChanged: (v) {
+          onChanged(v);
+          if (!v) {
+            notifications.cancelAll();
+          }
+        },
+      );
+    }
+
+    return ListTile(
+      title: const Text('Emlékeztető értesítések'),
+      subtitle: Text(
+        'Hiányzó engedélyek, érintsd meg itt a beállításhoz!',
+        style: TextStyle(color: Theme.of(context).colorScheme.error),
+      ),
+      onTap: notifications.requestPermissions,
+    );
   }
 }
 
