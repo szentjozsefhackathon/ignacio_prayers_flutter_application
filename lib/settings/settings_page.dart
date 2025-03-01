@@ -86,8 +86,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ListTile(
               title: const Text('Emlékeztető hozzáadása'),
               leading: const Icon(Icons.add_rounded),
-              // TODO: do we need dailyNotifierTime (we have alarms)?
-              //subtitle: Text(settings.dailyNotifierTime.format(context)),
               enabled: settings.dailyNotifier,
               onTap: () async {
                 final now = TZDateTime.now(local);
