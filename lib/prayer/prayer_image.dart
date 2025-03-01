@@ -8,12 +8,40 @@ class PrayerImage extends StatelessWidget {
     super.key,
     required this.name,
     this.opacity,
+    this.frameBuilder = _defaultFrameBuilder,
+    this.loadingBuilder = _defaultLoadingBuilder,
+    this.errorBuilder = _defaultErrorBuilder,
   });
 
   final String name;
   final Animation<double>? opacity;
+  final ImageFrameBuilder? frameBuilder;
+  final ImageLoadingBuilder? loadingBuilder;
+  final ImageErrorWidgetBuilder? errorBuilder;
 
-  Widget _buildError() => const Center(
+  static Widget _defaultFrameBuilder(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    if (wasSynchronouslyLoaded) {
+      return child;
+    }
+    return AnimatedOpacity(
+      opacity: frame == null ? 0 : 1,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeOut,
+      child: child,
+    );
+  }
+
+  static Widget _defaultErrorBuilder(
+    BuildContext context,
+    Object error,
+    StackTrace? stack,
+  ) =>
+      const Center(
         child: Icon(
           Icons.broken_image,
           size: 50,
@@ -21,9 +49,22 @@ class PrayerImage extends StatelessWidget {
         ),
       );
 
-  Widget _buildLoading([double? progress]) => Center(
-        child: CircularProgressIndicator(value: progress),
-      );
+  static Widget _defaultLoadingBuilder(
+    BuildContext context,
+    Widget child,
+    ImageChunkEvent? event,
+  ) {
+    if (event == null) {
+      return child;
+    }
+    return Center(
+      child: CircularProgressIndicator(
+        value: event.expectedTotalBytes != null
+            ? event.cumulativeBytesLoaded / event.expectedTotalBytes!
+            : null,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +73,9 @@ class PrayerImage extends StatelessWidget {
         DataManager.instance.images.getDownloadUri(name).toString(),
         fit: BoxFit.cover,
         opacity: opacity,
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) {
-            return child;
-          }
-          return _buildLoading(
-            progress.expectedTotalBytes != null
-                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                : null,
-          );
-        },
-        errorBuilder: (context, error, stack) => _buildError(),
+        frameBuilder: frameBuilder,
+        loadingBuilder: loadingBuilder,
+        errorBuilder: errorBuilder,
       );
     }
 
@@ -50,17 +83,33 @@ class PrayerImage extends StatelessWidget {
       future: DataManager.instance.images.getLocalFile(name),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildLoading();
+          return loadingBuilder?.call(
+                context,
+                frameBuilder?.call(
+                      context,
+                      const SizedBox(),
+                      0,
+                      false,
+                    ) ??
+                    const SizedBox(),
+                null,
+              ) ??
+              const SizedBox();
         }
         if (snapshot.hasError || !snapshot.hasData) {
-          // !snapshot.data!.existsSync()
-          return _buildError();
+          return errorBuilder?.call(
+                context,
+                snapshot.error!,
+                snapshot.stackTrace,
+              ) ??
+              const SizedBox();
         }
         return Image.file(
           snapshot.data!,
           fit: BoxFit.cover,
           opacity: opacity,
-          errorBuilder: (context, error, stack) => _buildError(),
+          frameBuilder: frameBuilder,
+          errorBuilder: errorBuilder,
         );
       },
     );
