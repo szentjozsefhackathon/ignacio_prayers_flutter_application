@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:alarm/alarm.dart';
-import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 import '../alarm_service/screens/edit_alarm.dart';
@@ -14,6 +12,7 @@ import '../alarm_service/services/permission.dart';
 import '../alarm_service/widgets/tile.dart';
 import '../data/settings_data.dart';
 import '../routes.dart';
+import 'dnd.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -23,8 +22,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  static final log = Logger('Settings');
-
   List<AlarmSettings> _alarms = [];
 
   static final _alarmRingStream = Alarm.ringStream.stream.asBroadcastStream();
@@ -33,9 +30,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   late final StreamSubscription<AlarmSettings> _ringSubscription;
   late final StreamSubscription<int> _updateSubscription;
-
-  final _dndPlugin = DoNotDisturbPlugin();
-  bool? _notifPolicyAccess;
 
   @override
   void initState() {
@@ -67,28 +61,15 @@ class _SettingsPageState extends State<SettingsPage> {
       body: ListView(
         children: [
           if (!kIsWeb)
-            SwitchListTile(
-              title: const Text('Ne zavarjanak'),
-              subtitle: const Text(
-                'Értesítések és egyéb hangok némítása az ima alatt',
-              ),
+            DndSwitchListTile(
               value: settings.dnd,
-              onChanged: (v) async {
-                if (v && _notifPolicyAccess != true) {
-                  _checkNotificationPolicyAccessGranted();
-                  // TODO: update state when user returns from system settings
-                  if (_notifPolicyAccess == null) {
-                    return;
-                  }
-                }
-                settings.dnd = v;
-              },
+              onChanged: (v) => settings.dnd = v,
             ),
           if (settings.dnd)
             ListTile(
               title: const Text('Ne zavarjanak további beállításai'),
               trailing: const Icon(Icons.open_in_new_rounded),
-              onTap: () => _dndPlugin.openDndSettings(),
+              onTap: () => context.read<DndProvider>().openSettings(),
             ),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -199,22 +180,5 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (res != null && res == true) unawaited(_loadAlarms());
-  }
-
-  Future<void> _checkNotificationPolicyAccessGranted() async {
-    try {
-      if (await _dndPlugin.isNotificationPolicyAccessGranted()) {
-        if (mounted) {
-          setState(() => _notifPolicyAccess = true);
-        }
-      } else {
-        await _dndPlugin.openNotificationPolicyAccessSettings();
-        if (mounted) {
-          setState(() => _notifPolicyAccess = false);
-        }
-      }
-    } catch (e, s) {
-      log.severe('Failed to check notification policy access', e, s);
-    }
   }
 }
