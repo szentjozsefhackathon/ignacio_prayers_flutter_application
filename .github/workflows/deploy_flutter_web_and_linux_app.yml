@@ -137,6 +137,6 @@ jobs:
       # - name: Create Release
       #   uses: ncipollo/release-action@v1
       #   with:
-      #     artifacts: "build/linux/x64/release/bundle/ignacio_prayers_flutter_application"
+      #     artifacts: "build/linux/x64/release/bundle/ignaci_imak"
       #     tag: v${{ env.VERSION }}
       #     token: ${{ secrets.TOKEN }}
