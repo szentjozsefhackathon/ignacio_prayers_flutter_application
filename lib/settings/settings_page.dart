@@ -1,18 +1,13 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
-import 'package:alarm/alarm.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
-import '../alarm_service/screens/edit_alarm.dart';
-import '../alarm_service/screens/ring.dart';
-import '../alarm_service/services/permission.dart';
-import '../alarm_service/widgets/tile.dart';
 import '../data/settings_data.dart';
+import '../notifications.dart';
 import '../routes.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -25,38 +20,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   static final log = Logger('Settings');
 
-  List<AlarmSettings> _alarms = [];
-
-  static final _alarmRingStream = Alarm.ringStream.stream.asBroadcastStream();
-  static final _alarmUpdateStream =
-      Alarm.updateStream.stream.asBroadcastStream();
-
-  late final StreamSubscription<AlarmSettings> _ringSubscription;
-  late final StreamSubscription<int> _updateSubscription;
-
   final _dndPlugin = DoNotDisturbPlugin();
   bool? _notifPolicyAccess;
-
-  @override
-  void initState() {
-    super.initState();
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      AlarmPermissions.checkNotificationPermission();
-      if (Platform.isAndroid) {
-        AlarmPermissions.checkAndroidScheduleExactAlarmPermission();
-      }
-    }
-    _ringSubscription = _alarmRingStream.listen(_navigateToRingScreen);
-    _updateSubscription = _alarmUpdateStream.listen((_) => _loadAlarms());
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadAlarms());
-  }
-
-  @override
-  void dispose() {
-    _ringSubscription.cancel();
-    _updateSubscription.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onChanged: (v) {
                 settings.dailyNotifier = v;
                 if (!v) {
-                  Alarm.stopAll();
+                  context.read<Notifications>().cancelAll();
                 }
               },
             ),
@@ -130,29 +95,28 @@ class _SettingsPageState extends State<SettingsPage> {
               // TODO: do we need dailyNotifierTime (we have alarms)?
               //subtitle: Text(settings.dailyNotifierTime.format(context)),
               enabled: settings.dailyNotifier,
-              onTap: () => _navigateToAlarmScreen(null),
+              onTap: () async {
+                final now = TZDateTime.now(local);
+                final timeOfDay = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.fromDateTime(now),
+                );
+                if (context.mounted && timeOfDay != null) {
+                  context.read<Notifications>().scheduleNotificationAt(
+                        dateTime: TZDateTime.local(
+                          now.year,
+                          now.month,
+                          now.day,
+                          timeOfDay.hour,
+                          timeOfDay.minute,
+                        ),
+                        // TODO: other options
+                        repeat: DateTimeComponents.time,
+                      );
+                }
+              },
             ),
-          if (_alarms.isNotEmpty)
-            SafeArea(
-              child: Column(
-                children: _alarms
-                    .map(
-                      (a) => AlarmTile(
-                        key: Key(a.id.toString()),
-                        title: TimeOfDay(
-                          hour: a.dateTime.hour,
-                          minute: a.dateTime.minute,
-                        ).format(context),
-                        onPressed: () => _navigateToAlarmScreen(a),
-                        onDismissed: () async {
-                          await Alarm.stop(a.id);
-                          await _loadAlarms();
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
+          if (!kIsWeb) const PendingNotificationTiles(),
           if (!kIsWeb)
             ListTile(
               title: const Text('Adatok kezelése'),
@@ -165,40 +129,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
-  }
-
-  Future<void> _loadAlarms() async {
-    final updatedAlarms = await Alarm.getAlarms();
-    updatedAlarms.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
-    setState(() => _alarms = updatedAlarms);
-  }
-
-  Future<void> _navigateToRingScreen(AlarmSettings alarmSettings) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder: (context) => AlarmRingScreen(
-          alarmSettings: alarmSettings,
-        ),
-      ),
-    );
-    unawaited(_loadAlarms());
-  }
-
-  Future<void> _navigateToAlarmScreen(AlarmSettings? settings) async {
-    final res = await showModalBottomSheet<bool?>(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      builder: (context) => FractionallySizedBox(
-        heightFactor: 0.85,
-        child: AlarmEditScreen(alarmSettings: settings),
-      ),
-    );
-
-    if (res != null && res == true) unawaited(_loadAlarms());
   }
 
   Future<void> _checkNotificationPolicyAccessGranted() async {
