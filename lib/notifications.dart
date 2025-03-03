@@ -227,12 +227,7 @@ final _kMonthFormat = DateFormat.MMMM();
 final _kWeekdayFormat = DateFormat.EEEE();
 
 class NotificationsList extends StatelessWidget {
-  const NotificationsList({
-    super.key,
-    required this.enabled,
-  });
-
-  final bool enabled;
+  const NotificationsList({super.key});
 
   Widget _buildAdd(BuildContext context, Notifications notifications) {
     final hasPermission = notifications.hasPermission;
@@ -243,7 +238,7 @@ class NotificationsList extends StatelessWidget {
     return ListTile(
       title: const Text('Emlékeztető hozzáadása'),
       leading: const Icon(Icons.add_rounded),
-      enabled: hasPermission && enabled,
+      enabled: hasPermission,
       onTap: () async {
         final result = await showModalBottomSheet<_AddBottomSheetResult>(
           context: context,

@@ -94,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 type: AppSettingsType.notification,
               ),
             ),
-          if (!kIsWeb) NotificationsList(enabled: settings.dailyNotifier),
+          if (!kIsWeb && settings.dailyNotifier) const NotificationsList(),
           if (!kIsWeb)
             ListTile(
               title: const Text('Adatok kezelése'),
