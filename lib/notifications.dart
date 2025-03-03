@@ -279,8 +279,8 @@ class NotificationsList extends StatelessWidget {
                   (c) => c.name == repeatName,
                 );
                 final dateTime = DateTime.parse(dateTimeStr);
-                                return ListTile(
-leading: const SizedBox(),
+                return ListTile(
+                  leading: const SizedBox(),
                   title: Text(
                     [
                       _kRepeatTypes[repeat],
@@ -296,7 +296,7 @@ leading: const SizedBox(),
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.clear_rounded),
-tooltip: 'Törlés',
+                    tooltip: 'Törlés',
                     onPressed: () => notifications.cancel(n.id),
                   ),
                 );
@@ -451,12 +451,26 @@ class _AddBottomSheetState extends State<_AddBottomSheet> {
                 ),
               _chipWithText(
                 ActionChip(
-                  onPressed: () => showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.fromDateTime(_dateTime),
+                  onPressed: () async {
+                    final timeOfDay = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(_dateTime),
+                    );
+                    if (mounted && timeOfDay != null) {
+                      setState(
+                        () => _dateTime = TZDateTime.from(
+                          _dateTime.copyWith(
+                            hour: timeOfDay.hour,
+                            minute: timeOfDay.minute,
+                          ),
+                          local,
+                        ),
+                      );
+                    }
+                  },
+                  label: Text(
+                    TimeOfDay.fromDateTime(_dateTime).format(context),
                   ),
-                  label:
-                      Text(TimeOfDay.fromDateTime(_dateTime).format(context)),
                 ),
                 '-kor',
               ),
