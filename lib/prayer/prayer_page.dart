@@ -209,8 +209,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text(widget.prayer.title),
           leading: const CloseButton(),
+          title: AnimatedOpacity(
+            opacity: _isPaused ? 1.0 : .4,
+            duration: kThemeAnimationDuration,
+            child: Text(widget.prayer.title),
+          ),
         ),
         body: Column(
           children: [
@@ -313,10 +317,8 @@ class PageIndicator extends StatelessWidget {
               }
               onUpdateCurrentPageIndex(currentPageIndex - 1);
             },
-            icon: const Icon(
-              Icons.arrow_left_rounded,
-              size: 32,
-            ),
+            icon: const Icon(Icons.chevron_left_rounded),
+            tooltip: 'Előző oldal',
           ),
           TabPageSelector(
             controller: tabController,
@@ -332,10 +334,8 @@ class PageIndicator extends StatelessWidget {
               }
               onUpdateCurrentPageIndex(currentPageIndex + 1);
             },
-            icon: const Icon(
-              Icons.arrow_right_rounded,
-              size: 32,
-            ),
+            icon: const Icon(Icons.chevron_right_rounded),
+            tooltip: 'Következő oldal',
           ),
         ],
       ),

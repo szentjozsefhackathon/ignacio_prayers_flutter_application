@@ -123,7 +123,11 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
     assert(!kIsWeb, 'getLocalFile is not supported on web');
 
     final directory = await _getLocalPath();
-    return File(p.join(directory.path, name));
+    final file = File(p.join(directory.path, name));
+    if (!file.existsSync()) {
+      throw FileSystemException('$name nem található', file.path);
+    }
+    return file;
   }
 
   Future<Directory> _getLocalPath({bool ensureExists = true}) async {

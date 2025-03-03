@@ -2,6 +2,7 @@ import 'package:diacritic/diacritic.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:slugify/slugify.dart';
 
+import '../data_handlers/data_manager.dart';
 import 'common.dart';
 import 'prayer_step.dart';
 
@@ -43,5 +44,24 @@ class Prayer extends DataDescriptor with SlugMixin {
       sum += step.timeInSeconds;
     }
     return sum;
+  }
+
+  Future<List<String>> get availableVoiceOptions async {
+    if (voiceOptions.isEmpty) {
+      return [];
+    }
+    final availableOptions = <String>[];
+    for (final option in voiceOptions) {
+      final voiceIndex = voiceOptions.indexOf(option);
+      final filename = steps.first.voices[voiceIndex];
+      final available = await DataManager.instance.voices
+          .getLocalFile(filename)
+          .then((f) => true)
+          .onError((_, __) => false);
+      if (available) {
+        availableOptions.add(option);
+      }
+    }
+    return availableOptions;
   }
 }
