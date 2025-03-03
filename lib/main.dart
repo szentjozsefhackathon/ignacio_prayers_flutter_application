@@ -1,15 +1,14 @@
-import 'dart:io' show Platform;
-
-import 'package:alarm/alarm.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_time/relative_time.dart';
 
 import 'data/settings_data.dart';
+import 'notifications.dart';
 import 'routes.dart';
 import 'theme.dart';
 
@@ -23,9 +22,8 @@ void main() async {
 
   if (kIsWeb) {
     usePathUrlStrategy();
-  } else if (Platform.isAndroid || Platform.isIOS) {
-    await Alarm.init();
   }
+  Intl.defaultLocale = 'hu';
 
   runApp(const IgnacioPrayersApp());
 }
@@ -34,8 +32,15 @@ class IgnacioPrayersApp extends StatelessWidget {
   const IgnacioPrayersApp({super.key});
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (_) => SettingsData()..load(),
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => SettingsData()..load()),
+          if (!kIsWeb)
+            ChangeNotifierProvider(
+              lazy: false,
+              create: (_) => Notifications()..initialize(),
+            ),
+        ],
         builder: (context, widget) {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
