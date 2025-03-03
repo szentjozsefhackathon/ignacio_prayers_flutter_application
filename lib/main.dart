@@ -33,7 +33,10 @@ class IgnacioPrayersApp extends StatelessWidget {
   Widget build(BuildContext context) => MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => SettingsData()..load()),
-          if (!kIsWeb) ChangeNotifierProvider(create: (_) => Notifications()),
+          if (!kIsWeb)
+            ChangeNotifierProvider(
+              create: (_) => Notifications()..initialize(),
+            ),
         ],
         builder: (context, widget) {
           final settings = context.watch<SettingsData>();

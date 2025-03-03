@@ -14,12 +14,18 @@ export 'package:flutter_local_notifications/flutter_local_notifications.dart'
 export 'package:timezone/timezone.dart' show TZDateTime, local;
 
 class Notifications with ChangeNotifier {
-  Notifications() {
+  static final _log = Logger('Notifications');
+  final _n = FlutterLocalNotificationsPlugin();
+
+  bool? _hasPermission;
+  bool? get hasPermission => _hasPermission;
+
+  Future<void> initialize() async {
     tz.initializeTimeZones();
 
     _n.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings('ic_launcher'),
+        android: AndroidInitializationSettings('launcher_icon'),
         iOS: DarwinInitializationSettings(),
         macOS: DarwinInitializationSettings(),
         linux: LinuxInitializationSettings(defaultActionName: 'Megnyitás'),
@@ -32,17 +38,41 @@ class Notifications with ChangeNotifier {
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
     );
 
-    // TODO: set _hasPermission
+    _hasPermission = await _checkPermissions();
+    notifyListeners();
   }
-
-  static final _log = Logger('Notifications');
-  final _n = FlutterLocalNotificationsPlugin();
-
-  bool? _hasPermission;
-  bool? get hasPermission => _hasPermission;
 
   void _onDidReceiveNotificationResponse(NotificationResponse details) {
     _log.fine('onDidReceiveNotificationResponse payload: ${details.payload}');
+  }
+
+  Future<bool?> _checkPermissions() async {
+    bool? result;
+    if (Platform.isAndroid) {
+      final impl = _n.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      result = await impl?.areNotificationsEnabled();
+      if (result == true) {
+        result = await impl?.canScheduleExactNotifications();
+      }
+    } else if (Platform.isIOS) {
+      result = await _n
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.checkPermissions()
+          .then((r) => r?.isEnabled);
+    } else if (Platform.isMacOS) {
+      result = await _n
+          .resolvePlatformSpecificImplementation<
+              MacOSFlutterLocalNotificationsPlugin>()
+          ?.checkPermissions()
+          .then((r) => r?.isEnabled);
+    } else {
+      throw UnimplementedError(
+        'requestPermissions is not implemented on ${Platform.operatingSystem}',
+      );
+    }
+    return result;
   }
 
   Future<bool?> requestPermissions() async {
