@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
+import 'package:app_settings/app_settings.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -81,6 +83,16 @@ class _SettingsPageState extends State<SettingsPage> {
             NotificationsSwitchListTile(
               value: settings.dailyNotifier,
               onChanged: (v) => settings.dailyNotifier = v,
+            ),
+          if (!kIsWeb &&
+              (Platform.isAndroid || Platform.isIOS) &&
+              settings.dailyNotifier)
+            ListTile(
+              title: const Text('Értesítések további beállításai'),
+              trailing: const Icon(Icons.open_in_new_rounded),
+              onTap: () => AppSettings.openAppSettings(
+                type: AppSettingsType.notification,
+              ),
             ),
           if (!kIsWeb) NotificationsList(enabled: settings.dailyNotifier),
           if (!kIsWeb)
