@@ -12,6 +12,7 @@ import 'package:relative_time/relative_time.dart';
 import 'data/settings_data.dart';
 import 'routes.dart';
 import 'settings/dnd.dart' show DndProvider;
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,16 +44,8 @@ class IgnacioPrayersApp extends StatelessWidget {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
             title: 'Ignáci imák',
-            theme: ThemeData.light().copyWith(
-              snackBarTheme: const SnackBarThemeData(
-                behavior: SnackBarBehavior.floating,
-              ),
-            ),
-            darkTheme: ThemeData.dark().copyWith(
-              snackBarTheme: const SnackBarThemeData(
-                behavior: SnackBarBehavior.floating,
-              ),
-            ),
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
             themeMode: settings.themeMode,
             initialRoute: Routes.home,
             onGenerateRoute: Routes.onGenerateRoute,

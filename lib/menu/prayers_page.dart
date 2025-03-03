@@ -23,6 +23,7 @@ class PrayersPage extends StatelessWidget {
                 background: PrayerImage(
                   name: group.image,
                   opacity: const AlwaysStoppedAnimation(.3),
+                  errorBuilder: null,
                 ),
                 collapseMode: CollapseMode.parallax,
               ),
