@@ -42,6 +42,9 @@ jobs:
       - name: Run build_runner
         run: dart run build_runner build
 
+      - name: Run flutter_launcher_icons
+        run: dart run flutter_launcher_icons
+
       ################### ANDROID APP ###################
               
         #5 Setup Keystore - TODO

@@ -10,7 +10,10 @@ class ImpressumPage extends StatelessWidget {
           title: const Text('Impresszum'),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 32,
+          ),
           child: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -25,34 +28,23 @@ class ImpressumPage extends StatelessWidget {
                   alignment: PlaceholderAlignment.baseline,
                   baseline: TextBaseline.alphabetic,
                   child: LinkButton(
-                    urlLabel: 'www.ignacipedagogia.hu',
-                    url: 'https://www.ignacipedagogia.hu',
+                    urlLabel: 'ignacipedagogia.hu',
+                    url: 'https://ignacipedagogia.hu',
                   ),
                 ),
-                TextSpan(
-                  text: '\n',
-                ),
+                TextSpan(text: '\n'),
                 WidgetSpan(
                   alignment: PlaceholderAlignment.baseline,
                   baseline: TextBaseline.alphabetic,
                   child: LinkButton(
-                    urlLabel: 'www.jezsuita.hu',
-                    url: 'https://www.jezsuita.hu',
+                    urlLabel: 'jezsuita.hu',
+                    url: 'https://jezsuita.hu',
                   ),
                 ),
                 TextSpan(
                   text: '\n\n'
                       'Ha támogatni szeretnéd munkánkat, ajánld fel adód 1%-át a Jézus Társasága Alapítványnak.\n\n'
-                      'Adószám: 18064333-2-42\n\n\n\n'
-                      'Ha támogatni szeretnéd az applikáció fejlesztőit, hívd meg őket egy kávéra:\n\n',
-                ),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                  child: LinkButton(
-                    urlLabel: 'www.by me a coffee.hu',
-                    url: 'https://www.ignacipedagogia.hu',
-                  ),
+                      'Adószám: 18064333-2-42',
                 ),
               ],
             ),
@@ -78,14 +70,9 @@ class LinkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton(
         style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(0),
-          ),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-          minimumSize: const Size(0, 0),
-          textStyle: Theme.of(context).textTheme.bodyLarge,
+          backgroundColor: Colors.transparent,
+          overlayColor: Colors.transparent,
+          textStyle: Theme.of(context).textTheme.titleLarge,
         ),
         onPressed: () => _launchUrl(url),
         child: Text(urlLabel),
