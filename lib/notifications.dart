@@ -223,13 +223,8 @@ const _kRepeatTypes = {
   DateTimeComponents.dateAndTime: 'minden év',
 };
 
-final _kRepeatDateFormats = {
-  DateTimeComponents.time: DateFormat(),
-  DateTimeComponents.dayOfWeekAndTime: DateFormat.EEEE(),
-  DateTimeComponents.dayOfMonthAndTime: DateFormat.d(),
-  DateTimeComponents.dateAndTime: DateFormat.MMMMd(),
-  null: DateFormat.yMMMMd(),
-};
+final _kMonthFormat = DateFormat.MMMM();
+final _kWeekdayFormat = DateFormat.EEEE();
 
 class NotificationsList extends StatelessWidget {
   const NotificationsList({
@@ -284,14 +279,24 @@ class NotificationsList extends StatelessWidget {
                   (c) => c.name == repeatName,
                 );
                 final dateTime = DateTime.parse(dateTimeStr);
-                final subtitle = _kRepeatTypes[repeat];
-                return ListTile(
+                                return ListTile(
+leading: const SizedBox(),
                   title: Text(
-                    _kRepeatDateFormats[repeat]!.add_Hm().format(dateTime),
+                    [
+                      _kRepeatTypes[repeat],
+                      if (repeat == DateTimeComponents.dateAndTime)
+                        _kMonthFormat.format(dateTime),
+                      if (repeat == DateTimeComponents.dayOfWeekAndTime)
+                        _kWeekdayFormat.format(dateTime),
+                      if (repeat == DateTimeComponents.dayOfMonthAndTime ||
+                          repeat == DateTimeComponents.dateAndTime)
+                        '${dateTime.day}. napján',
+                      '${TimeOfDay.fromDateTime(dateTime).format(context)}-kor',
+                    ].whereType<String>().join(' '),
                   ),
-                  subtitle: subtitle == null ? null : Text(subtitle),
                   trailing: IconButton(
                     icon: const Icon(Icons.clear_rounded),
+tooltip: 'Törlés',
                     onPressed: () => notifications.cancel(n.id),
                   ),
                 );
@@ -320,19 +325,16 @@ class _AddBottomSheetState extends State<_AddBottomSheet> {
   DateTimeComponents _repeat = DateTimeComponents.time;
   late TZDateTime _dateTime;
 
-  static final _monthFormat = DateFormat.MMMM();
-  static final _weekdayFormat = DateFormat.EEEE();
-
   @override
   void initState() {
     super.initState();
     _dateTime = TZDateTime.now(local);
   }
 
-  String _monthLabel([int? month]) => _monthFormat
+  String _monthLabel([int? month]) => _kMonthFormat
       .format(month == null ? _dateTime : _dateTime.copyWith(month: month));
 
-  String _weekdayLabel([int? weekday]) => _weekdayFormat
+  String _weekdayLabel([int? weekday]) => _kWeekdayFormat
       .format(weekday == null ? _dateTime : _dateTime.copyWithWeekday(weekday));
 
   Widget _chipWithText(Widget chip, String text) => Row(
