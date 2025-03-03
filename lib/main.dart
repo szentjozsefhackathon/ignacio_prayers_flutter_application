@@ -37,6 +37,7 @@ class IgnacioPrayersApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => SettingsData()..load()),
           if (!kIsWeb)
             ChangeNotifierProvider(
+              lazy: false,
               create: (_) => Notifications()..initialize(),
             ),
         ],

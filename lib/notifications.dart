@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart';
 
+import 'theme.dart' show kColorSchemeSeed;
+
 export 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show DateTimeComponents;
 export 'package:timezone/timezone.dart' show TZDateTime, local;
@@ -16,6 +18,12 @@ export 'package:timezone/timezone.dart' show TZDateTime, local;
 class Notifications with ChangeNotifier {
   static final _log = Logger('Notifications');
   final _n = FlutterLocalNotificationsPlugin();
+
+  static const _androidChannel = AndroidNotificationChannel(
+    'emlekezteto',
+    'Emlékeztető értesítések',
+    importance: Importance.high,
+  );
 
   bool? _hasPermission;
   bool? get hasPermission => _hasPermission;
@@ -25,7 +33,7 @@ class Notifications with ChangeNotifier {
 
     final initialized = await _n.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings('launcher_icon'),
+        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
         iOS: DarwinInitializationSettings(),
         macOS: DarwinInitializationSettings(),
         linux: LinuxInitializationSettings(defaultActionName: 'Megnyitás'),
@@ -39,6 +47,13 @@ class Notifications with ChangeNotifier {
     );
     if (initialized != true) {
       return;
+    }
+
+    if (Platform.isAndroid) {
+      _n
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(_androidChannel);
     }
 
     _hasPermission = await _checkPermissions();
@@ -123,7 +138,26 @@ class Notifications with ChangeNotifier {
       'Ignáci ima',
       'Ignáci ima értesítő',
       dateTime,
-      const NotificationDetails(),
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          _androidChannel.id,
+          _androidChannel.name,
+          color: kColorSchemeSeed,
+          priority: Priority.high,
+          importance: _androidChannel.importance,
+          category: AndroidNotificationCategory.reminder,
+          autoCancel: true,
+        ),
+        iOS: const DarwinNotificationDetails(),
+        macOS: const DarwinNotificationDetails(),
+        linux: const LinuxNotificationDetails(
+          resident: true,
+          urgency: LinuxNotificationUrgency.normal,
+        ),
+        windows: const WindowsNotificationDetails(
+          scenario: WindowsNotificationScenario.reminder,
+        ),
+      ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: repeat,
       payload: '${repeat?.name ?? ''}::${dateTime.toIso8601String()}',
