@@ -17,14 +17,14 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
   SettingsData({
     ThemeMode themeMode = ThemeMode.system,
     bool dnd = !kIsWeb,
-    bool dailyNotifier = !kIsWeb,
+    bool reminderNotifications = !kIsWeb,
     bool autoPageTurn = true,
     int prayerLength = 30,
     bool prayerSoundEnabled = true,
     String voiceChoice = 'Férfi 2',
   })  : _themeMode = themeMode,
         _dnd = dnd,
-        _dailyNotifier = dailyNotifier,
+        _reminderNotifications = reminderNotifications,
         _autoPageTurn = autoPageTurn,
         _prayerLength = prayerLength,
         _prayerSoundEnabled = prayerSoundEnabled,
@@ -57,14 +57,14 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
     }
   }
 
-  bool _dailyNotifier;
-  bool get dailyNotifier => _dailyNotifier;
-  set dailyNotifier(bool newValue) {
+  bool _reminderNotifications;
+  bool get reminderNotifications => _reminderNotifications;
+  set reminderNotifications(bool newValue) {
     if (kIsWeb) {
       return;
     }
-    if (_dailyNotifier != newValue) {
-      _dailyNotifier = newValue;
+    if (_reminderNotifications != newValue) {
+      _reminderNotifications = newValue;
       save();
       notifyListeners();
     }
@@ -130,7 +130,7 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
       }
       _themeMode = newData.themeMode;
       _dnd = newData.dnd;
-      _dailyNotifier = newData.dailyNotifier;
+      _reminderNotifications = newData.reminderNotifications;
       _autoPageTurn = newData.autoPageTurn;
       _prayerLength = newData.prayerLength;
       _prayerSoundEnabled = newData.prayerSoundEnabled;

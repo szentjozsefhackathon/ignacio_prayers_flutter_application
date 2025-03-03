@@ -81,10 +81,10 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           if (!kIsWeb) ...[
             NotificationsSwitchListTile(
-              value: settings.dailyNotifier,
-              onChanged: (v) => settings.dailyNotifier = v,
+              value: settings.reminderNotifications,
+              onChanged: (v) => settings.reminderNotifications = v,
             ),
-            if (settings.dailyNotifier) ...[
+            if (settings.reminderNotifications) ...[
               if (Platform.isAndroid || Platform.isIOS)
                 ListTile(
                   title: const Text('Értesítések további beállításai'),
