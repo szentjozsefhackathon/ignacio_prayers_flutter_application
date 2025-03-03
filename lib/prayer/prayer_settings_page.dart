@@ -41,34 +41,58 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
               value: settings.dnd,
               onChanged: (v) => settings.dnd = v,
             ),
-          if (widget.prayer.voiceOptions.isNotEmpty)
-            SwitchListTile(
-              title: const Text('Hang'),
-              value: settings.prayerSoundEnabled,
-              onChanged: (v) => settings.prayerSoundEnabled = v,
-            )
-          else
+          if (widget.prayer.voiceOptions.isEmpty)
             const SwitchListTile(
               title: Text('Hang'),
               subtitle: Text('Nincs ehhez az imához'),
               value: false,
               onChanged: null,
+            )
+          else
+            FutureBuilder(
+              future: widget.prayer.availableVoiceOptions,
+              builder: (context, snapshot) {
+                final data = snapshot.data;
+                if (data == null) {
+                  return const SwitchListTile(
+                    title: Text('Hang'),
+                    subtitle: Text('Betöltés...'),
+                    value: false,
+                    onChanged: null,
+                  );
+                }
+                return Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text('Hang'),
+                      value: settings.prayerSoundEnabled && data.isNotEmpty,
+                      onChanged: data.isNotEmpty
+                          ? (v) => settings.prayerSoundEnabled = v
+                          : null,
+                    ),
+                    ...widget.prayer.voiceOptions.map(
+                      (voice) {
+                        final available = data.contains(voice);
+                        return RadioListTile(
+                          title: Text(voice),
+                          subtitle:
+                              available ? null : const Text('Nincs letöltve'),
+                          value: voice,
+                          groupValue: settings.voiceChoice,
+                          onChanged: settings.prayerSoundEnabled && available
+                              ? (String? v) {
+                                  if (v != null) {
+                                    settings.voiceChoice = v;
+                                  }
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
-          ...widget.prayer.voiceOptions.map(
-            (voice) => RadioListTile(
-              title: Text(voice),
-              value: voice,
-              // TODO: check if this voice is available
-              groupValue: settings.voiceChoice,
-              onChanged: settings.prayerSoundEnabled
-                  ? (String? v) {
-                      if (v != null) {
-                        settings.voiceChoice = v;
-                      }
-                    }
-                  : null,
-            ),
-          ),
           ListTile(
             title: const Text('Ima hossza'),
             subtitle: Text('${settings.prayerLength} perc'),
