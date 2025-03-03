@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:relative_time/relative_time.dart';
@@ -22,6 +23,7 @@ void main() async {
   if (kIsWeb) {
     usePathUrlStrategy();
   }
+  Intl.defaultLocale = 'hu';
 
   runApp(const IgnacioPrayersApp());
 }
