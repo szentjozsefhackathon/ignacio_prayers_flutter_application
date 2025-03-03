@@ -71,12 +71,17 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   @override
+  void deactivate() {
+    context.read<DndProvider>().restoreOriginal();
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _audioPlayer.dispose();
     _timer?.cancel();
     _pageViewController.dispose();
     _tabController.dispose();
-    context.read<DndProvider>().restoreOriginal();
     super.dispose();
   }
 
