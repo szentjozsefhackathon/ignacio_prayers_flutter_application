@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 
 import 'package:app_settings/app_settings.dart';
 import 'package:do_not_disturb/do_not_disturb.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -94,6 +94,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               const NotificationsList(),
+              if (kDebugMode)
+                ListTile(
+                  title: const Text('Értesítés teszt'),
+                  onTap: () => context.read<Notifications>().showTest(),
+                ),
             ],
             ListTile(
               title: const Text('Adatok kezelése'),

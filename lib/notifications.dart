@@ -25,6 +25,27 @@ class Notifications with ChangeNotifier {
     importance: Importance.high,
   );
 
+  static final _notificationDetails = NotificationDetails(
+    android: AndroidNotificationDetails(
+      _androidChannel.id,
+      _androidChannel.name,
+      color: kColorSchemeSeed,
+      priority: Priority.high,
+      importance: _androidChannel.importance,
+      category: AndroidNotificationCategory.reminder,
+      autoCancel: true,
+    ),
+    iOS: const DarwinNotificationDetails(),
+    macOS: const DarwinNotificationDetails(),
+    linux: const LinuxNotificationDetails(
+      resident: true,
+      urgency: LinuxNotificationUrgency.normal,
+    ),
+    windows: const WindowsNotificationDetails(
+      scenario: WindowsNotificationScenario.reminder,
+    ),
+  );
+
   bool? _hasPermission;
   bool? get hasPermission => _hasPermission;
 
@@ -138,31 +159,23 @@ class Notifications with ChangeNotifier {
       'Ignáci ima',
       'Ignáci ima értesítő',
       dateTime,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _androidChannel.id,
-          _androidChannel.name,
-          color: kColorSchemeSeed,
-          priority: Priority.high,
-          importance: _androidChannel.importance,
-          category: AndroidNotificationCategory.reminder,
-          autoCancel: true,
-        ),
-        iOS: const DarwinNotificationDetails(),
-        macOS: const DarwinNotificationDetails(),
-        linux: const LinuxNotificationDetails(
-          resident: true,
-          urgency: LinuxNotificationUrgency.normal,
-        ),
-        windows: const WindowsNotificationDetails(
-          scenario: WindowsNotificationScenario.reminder,
-        ),
-      ),
+      _notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: repeat,
       payload: '${repeat?.name ?? ''}::${dateTime.toIso8601String()}',
     );
     notifyListeners();
+  }
+
+  Future<void> showTest() async {
+    final pending = await scheduledNotifications;
+    final maxId = pending.map((n) => n.id).maxOrNull ?? 0;
+    await _n.show(
+      maxId + 1,
+      'Ignáci ima',
+      'Ez egy teszt értesítés',
+      _notificationDetails,
+    );
   }
 
   Future<void> cancel(int id) async {
