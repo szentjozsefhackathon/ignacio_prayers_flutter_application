@@ -44,15 +44,7 @@ class ImpressumPage extends StatelessWidget {
                 TextSpan(
                   text: '\n\n'
                       'Ha támogatni szeretnéd munkánkat, ajánld fel adód 1%-át a Jézus Társasága Alapítványnak.\n\n'
-                      'Adószám: 18064333-2-42\n\n\n',
-                ),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                  child: LinkButton(
-                    urlLabel: 'ignacipedagogia.hu',
-                    url: 'https://ignacipedagogia.hu',
-                  ),
+                      'Adószám: 18064333-2-42',
                 ),
               ],
             ),
@@ -78,13 +70,9 @@ class LinkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextButton(
         style: TextButton.styleFrom(
-          padding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           overlayColor: Colors.transparent,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: VisualDensity.compact,
-          minimumSize: Size.zero,
-          textStyle: Theme.of(context).textTheme.bodyLarge,
+          textStyle: Theme.of(context).textTheme.titleLarge,
         ),
         onPressed: () => _launchUrl(url),
         child: Text(urlLabel),
