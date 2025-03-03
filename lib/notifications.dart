@@ -351,11 +351,21 @@ class _AddBottomSheetState extends State<_AddBottomSheet> {
     final ml = MaterialLocalizations.of(context);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 8,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(
+              'Emlékeztető hozzáadása',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -480,15 +490,15 @@ class _AddBottomSheetState extends State<_AddBottomSheet> {
             alignment: MainAxisAlignment.end,
             children: [
               TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(ml.cancelButtonLabel),
+              ),
+              TextButton(
                 onPressed: () => Navigator.pop(
                   context,
                   _AddBottomSheetResult(dateTime: _dateTime, repeat: _repeat),
                 ),
                 child: Text(ml.okButtonLabel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(ml.cancelButtonLabel),
               ),
             ],
           ),
