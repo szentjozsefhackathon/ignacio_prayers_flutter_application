@@ -23,7 +23,7 @@ class Notifications with ChangeNotifier {
   Future<void> initialize() async {
     tz.initializeTimeZones();
 
-    _n.initialize(
+    final initialized = await _n.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('launcher_icon'),
         iOS: DarwinInitializationSettings(),
@@ -37,6 +37,9 @@ class Notifications with ChangeNotifier {
       ),
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
     );
+    if (initialized != true) {
+      return;
+    }
 
     _hasPermission = await _checkPermissions();
     notifyListeners();
@@ -152,52 +155,80 @@ class NotificationsSwitchListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifications = context.watch<Notifications>();
-
-    if (notifications.hasPermission == null) {
+    final hasPermission = notifications.hasPermission;
+    if (hasPermission == null) {
       return const SizedBox();
     }
-
-    if (notifications.hasPermission == true) {
-      return SwitchListTile(
+    if (!hasPermission) {
+      return ListTile(
         title: const Text('Emlékeztető értesítések'),
-        value: value,
-        onChanged: (v) {
-          onChanged(v);
-          if (!v) {
-            notifications.cancelAll();
-          }
-        },
+        subtitle: Text(
+          'Hiányzó engedélyek, érintsd meg itt a beállításhoz!',
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+        onTap: notifications.requestPermissions,
       );
     }
-
-    return ListTile(
+    return SwitchListTile(
       title: const Text('Emlékeztető értesítések'),
-      subtitle: Text(
-        'Hiányzó engedélyek, érintsd meg itt a beállításhoz!',
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
-      ),
-      onTap: notifications.requestPermissions,
+      value: value,
+      onChanged: (v) {
+        onChanged(v);
+        if (!v) {
+          notifications.cancelAll();
+        }
+      },
     );
   }
 }
 
-class PendingNotificationTiles extends StatelessWidget {
-  const PendingNotificationTiles({super.key});
+const _kRepeatTypes = {
+  DateTimeComponents.time: 'minden nap',
+  DateTimeComponents.dayOfWeekAndTime: 'minden hét',
+  DateTimeComponents.dayOfMonthAndTime: 'minden hónap',
+  DateTimeComponents.dateAndTime: 'minden év',
+};
 
-  static final _dateTimeFormats = {
-    DateTimeComponents.time: DateFormat.Hm(),
-    DateTimeComponents.dayOfWeekAndTime: DateFormat.EEEEE().add_Hm(),
-    DateTimeComponents.dayOfMonthAndTime: DateFormat.d().add_Hm(),
-    DateTimeComponents.dateAndTime: DateFormat.Md().add_Hm(),
-    null: DateFormat.yMd().add_Hm(),
-  };
+final _kRepeatDateFormats = {
+  DateTimeComponents.time: DateFormat(),
+  DateTimeComponents.dayOfWeekAndTime: DateFormat.EEEE(),
+  DateTimeComponents.dayOfMonthAndTime: DateFormat.d(),
+  DateTimeComponents.dateAndTime: DateFormat.MMMMd(),
+  null: DateFormat.yMMMMd(),
+};
 
-  static final _repeatNames = {
-    DateTimeComponents.time: 'minden nap',
-    DateTimeComponents.dayOfWeekAndTime: 'minden héten',
-    DateTimeComponents.dayOfMonthAndTime: 'minden hónapban',
-    DateTimeComponents.dateAndTime: 'minden évben',
-  };
+class NotificationsList extends StatelessWidget {
+  const NotificationsList({
+    super.key,
+    required this.enabled,
+  });
+
+  final bool enabled;
+
+  Widget _buildAdd(BuildContext context, Notifications notifications) {
+    final hasPermission = notifications.hasPermission;
+    if (hasPermission == null) {
+      return const SizedBox();
+    }
+
+    return ListTile(
+      title: const Text('Emlékeztető hozzáadása'),
+      leading: const Icon(Icons.add_rounded),
+      enabled: hasPermission && enabled,
+      onTap: () async {
+        final result = await showModalBottomSheet<_AddBottomSheetResult>(
+          context: context,
+          builder: (context) => _AddBottomSheet(),
+        );
+        if (context.mounted && result != null) {
+          notifications.scheduleNotificationAt(
+            dateTime: result.dateTime,
+            repeat: result.repeat,
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,19 +238,23 @@ class PendingNotificationTiles extends StatelessWidget {
       builder: (context, snapshot) {
         final data = snapshot.data;
         if (data == null || data.isEmpty) {
-          return const SizedBox();
+          return _buildAdd(context, notifications);
         }
         return Column(
           children: [
+            _buildAdd(context, notifications),
             ...data.map(
               (n) {
                 final [repeatName, dateTimeStr] = n.payload!.split('::');
-                final repeat = DateTimeComponents.values
-                    .singleWhereOrNull((c) => c.name == repeatName);
+                final repeat = DateTimeComponents.values.singleWhereOrNull(
+                  (c) => c.name == repeatName,
+                );
                 final dateTime = DateTime.parse(dateTimeStr);
-                final subtitle = _repeatNames[repeat];
+                final subtitle = _kRepeatTypes[repeat];
                 return ListTile(
-                  title: Text(_dateTimeFormats[repeat]!.format(dateTime)),
+                  title: Text(
+                    _kRepeatDateFormats[repeat]!.add_Hm().format(dateTime),
+                  ),
                   subtitle: subtitle == null ? null : Text(subtitle),
                   trailing: IconButton(
                     icon: const Icon(Icons.clear_rounded),
@@ -233,4 +268,188 @@ class PendingNotificationTiles extends StatelessWidget {
       },
     );
   }
+}
+
+class _AddBottomSheetResult {
+  _AddBottomSheetResult({required this.dateTime, required this.repeat});
+
+  final TZDateTime dateTime;
+  final DateTimeComponents repeat;
+}
+
+class _AddBottomSheet extends StatefulWidget {
+  @override
+  State<_AddBottomSheet> createState() => _AddBottomSheetState();
+}
+
+class _AddBottomSheetState extends State<_AddBottomSheet> {
+  DateTimeComponents _repeat = DateTimeComponents.time;
+  late TZDateTime _dateTime;
+
+  static final _monthFormat = DateFormat.MMMM();
+  static final _weekdayFormat = DateFormat.EEEE();
+
+  @override
+  void initState() {
+    super.initState();
+    _dateTime = TZDateTime.now(local);
+  }
+
+  String _monthLabel([int? month]) => _monthFormat
+      .format(month == null ? _dateTime : _dateTime.copyWith(month: month));
+
+  String _weekdayLabel([int? weekday]) => _weekdayFormat
+      .format(weekday == null ? _dateTime : _dateTime.copyWithWeekday(weekday));
+
+  Widget _chipWithText(Widget chip, String text) => Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          chip,
+          Text(text),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final ml = MaterialLocalizations.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            children: [
+              PopupMenuButton(
+                itemBuilder: (_) => DateTimeComponents.values
+                    .map(
+                      (d) => PopupMenuItem(
+                        value: d,
+                        child: Text(_kRepeatTypes[d]!),
+                      ),
+                    )
+                    .toList(growable: false),
+                onSelected: (d) => setState(() => _repeat = d),
+                child: Chip(
+                  label: Text(_kRepeatTypes[_repeat]!),
+                ),
+              ),
+              if (_repeat == DateTimeComponents.dateAndTime)
+                PopupMenuButton(
+                  itemBuilder: (_) =>
+                      List.generate(DateTime.monthsPerYear, (i) => i + 1)
+                          .map(
+                            (month) => PopupMenuItem(
+                              value: month,
+                              child: Text(_monthLabel(month)),
+                            ),
+                          )
+                          .toList(growable: false),
+                  onSelected: (month) {
+                    setState(
+                      () => _dateTime = TZDateTime.from(
+                        _dateTime.copyWith(month: month),
+                        local,
+                      ),
+                    );
+                  },
+                  child: Chip(
+                    label: Text(_monthLabel()),
+                  ),
+                ),
+              if (_repeat == DateTimeComponents.dayOfWeekAndTime)
+                PopupMenuButton(
+                  itemBuilder: (_) => List.generate(
+                    DateTime.daysPerWeek,
+                    (i) => i + ml.firstDayOfWeekIndex,
+                  )
+                      .map(
+                        (offset) => PopupMenuItem(
+                          value: offset,
+                          child: Text(_weekdayLabel(offset)),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onSelected: (offset) {
+                    setState(
+                      () => _dateTime = TZDateTime.from(
+                        _dateTime.copyWithWeekday(offset),
+                        local,
+                      ),
+                    );
+                  },
+                  child: Chip(
+                    label: Text(_weekdayLabel()),
+                  ),
+                )
+              else if (_repeat == DateTimeComponents.dayOfMonthAndTime ||
+                  _repeat == DateTimeComponents.dateAndTime)
+                _chipWithText(
+                  PopupMenuButton(
+                    itemBuilder: (_) => List.generate(31, (i) => i + 1)
+                        .map(
+                          (day) => PopupMenuItem(
+                            value: day,
+                            child: Text('$day.'),
+                          ),
+                        )
+                        .toList(growable: false),
+                    onSelected: (day) {
+                      setState(
+                        () => _dateTime = TZDateTime.from(
+                          _dateTime.copyWith(day: day),
+                          local,
+                        ),
+                      );
+                    },
+                    child: Chip(
+                      label: Text('${_dateTime.day}.'),
+                    ),
+                  ),
+                  'napján',
+                ),
+              _chipWithText(
+                ActionChip(
+                  onPressed: () => showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(_dateTime),
+                  ),
+                  label:
+                      Text(TimeOfDay.fromDateTime(_dateTime).format(context)),
+                ),
+                '-kor',
+              ),
+            ],
+          ),
+          OverflowBar(
+            alignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(
+                  context,
+                  _AddBottomSheetResult(dateTime: _dateTime, repeat: _repeat),
+                ),
+                child: Text(ml.okButtonLabel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(ml.cancelButtonLabel),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension DateTimeExtensions on DateTime {
+  DateTime copyWithWeekday(int weekday) => copyWith(
+        day: day + weekday - this.weekday,
+      );
 }

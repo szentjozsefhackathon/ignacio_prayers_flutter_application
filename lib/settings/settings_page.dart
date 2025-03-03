@@ -82,33 +82,7 @@ class _SettingsPageState extends State<SettingsPage> {
               value: settings.dailyNotifier,
               onChanged: (v) => settings.dailyNotifier = v,
             ),
-          if (!kIsWeb)
-            ListTile(
-              title: const Text('Emlékeztető hozzáadása'),
-              leading: const Icon(Icons.add_rounded),
-              enabled: settings.dailyNotifier,
-              onTap: () async {
-                final now = TZDateTime.now(local);
-                final timeOfDay = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.fromDateTime(now),
-                );
-                if (context.mounted && timeOfDay != null) {
-                  context.read<Notifications>().scheduleNotificationAt(
-                        dateTime: TZDateTime.local(
-                          now.year,
-                          now.month,
-                          now.day,
-                          timeOfDay.hour,
-                          timeOfDay.minute,
-                        ),
-                        // TODO: other options
-                        repeat: DateTimeComponents.time,
-                      );
-                }
-              },
-            ),
-          if (!kIsWeb) const PendingNotificationTiles(),
+          if (!kIsWeb) NotificationsList(enabled: settings.dailyNotifier),
           if (!kIsWeb)
             ListTile(
               title: const Text('Adatok kezelése'),
