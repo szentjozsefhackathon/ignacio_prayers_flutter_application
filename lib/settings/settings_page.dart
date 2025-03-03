@@ -79,27 +79,27 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          if (!kIsWeb)
+          if (!kIsWeb) ...[
             NotificationsSwitchListTile(
               value: settings.dailyNotifier,
               onChanged: (v) => settings.dailyNotifier = v,
             ),
-          if (!kIsWeb &&
-              (Platform.isAndroid || Platform.isIOS) &&
-              settings.dailyNotifier)
-            ListTile(
-              title: const Text('Értesítések további beállításai'),
-              trailing: const Icon(Icons.open_in_new_rounded),
-              onTap: () => AppSettings.openAppSettings(
-                type: AppSettingsType.notification,
-              ),
-            ),
-          if (!kIsWeb && settings.dailyNotifier) const NotificationsList(),
-          if (!kIsWeb)
+            if (settings.dailyNotifier) ...[
+              if (Platform.isAndroid || Platform.isIOS)
+                ListTile(
+                  title: const Text('Értesítések további beállításai'),
+                  trailing: const Icon(Icons.open_in_new_rounded),
+                  onTap: () => AppSettings.openAppSettings(
+                    type: AppSettingsType.notification,
+                  ),
+                ),
+              const NotificationsList(),
+            ],
             ListTile(
               title: const Text('Adatok kezelése'),
               onTap: () => Navigator.pushNamed(context, Routes.dataSync),
             ),
+          ],
           ListTile(
             title: const Text('Impresszum'),
             onTap: () => Navigator.pushNamed(context, Routes.impressum),
