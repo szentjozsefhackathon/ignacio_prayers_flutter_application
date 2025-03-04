@@ -1,6 +1,5 @@
 import 'dart:async' show Timer;
 
-import 'package:do_not_disturb/do_not_disturb.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -11,6 +10,7 @@ import '../data/prayer.dart';
 import '../data/prayer_step.dart';
 import '../data/settings_data.dart';
 import '../data_handlers/data_manager.dart';
+import '../settings/dnd.dart' show DndProvider;
 import 'prayer_text.dart';
 
 class PrayerPage extends StatefulWidget {
@@ -27,8 +27,6 @@ class PrayerPage extends StatefulWidget {
 
 class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   static final log = Logger('PrayerPage');
-
-  final _dndPlugin = DoNotDisturbPlugin();
 
   late final AudioPlayer _audioPlayer;
   late List<int> _nextPageTimes = [];
@@ -73,12 +71,17 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   @override
+  void deactivate() {
+    context.read<DndProvider>().restoreOriginal();
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _audioPlayer.dispose();
     _timer?.cancel();
     _pageViewController.dispose();
     _tabController.dispose();
-    _doNotDisturbOff();
     super.dispose();
   }
 
@@ -87,7 +90,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     _remainingSeconds = _settings.prayerLength * 60;
     _startTimer();
     if (_settings.dnd) {
-      _doNotDisturbOn();
+      context.read<DndProvider>().allowAlarmsOnly();
     }
     if (_settings.prayerSoundEnabled) {
       _pageAudioPlayer();
@@ -129,9 +132,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     _audioPlayer.setVolume(1);
     _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
-    if (_settings.dnd) {
-      _doNotDisturbOff();
-    }
+    context.read<DndProvider>().restoreOriginal();
     await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
       Navigator.of(context).pop();
@@ -199,12 +200,6 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     pageTimes.removeLast();
     return pageTimes;
   }
-
-  Future<void> _doNotDisturbOn() =>
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
-
-  Future<void> _doNotDisturbOff() =>
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.all);
 
   @override
   Widget build(BuildContext context) => Scaffold(

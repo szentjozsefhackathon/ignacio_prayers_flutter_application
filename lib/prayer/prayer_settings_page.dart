@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../data/prayer.dart';
 import '../data/settings_data.dart';
 import '../routes.dart';
+import '../settings/dnd.dart';
 import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
@@ -36,8 +37,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
             onChanged: (v) => settings.autoPageTurn = v,
           ),
           if (!kIsWeb)
-            SwitchListTile(
-              title: const Text('Ne zavarjanak'),
+            DndSwitchListTile(
               value: settings.dnd,
               onChanged: (v) => settings.dnd = v,
             ),

@@ -11,6 +11,7 @@ import 'package:relative_time/relative_time.dart';
 
 import 'data/settings_data.dart';
 import 'routes.dart';
+import 'settings/dnd.dart' show DndProvider;
 import 'theme.dart';
 
 void main() async {
@@ -34,8 +35,11 @@ class IgnacioPrayersApp extends StatelessWidget {
   const IgnacioPrayersApp({super.key});
 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (_) => SettingsData()..load(),
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => SettingsData()..load()),
+          ChangeNotifierProvider(create: (_) => DndProvider()),
+        ],
         builder: (context, widget) {
           final settings = context.watch<SettingsData>();
           return MaterialApp(
