@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  alarm: ^5.0.0-dev.8
+  alarm: ^5.0.3
   auto_size_text: ^3.0.0
   collection: ^1.16.0
   # The following adds the Cupertino Icons font to your application.
