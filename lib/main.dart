@@ -10,6 +10,7 @@ import 'package:relative_time/relative_time.dart';
 import 'data/settings_data.dart';
 import 'notifications.dart';
 import 'routes.dart';
+import 'settings/dnd.dart' show DndProvider;
 import 'theme.dart';
 
 void main() async {
@@ -40,6 +41,7 @@ class IgnacioPrayersApp extends StatelessWidget {
               lazy: false,
               create: (_) => Notifications()..initialize(),
             ),
+          ChangeNotifierProvider(create: (_) => DndProvider()),
         ],
         builder: (context, widget) {
           final settings = context.watch<SettingsData>();
