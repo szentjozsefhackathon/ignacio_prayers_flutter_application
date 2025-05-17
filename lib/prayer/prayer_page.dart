@@ -1,10 +1,11 @@
-import 'dart:async' show Timer;
+import 'dart:async' show Timer, unawaited;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
+import 'package:vibration/vibration.dart';
 
 import '../data/prayer.dart';
 import '../data/prayer_step.dart';
@@ -61,8 +62,6 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       setState(() => _currentPage = _tabController.index);
       if (_settings.prayerSoundEnabled) {
         _pageAudioPlayer();
-      } else if (_currentPage > 0 && _settings.autoPageTurn) {
-        // Vibration.vibrate(duration: 500);
       }
     });
   }
@@ -108,6 +107,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
               // we're not going back
               if (pageIndex > _currentPage) {
                 _updateCurrentPageIndex(pageIndex);
+                _vibrateIfNoSound();
               }
               break;
             }
@@ -124,11 +124,14 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   Future<void> _onTimerFinish() async {
     setState(() => _isRunning = false);
-    await _audioPlayer.pause();
-    await _loadAudio('csengo.mp3');
-    await _audioPlayer.setVolume(1);
-    await _audioPlayer.play();
-    // Vibration.vibrate(duration: 500);
+    if (_settings.prayerSoundEnabled) {
+      await _audioPlayer.pause();
+      await _loadAudio('csengo.mp3');
+      await _audioPlayer.setVolume(1);
+      await _audioPlayer.play();
+    } else {
+      unawaited(_vibrateIfNoSound());
+    }
     if (mounted) {
       await context.read<DndProvider>().restoreOriginal();
       await Future.delayed(const Duration(seconds: 1));
@@ -277,6 +280,12 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
+  }
+
+  Future<void> _vibrateIfNoSound() async {
+    if (!_settings.prayerSoundEnabled && await Vibration.hasVibrator()) {
+      unawaited(Vibration.vibrate(duration: 500));
+    }
   }
 }
 
