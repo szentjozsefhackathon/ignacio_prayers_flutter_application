@@ -15,6 +15,8 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
   MediaManager({required super.dataKey, required super.dataUrlEndpoint})
     : super(logName: 'MediaManager', fromJson: MediaData.fromJson);
 
+  final _localFileCache = <String, File>{};
+
   Future<bool> syncFiles(
     DataList<MediaData> serverFiles, {
     required bool stopOnError,
@@ -91,6 +93,7 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
       if (response.statusCode == 200) {
         final file = await _getLocalFile(m.name, checkExists: false);
         await file.writeAsBytes(response.bodyBytes);
+        _localFileCache[m.name] = file;
         //log.info('Saved file $m to ${file.path}');
         return true;
       } else {
@@ -106,6 +109,7 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
 
   Future<bool> _deleteFile(MediaData m) async {
     try {
+      _localFileCache.remove(m.name);
       final file = await _getLocalFile(m.name, checkExists: false);
       if (file.existsSync()) {
         await file.delete();
@@ -129,8 +133,14 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
     return file;
   }
 
-  Future<File> getLocalFile(String name) =>
-      _getLocalFile(name, checkExists: true);
+  Future<File> getLocalFile(String name) async {
+    if (_localFileCache.containsKey(name)) {
+      return _localFileCache[name]!;
+    }
+    final file = await _getLocalFile(name, checkExists: true);
+    _localFileCache[name] = file;
+    return file;
+  }
 
   Future<Directory> _getLocalPath({bool ensureExists = true}) async {
     final rootDirectory = await getApplicationDocumentsDirectory();
