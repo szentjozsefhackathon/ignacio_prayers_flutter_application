@@ -39,6 +39,7 @@ linter:
     sort_constructors_first: true
     sort_pub_dependencies: true
     sort_unnamed_constructors_first: true
+    unawaited_futures: true
 
 analyzer:
   strong-mode:

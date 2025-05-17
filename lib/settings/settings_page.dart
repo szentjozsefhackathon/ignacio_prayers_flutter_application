@@ -38,13 +38,12 @@ class SettingsPage extends StatelessWidget {
           ),
           ...ThemeMode.values.map(
             (mode) => RadioListTile(
-              title: Text(
-                switch (mode) {
-                  ThemeMode.system => 'rendszer',
-                  ThemeMode.light => 'világos',
-                  ThemeMode.dark => 'sötét',
-                },
-              ),
+              title: Text(switch (mode) {
+                ThemeMode.system => 'rendszer',
+                ThemeMode.light => 'világos',
+                ThemeMode.dark => 'sötét',
+                // ignore: require_trailing_commas
+              }),
               value: mode,
               groupValue: settings.themeMode,
               onChanged: (v) {
@@ -64,20 +63,22 @@ class SettingsPage extends StatelessWidget {
                 ListTile(
                   title: const Text('Értesítések további beállításai'),
                   trailing: const Icon(Icons.open_in_new_rounded),
-                  onTap: () => AppSettings.openAppSettings(
-                    type: AppSettingsType.notification,
-                  ),
+                  onTap:
+                      () => AppSettings.openAppSettings(
+                        type: AppSettingsType.notification,
+                      ),
                 ),
               const NotificationsList(),
               if (kDebugMode)
                 Selector<Notifications, bool?>(
-                  selector: (context, notifications) =>
-                      notifications.hasPermission,
-                  builder: (context, hasPermission, _) => ListTile(
-                    title: const Text('Értesítés teszt'),
-                    enabled: hasPermission ?? false,
-                    onTap: () => context.read<Notifications>().showTest(),
-                  ),
+                  selector:
+                      (context, notifications) => notifications.hasPermission,
+                  builder:
+                      (context, hasPermission, _) => ListTile(
+                        title: const Text('Értesítés teszt'),
+                        enabled: hasPermission ?? false,
+                        onTap: () => context.read<Notifications>().showTest(),
+                      ),
                 ),
             ],
             ListTile(

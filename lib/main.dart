@@ -34,33 +34,33 @@ class IgnacioPrayersApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => SettingsData()..load()),
-          if (!kIsWeb)
-            ChangeNotifierProvider(
-              lazy: false,
-              create: (_) => Notifications()..initialize(),
-            ),
-          ChangeNotifierProvider(create: (_) => DndProvider()),
+    providers: [
+      ChangeNotifierProvider(create: (_) => SettingsData()..load()),
+      if (!kIsWeb)
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (_) => Notifications()..initialize(),
+        ),
+      ChangeNotifierProvider(create: (_) => DndProvider()),
+    ],
+    builder: (context, widget) {
+      final settings = context.watch<SettingsData>();
+      return MaterialApp(
+        title: 'Ignáci imák',
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: settings.themeMode,
+        initialRoute: Routes.home,
+        onGenerateRoute: Routes.onGenerateRoute,
+        onUnknownRoute: Routes.onUnknownRoute,
+        localizationsDelegates: const [
+          RelativeTimeLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
         ],
-        builder: (context, widget) {
-          final settings = context.watch<SettingsData>();
-          return MaterialApp(
-            title: 'Ignáci imák',
-            theme: AppTheme.light,
-            darkTheme: AppTheme.dark,
-            themeMode: settings.themeMode,
-            initialRoute: Routes.home,
-            onGenerateRoute: Routes.onGenerateRoute,
-            onUnknownRoute: Routes.onUnknownRoute,
-            localizationsDelegates: const [
-              RelativeTimeLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('hu')],
-          );
-        },
+        supportedLocales: const [Locale('hu')],
       );
+    },
+  );
 }

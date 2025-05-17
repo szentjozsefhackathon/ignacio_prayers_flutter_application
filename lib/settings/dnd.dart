@@ -33,7 +33,7 @@ class DndProvider extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> allowAlarmsOnly() async {
     if (_hasAccess ?? false) {
       _statusBeforeEnable = await _dndPlugin.getDNDStatus();
-      _dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
+      await _dndPlugin.setInterruptionFilter(InterruptionFilter.alarms);
     }
   }
 
@@ -101,10 +101,12 @@ class DndSwitchListTile extends StatelessWidget {
         ),
       ),
       isThreeLine: true,
-      onTap: () => context
-          .read<DndProvider>()
-          ._dndPlugin
-          .openNotificationPolicyAccessSettings(),
+      onTap:
+          () =>
+              context
+                  .read<DndProvider>()
+                  ._dndPlugin
+                  .openNotificationPolicyAccessSettings(),
     );
   }
 }

@@ -35,23 +35,24 @@ class Routes {
     _log.info('onGenerateRoute: ${s.name}');
     final matchedRoute = switch (s.name) {
       home => MaterialPageRoute(
-          settings: s,
-          builder: (context) => const PrayerGroupsPage(),
-        ),
+        settings: s,
+        builder: (context) => const PrayerGroupsPage(),
+      ),
       settings => MaterialPageRoute(
-          settings: s,
-          builder: (context) => const SettingsPage(),
-        ),
-      dataSync => kIsWeb
-          ? onUnknownRoute(s)
-          : MaterialPageRoute(
+        settings: s,
+        builder: (context) => const SettingsPage(),
+      ),
+      dataSync =>
+        kIsWeb
+            ? onUnknownRoute(s)
+            : MaterialPageRoute(
               settings: s,
               builder: (context) => const DataSyncPage(),
             ),
       impressum => MaterialPageRoute(
-          settings: s,
-          builder: (context) => const ImpressumPage(),
-        ),
+        settings: s,
+        builder: (context) => const ImpressumPage(),
+      ),
       _ => null,
     };
     if (matchedRoute != null) {
@@ -74,16 +75,12 @@ class Routes {
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Scaffold(
-                  body: Center(
-                    child: Text(snapshot.error.toString()),
-                  ),
+                  body: Center(child: Text(snapshot.error.toString())),
                 );
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  body: Center(child: CircularProgressIndicator()),
                 );
               }
               final data = snapshot.data;
@@ -115,16 +112,12 @@ class Routes {
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Scaffold(
-                  body: Center(
-                    child: Text(snapshot.error.toString()),
-                  ),
+                  body: Center(child: Text(snapshot.error.toString())),
                 );
               }
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  body: Center(child: CircularProgressIndicator()),
                 );
               }
               final data = snapshot.data;
@@ -137,10 +130,7 @@ class Routes {
               if (prayer == null) {
                 return const _NotFoundPage();
               }
-              return PrayerDescriptionPage(
-                group: data,
-                prayer: prayer,
-              );
+              return PrayerDescriptionPage(group: data, prayer: prayer);
             },
           );
         },
@@ -150,9 +140,9 @@ class Routes {
   }
 
   static Route onUnknownRoute(RouteSettings s) => MaterialPageRoute(
-        settings: s,
-        builder: (context) => const _NotFoundPage(),
-      );
+    settings: s,
+    builder: (context) => const _NotFoundPage(),
+  );
 }
 
 extension _RoutesExtension on BuildContext {
@@ -164,21 +154,19 @@ class _NotFoundPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 16,
-            children: [
-              const Text('Nincs ilyen oldal'),
-              TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(
-                  context,
-                  Routes.home,
-                ),
-                child: const Text('Kezdőoldal'),
-              ),
-            ],
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 16,
+        children: [
+          const Text('Nincs ilyen oldal'),
+          TextButton(
+            onPressed:
+                () => Navigator.pushReplacementNamed(context, Routes.home),
+            child: const Text('Kezdőoldal'),
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }

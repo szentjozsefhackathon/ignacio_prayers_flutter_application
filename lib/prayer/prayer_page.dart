@@ -14,10 +14,7 @@ import '../settings/dnd.dart' show DndProvider;
 import 'prayer_text.dart';
 
 class PrayerPage extends StatefulWidget {
-  const PrayerPage({
-    super.key,
-    required this.prayer,
-  });
+  const PrayerPage({super.key, required this.prayer});
 
   final Prayer prayer;
 
@@ -127,52 +124,53 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   Future<void> _onTimerFinish() async {
     setState(() => _isRunning = false);
-    _audioPlayer.pause();
-    _loadAudio('csengo.mp3');
-    _audioPlayer.setVolume(1);
-    _audioPlayer.play();
+    await _audioPlayer.pause();
+    await _loadAudio('csengo.mp3');
+    await _audioPlayer.setVolume(1);
+    await _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
-    context.read<DndProvider>().restoreOriginal();
-    await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
-      Navigator.of(context).pop();
+      await context.read<DndProvider>().restoreOriginal();
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
-  void _loadAudio(String filename) {
-    if (kIsWeb) {
-      try {
-        _audioPlayer.setAudioSource(
+  Future<void> _loadAudio(String filename) async {
+    try {
+      if (kIsWeb) {
+        await _audioPlayer.setAudioSource(
           AudioSource.uri(DataManager.instance.voices.getDownloadUri(filename)),
           initialPosition: Duration.zero,
         );
-      } catch (e, s) {
-        log.severe('Error loading audio', e, s);
+      } else {
+        await DataManager.instance.voices
+            .getLocalFile(filename)
+            .then((audio) => _audioPlayer.setFilePath(audio.path));
       }
-    } else {
-      DataManager.instance.voices.getLocalFile(filename).then((audio) {
-        _audioPlayer.setFilePath(audio.path);
-      }).catchError((e, s) {
-        log.severe('Error loading audio', e, s);
-      });
+    } catch (e, s) {
+      log.severe('Error loading $filename', e, s);
     }
   }
 
-  void _pageAudioPlayer() {
+  Future<void> _pageAudioPlayer() async {
     if (widget.prayer.voiceOptions.isEmpty) {
       return;
     }
-    _audioPlayer.pause();
-    final voiceIndex =
-        widget.prayer.voiceOptions.indexOf(_settings.voiceChoice);
+    await _audioPlayer.pause();
+    final voiceIndex = widget.prayer.voiceOptions.indexOf(
+      _settings.voiceChoice,
+    );
     // match voices
     final filename = widget.prayer.steps[_currentPage].voices[voiceIndex];
-    _loadAudio(filename);
-    _audioPlayer.setVolume(1);
+    await _loadAudio(filename);
+    await _audioPlayer.setVolume(1);
     if (_isPaused) {
-      _audioPlayer.pause();
+      await _audioPlayer.pause();
     } else {
-      _audioPlayer.play();
+      await _audioPlayer.play();
     }
   }
 
@@ -203,58 +201,58 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          leading: const CloseButton(),
-          title: AnimatedOpacity(
-            opacity: _isPaused ? 1.0 : .4,
-            duration: kThemeAnimationDuration,
-            child: Text(widget.prayer.title),
+    appBar: AppBar(
+      leading: const CloseButton(),
+      title: AnimatedOpacity(
+        opacity: _isPaused ? 1.0 : .4,
+        duration: kThemeAnimationDuration,
+        child: Text(widget.prayer.title),
+      ),
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: PageView.builder(
+            controller: _pageViewController,
+            itemCount: widget.prayer.steps.length,
+            onPageChanged: (index) => _tabController.index = index,
+            itemBuilder:
+                (context, index) =>
+                    PrayerText(widget.prayer.steps[index].description),
           ),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageViewController,
-                itemCount: widget.prayer.steps.length,
-                onPageChanged: (index) => _tabController.index = index,
-                itemBuilder: (context, index) => PrayerText(
-                  widget.prayer.steps[index].description,
-                ),
-              ),
-            ),
-            AnimatedOpacity(
-              opacity: _isPaused ? 1.0 : .5,
-              duration: kThemeAnimationDuration,
-              child: Text(
-                "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
-              ),
-            ),
-            Opacity(
-              opacity: .25,
-              child: PageIndicator(
-                tabController: _tabController,
-                currentPageIndex: _currentPage,
-                onUpdateCurrentPageIndex: _updateCurrentPageIndex,
-              ),
-            ),
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-        floatingActionButton: AnimatedOpacity(
+        AnimatedOpacity(
           opacity: _isPaused ? 1.0 : .5,
           duration: kThemeAnimationDuration,
-          child: FloatingActionButton(
-            mini: true,
-            onPressed: _togglePlayPause,
-            tooltip: _isRunning ? 'Szünet' : 'Folytatás',
-            child: AnimatedIcon(
-              icon: AnimatedIcons.play_pause,
-              progress: _fabAnimationController,
-            ),
+          child: Text(
+            "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
           ),
         ),
-      );
+        Opacity(
+          opacity: .25,
+          child: PageIndicator(
+            tabController: _tabController,
+            currentPageIndex: _currentPage,
+            onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+          ),
+        ),
+      ],
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+    floatingActionButton: AnimatedOpacity(
+      opacity: _isPaused ? 1.0 : .5,
+      duration: kThemeAnimationDuration,
+      child: FloatingActionButton(
+        mini: true,
+        onPressed: _togglePlayPause,
+        tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+        child: AnimatedIcon(
+          icon: AnimatedIcons.play_pause,
+          progress: _fabAnimationController,
+        ),
+      ),
+    ),
+  );
 
   void _togglePlayPause() {
     setState(() {

@@ -22,13 +22,13 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
     int prayerLength = 30,
     bool prayerSoundEnabled = true,
     String voiceChoice = 'Férfi 2',
-  })  : _themeMode = themeMode,
-        _dnd = dnd,
-        _reminderNotifications = reminderNotifications,
-        _autoPageTurn = autoPageTurn,
-        _prayerLength = prayerLength,
-        _prayerSoundEnabled = prayerSoundEnabled,
-        _voiceChoice = voiceChoice;
+  }) : _themeMode = themeMode,
+       _dnd = dnd,
+       _reminderNotifications = reminderNotifications,
+       _autoPageTurn = autoPageTurn,
+       _prayerLength = prayerLength,
+       _prayerSoundEnabled = prayerSoundEnabled,
+       _voiceChoice = voiceChoice;
 
   factory SettingsData.fromJson(Json json) => _$SettingsDataFromJson(json);
 
