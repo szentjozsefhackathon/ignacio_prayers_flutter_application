@@ -88,12 +88,12 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
     } else {
       final grid = GridView.builder(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 350,
-          mainAxisSpacing: 8,
           mainAxisExtent: 200,
+          mainAxisSpacing: 8,
+          maxCrossAxisExtent: 200,
           crossAxisSpacing: 8,
         ),
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(16),
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];

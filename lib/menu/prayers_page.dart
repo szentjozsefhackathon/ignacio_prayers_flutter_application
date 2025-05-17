@@ -30,12 +30,12 @@ class PrayersPage extends StatelessWidget {
               child: Center(child: CircularProgressIndicator()),
             )
             : SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+              padding: const EdgeInsets.all(16),
               sliver: SliverGrid.builder(
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 350,
-                  mainAxisSpacing: 8,
                   mainAxisExtent: 200,
+                  mainAxisSpacing: 8,
+                  maxCrossAxisExtent: 200,
                   crossAxisSpacing: 8,
                 ),
                 itemCount: group.prayers.length,
