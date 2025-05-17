@@ -64,7 +64,7 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
     final directory = await _getLocalPath(ensureExists: ensureExists);
 
     final list = <MediaData>[];
-    if (await directory.exists()) {
+    if (directory.existsSync()) {
       final files = directory
           .list(recursive: true, followLinks: false)
           .where((entity) => entity is File);
@@ -92,7 +92,7 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
     try {
       final response = await http.get(getDownloadUri(m.name));
       if (response.statusCode == 200) {
-        final file = await getLocalFile(m.name);
+        final file = await _getLocalFile(m.name, checkExists: false);
         await file.writeAsBytes(response.bodyBytes);
         //log.info('Saved file $m to ${file.path}');
         return true;
@@ -109,8 +109,10 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
 
   Future<bool> _deleteFile(MediaData m) async {
     try {
-      final file = await getLocalFile(m.name);
-      await file.delete();
+      final file = await _getLocalFile(m.name, checkExists: false);
+      if (file.existsSync()) {
+        await file.delete();
+      }
       //log.severe('Deleted file $m at ${file.path}');
       return true;
     } catch (e) {
@@ -119,22 +121,25 @@ class MediaManager extends ListDataSetManagerBase<MediaData> {
     return false;
   }
 
-  Future<File> getLocalFile(String name) async {
+  Future<File> _getLocalFile(String name, {required bool checkExists}) async {
     assert(!kIsWeb, 'getLocalFile is not supported on web');
 
     final directory = await _getLocalPath();
     final file = File(p.join(directory.path, name));
-    if (!file.existsSync()) {
+    if (checkExists && !file.existsSync()) {
       throw FileSystemException('$name nem található', file.path);
     }
     return file;
   }
 
+  Future<File> getLocalFile(String name) =>
+      _getLocalFile(name, checkExists: true);
+
   Future<Directory> _getLocalPath({bool ensureExists = true}) async {
     final rootDirectory = await getApplicationDocumentsDirectory();
     final directory = Directory(p.join(rootDirectory.path, dataKey));
     if (ensureExists) {
-      if (!await directory.exists()) {
+      if (!directory.existsSync()) {
         await directory.create(recursive: true);
         log.info('Directory created: ${directory.path}');
       }
