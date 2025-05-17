@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../data/prayer.dart';
 import '../data/prayer_step.dart';
@@ -74,6 +75,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    WakelockPlus.disable();
     _audioPlayer.dispose();
     _timer?.cancel();
     _pageViewController.dispose();
@@ -88,6 +90,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     if (_settings.dnd) {
       context.read<DndProvider>().allowAlarmsOnly();
     }
+    WakelockPlus.enable();
     if (_settings.prayerSoundEnabled) {
       _pageAudioPlayer();
     }
@@ -129,9 +132,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       await _loadAudio('csengo.mp3');
       await _audioPlayer.setVolume(1);
       await _audioPlayer.play();
-    } else {
-      unawaited(_vibrateIfNoSound());
     }
+    unawaited(_vibrateIfNoSound());
+    await WakelockPlus.disable();
     if (mounted) {
       await context.read<DndProvider>().restoreOriginal();
       await Future.delayed(const Duration(seconds: 1));
@@ -258,19 +261,19 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   );
 
   void _togglePlayPause() {
-    setState(() {
-      if (_isRunning) {
-        _audioPlayer.pause();
-        _isPaused = true;
-        _isRunning = false;
-        _fabAnimationController.reverse();
-      } else {
-        _isPaused = false;
-        _startTimer();
-        _audioPlayer.play();
-        _fabAnimationController.forward();
-      }
-    });
+    if (_isRunning) {
+      _audioPlayer.pause();
+      _isPaused = true;
+      _isRunning = false;
+      _fabAnimationController.reverse();
+    } else {
+      _isPaused = false;
+      _startTimer();
+      _audioPlayer.play();
+      _fabAnimationController.forward();
+    }
+    WakelockPlus.toggle(enable: !_isPaused);
+    setState(() {});
   }
 
   void _updateCurrentPageIndex(int index) {
@@ -283,7 +286,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _vibrateIfNoSound() async {
-    if (!_settings.prayerSoundEnabled && await Vibration.hasVibrator()) {
+    if (widget.prayer.voiceOptions.isEmpty || !_settings.prayerSoundEnabled) {
       unawaited(Vibration.vibrate(duration: 500));
     }
   }
