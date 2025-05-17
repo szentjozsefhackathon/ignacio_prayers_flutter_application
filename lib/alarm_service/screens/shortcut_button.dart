@@ -17,8 +17,7 @@ class AlarmHomeShortcutButton extends StatefulWidget {
       _AlarmHomeShortcutButtonState();
 }
 
-class _AlarmHomeShortcutButtonState
-    extends State<AlarmHomeShortcutButton> {
+class _AlarmHomeShortcutButtonState extends State<AlarmHomeShortcutButton> {
   bool showMenu = false;
 
   Future<void> onPressButton(int delayInHours) async {

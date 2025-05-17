@@ -22,7 +22,7 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
   @override
   void initState() {
     super.initState();
-      _ringingSubscription = Alarm.ringing.listen((alarms) {
+    _ringingSubscription = Alarm.ringing.listen((alarms) {
       if (alarms.containsId(widget.alarmSettings.id)) {
         return;
       }
