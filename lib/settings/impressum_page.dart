@@ -6,51 +6,48 @@ class ImpressumPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Impresszum'),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 32,
-          ),
-          child: RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: Theme.of(context).textTheme.titleLarge,
-              children: const [
-                TextSpan(
-                  text: 'Jézus Társasága Magyarországi Rendtartománya\n'
-                      'Ignáci Pedagógiai Műhely\n\n'
-                      '1085 Budapest, Horánszky u. 20.\n\n',
-                ),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                  child: LinkButton(
-                    urlLabel: 'ignacipedagogia.hu',
-                    url: 'https://ignacipedagogia.hu',
-                  ),
-                ),
-                TextSpan(text: '\n'),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                  child: LinkButton(
-                    urlLabel: 'jezsuita.hu',
-                    url: 'https://jezsuita.hu',
-                  ),
-                ),
-                TextSpan(
-                  text: '\n\n'
-                      'Ha támogatni szeretnéd munkánkat, ajánld fel adód 1%-át a Jézus Társasága Alapítványnak.\n\n'
-                      'Adószám: 18064333-2-42',
-                ),
-              ],
+    appBar: AppBar(title: const Text('Impresszum')),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          style: Theme.of(context).textTheme.titleLarge,
+          children: const [
+            TextSpan(
+              text:
+                  'Jézus Társasága Magyarországi Rendtartománya\n'
+                  'Ignáci Pedagógiai Műhely\n\n'
+                  '1085 Budapest, Horánszky u. 20.\n\n',
             ),
-          ),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: LinkButton(
+                urlLabel: 'ignacipedagogia.hu',
+                url: 'https://ignacipedagogia.hu',
+              ),
+            ),
+            TextSpan(text: '\n'),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: LinkButton(
+                urlLabel: 'jezsuita.hu',
+                url: 'https://jezsuita.hu',
+              ),
+            ),
+            TextSpan(
+              text:
+                  '\n\n'
+                  'Ha támogatni szeretnéd munkánkat, ajánld fel adód 1%-át a Jézus Társasága Alapítványnak.\n\n'
+                  'Adószám: 18064333-2-42',
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class LinkButton extends StatelessWidget {
@@ -69,12 +66,12 @@ class LinkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          overlayColor: Colors.transparent,
-          textStyle: Theme.of(context).textTheme.titleLarge,
-        ),
-        onPressed: () => _launchUrl(url),
-        child: Text(urlLabel),
-      );
+    style: TextButton.styleFrom(
+      backgroundColor: Colors.transparent,
+      overlayColor: Colors.transparent,
+      textStyle: Theme.of(context).textTheme.titleLarge,
+    ),
+    onPressed: () => _launchUrl(url),
+    child: Text(urlLabel),
+  );
 }

@@ -26,22 +26,23 @@ class PrayerDescriptionPage extends StatelessWidget {
           SliverAppBar.large(
             expandedHeight: screenSize.height * 0.3,
             flexibleSpace: FlexibleSpaceBar(
-              title: screenSize.width > 600
-                  ? Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: group.title),
-                          TextSpan(
-                            text: ' / ',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.outline,
+              title:
+                  screenSize.width > 600
+                      ? Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: group.title),
+                            TextSpan(
+                              text: ' / ',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
                             ),
-                          ),
-                          TextSpan(text: prayer.title),
-                        ],
-                      ),
-                    )
-                  : Text(prayer.title),
+                            TextSpan(text: prayer.title),
+                          ],
+                        ),
+                      )
+                      : Text(prayer.title),
               background: PrayerImage(
                 name: prayer.image,
                 opacity: const AlwaysStoppedAnimation(.3),
@@ -65,12 +66,13 @@ class PrayerDescriptionPage extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PrayerSettingsPage(prayer: prayer),
-          ),
-        ),
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PrayerSettingsPage(prayer: prayer),
+              ),
+            ),
         tooltip: 'Ima beállítása',
         child: const Icon(Icons.check_rounded),
       ),

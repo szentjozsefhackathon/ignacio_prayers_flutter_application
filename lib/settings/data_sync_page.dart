@@ -39,72 +39,74 @@ class _DataSyncPageState extends State<DataSyncPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Adatok kezelése'),
-          bottom: _serverVersions == null
+    appBar: AppBar(
+      title: const Text('Adatok kezelése'),
+      bottom:
+          _serverVersions == null
               ? const PreferredSize(
-                  preferredSize: Size.fromHeight(4),
-                  child: LinearProgressIndicator(),
-                )
+                preferredSize: Size.fromHeight(4),
+                child: LinearProgressIndicator(),
+              )
               : null,
-        ),
-        body: RefreshIndicator(
-          onRefresh: _checkForUpdates,
-          child: ListView(
-            children: [
-              _DataSyncListItem(
-                title: 'Imák',
-                server: _serverVersions,
-                getVersion: (v) => v.data,
-                updater: null,
-                onUpdated: () => setState(() {}),
+    ),
+    body: RefreshIndicator(
+      onRefresh: _checkForUpdates,
+      child: ListView(
+        children: [
+          _DataSyncListItem(
+            title: 'Imák',
+            server: _serverVersions,
+            getVersion: (v) => v.data,
+            updater: null,
+            onUpdated: () => setState(() {}),
+          ),
+          _DataSyncListItem(
+            title: 'Képek',
+            server: _serverVersions,
+            getVersion: (v) => v.images,
+            updater: DataManager.instance.updateImages,
+            onUpdated: () => setState(() {}),
+          ),
+          _DataSyncListItem(
+            title: 'Hangok',
+            server: _serverVersions,
+            getVersion: (v) => v.voices,
+            updater: DataManager.instance.updateVoices,
+            onUpdated: () => setState(() {}),
+          ),
+          if (_serverVersions != null && _lastUpdate != null)
+            ListTile(
+              title: const Text('Verziók lekérdezve'),
+              subtitle: Text(
+                RelativeTime(
+                  context,
+                  timeUnits: [TimeUnit.minute, TimeUnit.hour, TimeUnit.day],
+                ).format(_lastUpdate!),
               ),
-              _DataSyncListItem(
-                title: 'Képek',
-                server: _serverVersions,
-                getVersion: (v) => v.images,
-                updater: DataManager.instance.updateImages,
-                onUpdated: () => setState(() {}),
-              ),
-              _DataSyncListItem(
-                title: 'Hangok',
-                server: _serverVersions,
-                getVersion: (v) => v.voices,
-                updater: DataManager.instance.updateVoices,
-                onUpdated: () => setState(() {}),
-              ),
-              if (_serverVersions != null && _lastUpdate != null)
-                ListTile(
-                  title: const Text('Verziók lekérdezve'),
-                  subtitle: Text(
-                    RelativeTime(
-                      context,
-                      timeUnits: [TimeUnit.minute, TimeUnit.hour, TimeUnit.day],
-                    ).format(_lastUpdate!),
-                  ),
-                  onTap: _checkForUpdates,
-                ),
-              if (kDebugMode)
-                ListTile(
-                  title: const Text('Adatok törlése'),
-                  enabled: _serverVersions != null,
-                  onTap: _serverVersions == null
+              onTap: _checkForUpdates,
+            ),
+          if (kDebugMode)
+            ListTile(
+              title: const Text('Adatok törlése'),
+              enabled: _serverVersions != null,
+              onTap:
+                  _serverVersions == null
                       ? null
                       : () async {
-                          setState(() => _serverVersions = null);
-                          final dm = DataManager.instance;
-                          await dm.versions.deleteLocalData();
-                          await dm.images.deleteLocalData();
-                          await dm.voices.deleteLocalData();
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        },
-                ),
-            ],
-          ),
-        ),
-      );
+                        setState(() => _serverVersions = null);
+                        final dm = DataManager.instance;
+                        await dm.versions.deleteLocalData();
+                        await dm.images.deleteLocalData();
+                        await dm.voices.deleteLocalData();
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
+            ),
+        ],
+      ),
+    ),
+  );
 }
 
 class _DataSyncListItem extends StatefulWidget {
@@ -205,13 +207,14 @@ class _DataSyncListItemState extends State<_DataSyncListItem> {
       title: Text(widget.title),
       subtitle: subtitle,
       enabled: !_loading && server != null && local != null,
-      trailing: _loading
-          ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 3),
-            )
-          : null,
+      trailing:
+          _loading
+              ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              )
+              : null,
       onTap: onTap,
     );
   }

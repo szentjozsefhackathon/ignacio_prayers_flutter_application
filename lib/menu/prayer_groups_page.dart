@@ -63,16 +63,17 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
       unawaited(
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Hiba történt'),
-            content: Text(error),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Bezárás'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Hiba történt'),
+                content: Text(error),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Bezárás'),
+                  ),
+                ],
               ),
-            ],
-          ),
         ),
       );
     }
@@ -104,16 +105,15 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
             ),
             elevation: 4,
             child: InkWell(
-              onTap: () => Navigator.pushNamed(
-                context,
-                Routes.prayers(item),
-                arguments: item,
-              ),
+              onTap:
+                  () => Navigator.pushNamed(
+                    context,
+                    Routes.prayers(item),
+                    arguments: item,
+                  ),
               child: Stack(
                 children: [
-                  Positioned.fill(
-                    child: PrayerImage(name: item.image),
-                  ),
+                  Positioned.fill(child: PrayerImage(name: item.image)),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -141,15 +141,15 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
       body = switch (_notification) {
         _DataSyncNotification.none => grid,
         _DataSyncNotification.download => _buildSyncNotification(
-            grid,
-            'Le szeretnéd most tölteni az imákhoz tartozó képeket és hangokat?\n\nKésőbb a beállítások oldalról is megteheted ezt.',
-            'Letöltés',
-          ),
+          grid,
+          'Le szeretnéd most tölteni az imákhoz tartozó képeket és hangokat?\n\nKésőbb a beállítások oldalról is megteheted ezt.',
+          'Letöltés',
+        ),
         _DataSyncNotification.update => _buildSyncNotification(
-            grid,
-            'Szeretnéd most frissíteni az imákhoz tartozó képeket és/vagy hangokat?',
-            'Frissítés',
-          ),
+          grid,
+          'Szeretnéd most frissíteni az imákhoz tartozó képeket és/vagy hangokat?',
+          'Frissítés',
+        ),
       };
     }
 
@@ -173,34 +173,33 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
     Widget content,
     String message,
     String positiveButton,
-  ) =>
-      Column(
-        children: [
-          MaterialBanner(
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => setState(
-                  () => _notification = _DataSyncNotification.none,
-                ),
-                child: const Text('Elrejtés'),
-              ),
-              TextButton(
-                onPressed: () async {
-                  setState(() => _notification = _DataSyncNotification.none);
-                  await Navigator.pushNamed(context, Routes.dataSync);
-                  if (mounted) {
-                    await _loadData();
-                  }
-                },
-                child: Text(positiveButton),
-              ),
-            ],
-            backgroundColor: Colors.transparent,
-            dividerColor: Colors.transparent,
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+  ) => Column(
+    children: [
+      MaterialBanner(
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed:
+                () =>
+                    setState(() => _notification = _DataSyncNotification.none),
+            child: const Text('Elrejtés'),
           ),
-          Expanded(child: content),
+          TextButton(
+            onPressed: () async {
+              setState(() => _notification = _DataSyncNotification.none);
+              await Navigator.pushNamed(context, Routes.dataSync);
+              if (mounted) {
+                await _loadData();
+              }
+            },
+            child: Text(positiveButton),
+          ),
         ],
-      );
+        backgroundColor: Colors.transparent,
+        dividerColor: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      ),
+      Expanded(child: content),
+    ],
+  );
 }

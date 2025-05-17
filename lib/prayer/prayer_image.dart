@@ -40,14 +40,9 @@ class PrayerImage extends StatelessWidget {
     BuildContext context,
     Object error,
     StackTrace? stack,
-  ) =>
-      const Center(
-        child: Icon(
-          Icons.broken_image,
-          size: 50,
-          color: Colors.grey,
-        ),
-      );
+  ) => const Center(
+    child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+  );
 
   static Widget _defaultLoadingBuilder(
     BuildContext context,
@@ -59,9 +54,10 @@ class PrayerImage extends StatelessWidget {
     }
     return Center(
       child: CircularProgressIndicator(
-        value: event.expectedTotalBytes != null
-            ? event.cumulativeBytesLoaded / event.expectedTotalBytes!
-            : null,
+        value:
+            event.expectedTotalBytes != null
+                ? event.cumulativeBytesLoaded / event.expectedTotalBytes!
+                : null,
       ),
     );
   }
@@ -85,12 +81,7 @@ class PrayerImage extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return loadingBuilder?.call(
                 context,
-                frameBuilder?.call(
-                      context,
-                      const SizedBox(),
-                      0,
-                      false,
-                    ) ??
+                frameBuilder?.call(context, const SizedBox(), 0, false) ??
                     const SizedBox(),
                 null,
               ) ??
