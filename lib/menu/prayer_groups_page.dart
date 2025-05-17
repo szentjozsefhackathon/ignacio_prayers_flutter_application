@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
@@ -58,17 +60,19 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
       if (!mounted) {
         return;
       }
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Hiba történt'),
-          content: Text(error),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Bezárás'),
-            ),
-          ],
+      unawaited(
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Hiba történt'),
+            content: Text(error),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Bezárás'),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -186,7 +190,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
                   setState(() => _notification = _DataSyncNotification.none);
                   await Navigator.pushNamed(context, Routes.dataSync);
                   if (mounted) {
-                    _loadData();
+                    await _loadData();
                   }
                 },
                 child: Text(positiveButton),

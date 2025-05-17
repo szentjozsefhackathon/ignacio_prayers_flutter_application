@@ -127,52 +127,52 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
 
   Future<void> _onTimerFinish() async {
     setState(() => _isRunning = false);
-    _audioPlayer.pause();
-    _loadAudio('csengo.mp3');
-    _audioPlayer.setVolume(1);
-    _audioPlayer.play();
+    await _audioPlayer.pause();
+    await _loadAudio('csengo.mp3');
+    await _audioPlayer.setVolume(1);
+    await _audioPlayer.play();
     // Vibration.vibrate(duration: 500);
-    context.read<DndProvider>().restoreOriginal();
-    await Future.delayed(const Duration(seconds: 1));
     if (mounted) {
-      Navigator.of(context).pop();
+      await context.read<DndProvider>().restoreOriginal();
+      await Future.delayed(const Duration(seconds: 1));
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
-  void _loadAudio(String filename) {
-    if (kIsWeb) {
-      try {
-        _audioPlayer.setAudioSource(
+  Future<void> _loadAudio(String filename) async {
+    try {
+      if (kIsWeb) {
+        await _audioPlayer.setAudioSource(
           AudioSource.uri(DataManager.instance.voices.getDownloadUri(filename)),
           initialPosition: Duration.zero,
         );
-      } catch (e, s) {
-        log.severe('Error loading audio', e, s);
+      } else {
+        await DataManager.instance.voices
+            .getLocalFile(filename)
+            .then((audio) => _audioPlayer.setFilePath(audio.path));
       }
-    } else {
-      DataManager.instance.voices.getLocalFile(filename).then((audio) {
-        _audioPlayer.setFilePath(audio.path);
-      }).catchError((e, s) {
-        log.severe('Error loading audio', e, s);
-      });
+    } catch (e, s) {
+      log.severe('Error loading audio', e, s);
     }
   }
 
-  void _pageAudioPlayer() {
+  Future<void> _pageAudioPlayer() async {
     if (widget.prayer.voiceOptions.isEmpty) {
       return;
     }
-    _audioPlayer.pause();
+    await _audioPlayer.pause();
     final voiceIndex =
         widget.prayer.voiceOptions.indexOf(_settings.voiceChoice);
     // match voices
     final filename = widget.prayer.steps[_currentPage].voices[voiceIndex];
-    _loadAudio(filename);
-    _audioPlayer.setVolume(1);
+    await _loadAudio(filename);
+    await _audioPlayer.setVolume(1);
     if (_isPaused) {
-      _audioPlayer.pause();
+      await _audioPlayer.pause();
     } else {
-      _audioPlayer.play();
+      await _audioPlayer.play();
     }
   }
 
