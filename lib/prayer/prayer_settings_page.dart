@@ -9,10 +9,7 @@ import '../settings/dnd.dart';
 import 'prayer_page.dart';
 
 class PrayerSettingsPage extends StatefulWidget {
-  const PrayerSettingsPage({
-    super.key,
-    required this.prayer,
-  });
+  const PrayerSettingsPage({super.key, required this.prayer});
 
   final Prayer prayer;
 
@@ -26,9 +23,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
     final settings = context.watch<SettingsData>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.prayer.title),
-      ),
+      appBar: AppBar(title: Text(widget.prayer.title)),
       body: ListView(
         children: [
           SwitchListTile(
@@ -66,29 +61,29 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                     SwitchListTile(
                       title: const Text('Hang'),
                       value: settings.prayerSoundEnabled && data.isNotEmpty,
-                      onChanged: data.isNotEmpty
-                          ? (v) => settings.prayerSoundEnabled = v
-                          : null,
+                      onChanged:
+                          data.isNotEmpty
+                              ? (v) => settings.prayerSoundEnabled = v
+                              : null,
                     ),
-                    ...widget.prayer.voiceOptions.map(
-                      (voice) {
-                        final available = data.contains(voice);
-                        return RadioListTile(
-                          title: Text(voice),
-                          subtitle:
-                              available ? null : const Text('Nincs letöltve'),
-                          value: voice,
-                          groupValue: settings.voiceChoice,
-                          onChanged: settings.prayerSoundEnabled && available
-                              ? (String? v) {
+                    ...widget.prayer.voiceOptions.map((voice) {
+                      final available = data.contains(voice);
+                      return RadioListTile(
+                        title: Text(voice),
+                        subtitle:
+                            available ? null : const Text('Nincs letöltve'),
+                        value: voice,
+                        groupValue: settings.voiceChoice,
+                        onChanged:
+                            settings.prayerSoundEnabled && available
+                                ? (String? v) {
                                   if (v != null) {
                                     settings.voiceChoice = v;
                                   }
                                 }
-                              : null,
-                        );
-                      },
-                    ),
+                                : null,
+                      );
+                    }),
                   ],
                 );
               },
@@ -108,16 +103,16 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         StatefulBuilder(
-                          builder: (context, setState) => Slider(
-                            value: length.toDouble(),
-                            min: widget.prayer.minTimeInMinutes.toDouble(),
-                            max: 60,
-                            divisions: 60 - widget.prayer.minTimeInMinutes,
-                            label: '$length perc',
-                            onChanged: (v) => setState(
-                              () => length = v.toInt(),
-                            ),
-                          ),
+                          builder:
+                              (context, setState) => Slider(
+                                value: length.toDouble(),
+                                min: widget.prayer.minTimeInMinutes.toDouble(),
+                                max: 60,
+                                divisions: 60 - widget.prayer.minTimeInMinutes,
+                                label: '$length perc',
+                                onChanged:
+                                    (v) => setState(() => length = v.toInt()),
+                              ),
                         ),
                       ],
                     ),
@@ -147,12 +142,13 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PrayerPage(prayer: widget.prayer),
-          ),
-        ),
+        onPressed:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PrayerPage(prayer: widget.prayer),
+              ),
+            ),
         tooltip: 'Ima indítása',
         child: const Icon(Icons.play_arrow_rounded),
       ),

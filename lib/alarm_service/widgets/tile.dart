@@ -14,28 +14,25 @@ class AlarmTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Dismissible(
-        key: key!,
-        direction: onDismissed != null
+    key: key!,
+    direction:
+        onDismissed != null
             ? DismissDirection.endToStart
             : DismissDirection.none,
-        background: Container(
-          color: Colors.red,
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 30),
-          child: const Icon(
-            Icons.delete,
-            size: 30,
-            color: Colors.white,
-          ),
-        ),
-        onDismissed: (_) => onDismissed?.call(),
-        child: ListTile(
-          title: Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: Text(title),
-          ),
-          trailing: const Icon(Icons.keyboard_arrow_right_rounded),
-          onTap: onPressed,
-        ),
-      );
+    background: Container(
+      color: Colors.red,
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 30),
+      child: const Icon(Icons.delete, size: 30, color: Colors.white),
+    ),
+    onDismissed: (_) => onDismissed?.call(),
+    child: ListTile(
+      title: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Text(title),
+      ),
+      trailing: const Icon(Icons.keyboard_arrow_right_rounded),
+      onTap: onPressed,
+    ),
+  );
 }

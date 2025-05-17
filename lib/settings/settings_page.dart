@@ -77,13 +77,12 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ...ThemeMode.values.map(
             (mode) => RadioListTile(
-              title: Text(
-                switch (mode) {
-                  ThemeMode.system => 'rendszer',
-                  ThemeMode.light => 'világos',
-                  ThemeMode.dark => 'sötét',
-                },
-              ),
+              title: Text(switch (mode) {
+                ThemeMode.system => 'rendszer',
+                ThemeMode.light => 'világos',
+                ThemeMode.dark => 'sötét',
+                // ignore: require_trailing_commas
+              }),
               value: mode,
               groupValue: settings.themeMode,
               onChanged: (v) {
@@ -116,22 +115,23 @@ class _SettingsPageState extends State<SettingsPage> {
           if (_alarms.isNotEmpty)
             SafeArea(
               child: Column(
-                children: _alarms
-                    .map(
-                      (a) => AlarmTile(
-                        key: Key(a.id.toString()),
-                        title: TimeOfDay(
-                          hour: a.dateTime.hour,
-                          minute: a.dateTime.minute,
-                        ).format(context),
-                        onPressed: () => _navigateToAlarmScreen(a),
-                        onDismissed: () async {
-                          await Alarm.stop(a.id);
-                          await _loadAlarms();
-                        },
-                      ),
-                    )
-                    .toList(),
+                children:
+                    _alarms
+                        .map(
+                          (a) => AlarmTile(
+                            key: Key(a.id.toString()),
+                            title: TimeOfDay(
+                              hour: a.dateTime.hour,
+                              minute: a.dateTime.minute,
+                            ).format(context),
+                            onPressed: () => _navigateToAlarmScreen(a),
+                            onDismissed: () async {
+                              await Alarm.stop(a.id);
+                              await _loadAlarms();
+                            },
+                          ),
+                        )
+                        .toList(),
               ),
             ),
           if (!kIsWeb)
@@ -158,9 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => AlarmRingScreen(
-          alarmSettings: alarmSettings,
-        ),
+        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings),
       ),
     );
     unawaited(_loadAlarms());
@@ -170,13 +168,12 @@ class _SettingsPageState extends State<SettingsPage> {
     final res = await showModalBottomSheet<bool?>(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      builder: (context) => FractionallySizedBox(
-        heightFactor: 0.85,
-        child: AlarmEditScreen(alarmSettings: settings),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      builder:
+          (context) => FractionallySizedBox(
+            heightFactor: 0.85,
+            child: AlarmEditScreen(alarmSettings: settings),
+          ),
     );
 
     if (res != null && res == true) unawaited(_loadAlarms());

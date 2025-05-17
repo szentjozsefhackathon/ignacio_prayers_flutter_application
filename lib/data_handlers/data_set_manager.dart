@@ -174,7 +174,8 @@ abstract class ListDataSetManagerBase<T extends DataDescriptor>
 }
 
 class ListDataSetManager<T extends DataDescriptor>
-    extends ListDataSetManagerBase<T> with LocalDataMixin<DataList<T>, T> {
+    extends ListDataSetManagerBase<T>
+    with LocalDataMixin<DataList<T>, T> {
   ListDataSetManager({
     required super.dataKey,
     required super.dataUrlEndpoint,

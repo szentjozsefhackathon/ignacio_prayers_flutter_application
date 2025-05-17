@@ -15,10 +15,7 @@ class DataList<T extends DataDescriptor> extends DelegatingList<T>
   factory DataList.fromJson(
     List<dynamic> jsonList,
     T Function(Json) fromJson,
-  ) =>
-      DataList(
-        items: jsonList.map((json) => fromJson(json)).toList(),
-      );
+  ) => DataList(items: jsonList.map((json) => fromJson(json)).toList());
 
   List<T> items;
 

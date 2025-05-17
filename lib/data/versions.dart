@@ -6,11 +6,7 @@ part 'versions.g.dart';
 
 @JsonSerializable()
 class Versions extends DataDescriptor {
-  Versions({
-    required this.data,
-    required this.images,
-    required this.voices,
-  });
+  Versions({required this.data, required this.images, required this.voices});
 
   factory Versions.fromJson(Json json) => _$VersionsFromJson(json);
 
@@ -21,16 +17,11 @@ class Versions extends DataDescriptor {
   @override
   Json toJson() => _$VersionsToJson(this);
 
-  Versions copyWith({
-    String? data,
-    String? images,
-    String? voices,
-  }) =>
-      Versions(
-        data: data ?? this.data,
-        images: images ?? this.images,
-        voices: voices ?? this.voices,
-      );
+  Versions copyWith({String? data, String? images, String? voices}) => Versions(
+    data: data ?? this.data,
+    images: images ?? this.images,
+    voices: voices ?? this.voices,
+  );
 
   bool isUpdateAvailable(Versions v) =>
       (data.isNotEmpty && v.data.isNotEmpty && data != v.data) ||

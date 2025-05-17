@@ -42,45 +42,43 @@ class _AlarmRingScreenState extends State<AlarmRingScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Column(
+    body: SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Text(
+            'You alarm (${widget.alarmSettings.id}) is ringing...',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const Text('🔔🙏', style: TextStyle(fontSize: 50)),
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                'You alarm (${widget.alarmSettings.id}) is ringing...',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Text(
-                '🔔🙏',
-                style: TextStyle(fontSize: 50),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  RawMaterialButton(
-                    onPressed: () async => Alarm.set(
+              RawMaterialButton(
+                onPressed:
+                    () async => Alarm.set(
                       alarmSettings: widget.alarmSettings.copyWith(
                         dateTime: DateTime.now().add(
                           const Duration(minutes: 1),
                         ),
                       ),
                     ),
-                    child: Text(
-                      'Snooze',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                  RawMaterialButton(
-                    onPressed: () => Alarm.stop(widget.alarmSettings.id),
-                    child: Text(
-                      'Stop',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                ],
+                child: Text(
+                  'Snooze',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              RawMaterialButton(
+                onPressed: () => Alarm.stop(widget.alarmSettings.id),
+                child: Text(
+                  'Stop',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
             ],
           ),
-        ),
-      );
+        ],
+      ),
+    ),
+  );
 }

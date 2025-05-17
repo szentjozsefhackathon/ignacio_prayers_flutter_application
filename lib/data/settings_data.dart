@@ -23,14 +23,14 @@ class SettingsData extends ChangeNotifier implements DataDescriptor {
     int prayerLength = 30,
     bool prayerSoundEnabled = true,
     String voiceChoice = 'Férfi 2',
-  })  : _themeMode = themeMode,
-        _dnd = dnd,
-        _dailyNotifier = dailyNotifier,
-        _dailyNotifierTime = dailyNotifierTime,
-        _autoPageTurn = autoPageTurn,
-        _prayerLength = prayerLength,
-        _prayerSoundEnabled = prayerSoundEnabled,
-        _voiceChoice = voiceChoice;
+  }) : _themeMode = themeMode,
+       _dnd = dnd,
+       _dailyNotifier = dailyNotifier,
+       _dailyNotifierTime = dailyNotifierTime,
+       _autoPageTurn = autoPageTurn,
+       _prayerLength = prayerLength,
+       _prayerSoundEnabled = prayerSoundEnabled,
+       _voiceChoice = voiceChoice;
 
   factory SettingsData.fromJson(Json json) => _$SettingsDataFromJson(json);
 
@@ -177,7 +177,8 @@ class TimeOfDayConverter implements JsonConverter<TimeOfDay, String> {
   }
 
   @override
-  String toJson(TimeOfDay object) => [object.hour, object.minute]
-      .map((n) => n.toString().padLeft(2, '0'))
-      .join(':');
+  String toJson(TimeOfDay object) => [
+    object.hour,
+    object.minute,
+  ].map((n) => n.toString().padLeft(2, '0')).join(':');
 }

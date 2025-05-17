@@ -13,10 +13,7 @@ class PrayerText extends StatelessWidget {
     this.padding = kDefaultPadding,
   });
 
-  static const kDefaultStyle = TextStyle(
-    fontSize: 24,
-    height: 1.5,
-  );
+  static const kDefaultStyle = TextStyle(fontSize: 24, height: 1.5);
   static const kDefaultPadding = EdgeInsets.all(38);
 
   final String text;
@@ -29,19 +26,19 @@ class PrayerText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: padding,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size.fromWidth(600)),
-            child: AutoSizeText(
-              text,
-              minFontSize: minFontSize,
-              maxFontSize: maxFontSize,
-              stepGranularity: stepGranularity,
-              textAlign: textAlign,
-              style: style,
-            ),
-          ),
+    padding: padding,
+    child: Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints.loose(const Size.fromWidth(600)),
+        child: AutoSizeText(
+          text,
+          minFontSize: minFontSize,
+          maxFontSize: maxFontSize,
+          stepGranularity: stepGranularity,
+          textAlign: textAlign,
+          style: style,
         ),
-      );
+      ),
+    ),
+  );
 }
