@@ -99,6 +99,7 @@ class _PrayerSettingsPageState extends State<PrayerSettingsPage> {
                   var length = settings.prayerLength;
                   return AlertDialog(
                     title: const Text('Ima hossza'),
+                    contentPadding: const EdgeInsets.fromLTRB(8, 32, 8, 0),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

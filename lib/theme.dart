@@ -12,6 +12,7 @@ class AppTheme {
       contrastLevel: 1,
     ),
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
+    sliderTheme: const SliderThemeData(year2023: false),
   );
 
   static final light = _createTheme(Brightness.light, const Color(0xFFBA0527));
