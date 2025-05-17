@@ -1,4 +1,4 @@
-name: Check
+name: Check code quality
 
 on:
   push:

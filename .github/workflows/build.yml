@@ -1,4 +1,4 @@
-name: Build
+name: Build & release app
 
 on:
   workflow_dispatch: # Manual trigger only
