@@ -70,9 +70,14 @@ class SettingsPage extends StatelessWidget {
                 ),
               const NotificationsList(),
               if (kDebugMode)
-                ListTile(
-                  title: const Text('Értesítés teszt'),
-                  onTap: () => context.read<Notifications>().showTest(),
+                Selector<Notifications, bool?>(
+                  selector: (context, notifications) =>
+                      notifications.hasPermission,
+                  builder: (context, hasPermission, _) => ListTile(
+                    title: const Text('Értesítés teszt'),
+                    enabled: hasPermission ?? false,
+                    onTap: () => context.read<Notifications>().showTest(),
+                  ),
                 ),
             ],
             ListTile(
