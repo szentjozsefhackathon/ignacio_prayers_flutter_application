@@ -154,7 +154,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
             .then((audio) => _audioPlayer.setFilePath(audio.path));
       }
     } catch (e, s) {
-      log.severe('Error loading audio', e, s);
+      log.severe('Error loading $filename', e, s);
     }
   }
 
