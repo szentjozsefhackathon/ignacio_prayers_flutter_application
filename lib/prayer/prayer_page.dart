@@ -234,12 +234,15 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
             "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
           ),
         ),
-        Opacity(
-          opacity: .25,
-          child: PageIndicator(
-            tabController: _tabController,
-            currentPageIndex: _currentPage,
-            onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+        Padding(
+          padding: const EdgeInsets.only(right: kMinInteractiveDimension),
+          child: Opacity(
+            opacity: .25,
+            child: PageIndicator(
+              tabController: _tabController,
+              currentPageIndex: _currentPage,
+              onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+            ),
           ),
         ),
       ],
@@ -316,29 +319,30 @@ class PageIndicator extends StatelessWidget {
           IconButton(
             splashRadius: 16,
             padding: EdgeInsets.zero,
-            onPressed: () {
-              if (currentPageIndex == 0) {
-                return;
-              }
-              onUpdateCurrentPageIndex(currentPageIndex - 1);
-            },
+            onPressed:
+                currentPageIndex <= 0
+                    ? null
+                    : () => onUpdateCurrentPageIndex(currentPageIndex - 1),
             icon: const Icon(Icons.chevron_left_rounded),
             tooltip: 'Előző oldal',
           ),
-          TabPageSelector(
-            controller: tabController,
-            color: colorScheme.surface,
-            selectedColor: colorScheme.primary,
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: TabPageSelector(
+                controller: tabController,
+                color: colorScheme.surface,
+                selectedColor: colorScheme.primary,
+              ),
+            ),
           ),
           IconButton(
             splashRadius: 16,
             padding: EdgeInsets.zero,
-            onPressed: () {
-              if (currentPageIndex == tabController.length - 1) {
-                return;
-              }
-              onUpdateCurrentPageIndex(currentPageIndex + 1);
-            },
+            onPressed:
+                currentPageIndex >= tabController.length - 1
+                    ? null
+                    : () => onUpdateCurrentPageIndex(currentPageIndex + 1),
             icon: const Icon(Icons.chevron_right_rounded),
             tooltip: 'Következő oldal',
           ),
