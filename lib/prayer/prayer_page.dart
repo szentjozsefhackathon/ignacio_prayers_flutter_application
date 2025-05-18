@@ -134,13 +134,13 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       await _audioPlayer.setVolume(1);
       await _audioPlayer.play();
     }
-    unawaited(_vibrateIfNoSound());
+    _vibrateIfNoSound();
     await WakelockPlus.disable();
     if (mounted) {
       await context.read<DndProvider>().restoreOriginal();
-      await Future.delayed(const Duration(seconds: 1));
       if (mounted) {
-        Navigator.of(context).pop();
+        int count = 0;
+        Navigator.popUntil(context, (_) => count++ >= 2);
       }
     }
   }
@@ -282,21 +282,21 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  void _updateCurrentPageIndex(int index) {
+  Future<void> _updateCurrentPageIndex(int index) async {
     _tabController.index = index;
-    _pageViewController.animateToPage(
+    await _pageViewController.animateToPage(
       index,
       duration: const Duration(milliseconds: 400),
       curve: Curves.easeInOut,
     );
   }
 
-  Future<void> _vibrateIfNoSound() async {
+  void _vibrateIfNoSound() {
     if (kIsWeb) {
       return;
     }
     if (widget.prayer.voiceOptions.isEmpty || !_settings.prayerSoundEnabled) {
-      unawaited(Vibration.vibrate(duration: 500));
+      Vibration.vibrate(duration: 500);
     }
   }
 }
