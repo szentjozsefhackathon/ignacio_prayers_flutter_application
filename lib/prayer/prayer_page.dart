@@ -286,6 +286,9 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   }
 
   Future<void> _vibrateIfNoSound() async {
+    if (kIsWeb) {
+      return;
+    }
     if (widget.prayer.voiceOptions.isEmpty || !_settings.prayerSoundEnabled) {
       unawaited(Vibration.vibrate(duration: 500));
     }
