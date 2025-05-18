@@ -120,6 +120,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
         setState(() {});
       }
       if (_remainingSeconds <= 0) {
+        timer.cancel();
         _onTimerFinish();
       }
     });
@@ -227,37 +228,42 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
                     PrayerText(widget.prayer.steps[index].description),
           ),
         ),
-        AnimatedOpacity(
-          opacity: _isPaused ? 1.0 : .5,
-          duration: kThemeAnimationDuration,
-          child: Text(
-            "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+        if (_remainingSeconds > 0)
+          AnimatedOpacity(
+            opacity: _isPaused ? 1.0 : .5,
+            duration: kThemeAnimationDuration,
+            child: Text(
+              "Hátralévő idő: ${_remainingSeconds ~/ 60}:${(_remainingSeconds % 60).toString().padLeft(2, '0')}",
+            ),
           ),
-        ),
         Opacity(
           opacity: .25,
           child: _PageIndicator(
             tabController: _tabController,
             currentPageIndex: _currentPage,
             onUpdateCurrentPageIndex: _updateCurrentPageIndex,
+            hasFab: _remainingSeconds > 0,
           ),
         ),
       ],
     ),
     floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-    floatingActionButton: AnimatedOpacity(
-      opacity: _isPaused ? 1.0 : .5,
-      duration: kThemeAnimationDuration,
-      child: FloatingActionButton(
-        mini: true,
-        onPressed: _togglePlayPause,
-        tooltip: _isRunning ? 'Szünet' : 'Folytatás',
-        child: AnimatedIcon(
-          icon: AnimatedIcons.play_pause,
-          progress: _fabAnimationController,
-        ),
-      ),
-    ),
+    floatingActionButton:
+        _remainingSeconds <= 0
+            ? null
+            : AnimatedOpacity(
+              opacity: _isPaused ? 1.0 : .5,
+              duration: kThemeAnimationDuration,
+              child: FloatingActionButton(
+                mini: true,
+                onPressed: _togglePlayPause,
+                tooltip: _isRunning ? 'Szünet' : 'Folytatás',
+                child: AnimatedIcon(
+                  icon: AnimatedIcons.play_pause,
+                  progress: _fabAnimationController,
+                ),
+              ),
+            ),
   );
 
   void _togglePlayPause() {
@@ -300,11 +306,13 @@ class _PageIndicator extends StatelessWidget {
     required this.tabController,
     required this.currentPageIndex,
     required this.onUpdateCurrentPageIndex,
+    required this.hasFab,
   });
 
   final int currentPageIndex;
   final TabController tabController;
   final void Function(int) onUpdateCurrentPageIndex;
+  final bool hasFab;
 
   @override
   Widget build(BuildContext context) {
@@ -313,18 +321,19 @@ class _PageIndicator extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         double left = 8;
-        // +1 for buttons
-        if (constraints.maxWidth > ((tabController.length + 1) * 32)) {
-          left += kMinInteractiveDimension;
+        double right = 8;
+        if (hasFab) {
+          // length +1 for buttons
+          if (constraints.maxWidth > ((tabController.length + 1) * 32)) {
+            left += kMinInteractiveDimension;
+          }
+
+          // safe area for mini FAB
+          right += kMinInteractiveDimension;
         }
 
         return Padding(
-          padding: EdgeInsets.fromLTRB(
-            left,
-            8,
-            8 + kMinInteractiveDimension, // FAB
-            8,
-          ),
+          padding: EdgeInsets.fromLTRB(left, 8, right, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
