@@ -138,10 +138,14 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
     await WakelockPlus.disable();
     if (mounted) {
       await context.read<DndProvider>().restoreOriginal();
-      if (mounted) {
-        int count = 0;
-        Navigator.popUntil(context, (_) => count++ >= 2);
-      }
+      _close();
+    }
+  }
+
+  void _close() {
+    if (mounted) {
+      int count = 0;
+      Navigator.popUntil(context, (_) => count++ >= 2);
     }
   }
 
@@ -209,7 +213,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      leading: const CloseButton(),
+      leading: CloseButton(onPressed: _close),
       title: AnimatedOpacity(
         opacity: _isPaused ? 1.0 : .4,
         duration: kThemeAnimationDuration,
