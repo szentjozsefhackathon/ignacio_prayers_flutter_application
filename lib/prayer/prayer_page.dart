@@ -1,4 +1,4 @@
-import 'dart:async' show Timer, unawaited;
+import 'dart:async' show Timer;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -296,7 +296,7 @@ class _PrayerPageState extends State<PrayerPage> with TickerProviderStateMixin {
       return;
     }
     if (widget.prayer.voiceOptions.isEmpty || !_settings.prayerSoundEnabled) {
-      Vibration.vibrate(duration: 500);
+      Vibration.vibrate();
     }
   }
 }

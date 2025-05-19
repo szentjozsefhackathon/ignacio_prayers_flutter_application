@@ -98,7 +98,6 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
         itemBuilder: (context, index) {
           final item = items[index];
           return Card(
-            semanticContainer: true,
             clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

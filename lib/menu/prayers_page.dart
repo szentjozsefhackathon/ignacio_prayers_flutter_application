@@ -42,7 +42,6 @@ class PrayersPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final prayer = group.prayers[index];
                   return Card(
-                    semanticContainer: true,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
