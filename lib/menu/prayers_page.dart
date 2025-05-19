@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/prayer_group.dart';
 import '../prayer/prayer_app_bar.dart';
 import '../prayer/prayer_image.dart';
+import '../prayer/search.dart';
 import '../routes.dart';
 
 class PrayersPage extends StatelessWidget {
@@ -14,7 +15,10 @@ class PrayersPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     body: CustomScrollView(
       slivers: [
-        PrayerAppBar.group(group: group),
+        PrayerAppBar.group(
+          group: group,
+          actions: [PrayerSearchIconButton(group: group)],
+        ),
         group.prayers.isEmpty
             ? const SliverToBoxAdapter(
               child: Center(child: CircularProgressIndicator()),

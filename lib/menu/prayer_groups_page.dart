@@ -7,6 +7,7 @@ import '../data/common.dart';
 import '../data/prayer_group.dart';
 import '../data_handlers/data_manager.dart';
 import '../prayer/prayer_image.dart';
+import '../prayer/search.dart';
 import '../routes.dart';
 
 class PrayerGroupsPage extends StatefulWidget {
@@ -158,6 +159,7 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
         title: const Text('Ignáci imák'),
         titleSpacing: NavigationToolbar.kMiddleSpacing,
         actions: [
+          const PrayerSearchIconButton(),
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Beállítások',
