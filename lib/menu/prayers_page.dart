@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/prayer_group.dart';
+import '../prayer/prayer_app_bar.dart';
 import '../prayer/prayer_image.dart';
 import '../routes.dart';
 
@@ -13,18 +14,7 @@ class PrayersPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     body: CustomScrollView(
       slivers: [
-        SliverAppBar.large(
-          expandedHeight: MediaQuery.of(context).size.height * 0.3,
-          flexibleSpace: FlexibleSpaceBar(
-            title: Text(group.title),
-            background: PrayerImage(
-              name: group.image,
-              opacity: const AlwaysStoppedAnimation(.3),
-              errorBuilder: null,
-            ),
-            collapseMode: CollapseMode.parallax,
-          ),
-        ),
+        PrayerAppBar.group(group: group),
         group.prayers.isEmpty
             ? const SliverToBoxAdapter(
               child: Center(child: CircularProgressIndicator()),
