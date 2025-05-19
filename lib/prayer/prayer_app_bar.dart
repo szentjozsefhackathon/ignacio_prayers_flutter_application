@@ -5,19 +5,25 @@ import '../data/prayer_group.dart';
 import 'prayer_image.dart';
 
 class PrayerAppBar extends StatelessWidget {
-  const PrayerAppBar.group({super.key, required this.group, this.options})
-    : prayer = null;
+  const PrayerAppBar.group({
+    super.key,
+    required this.group,
+    this.options,
+    this.actions,
+  }) : prayer = null;
 
   const PrayerAppBar.prayer({
     super.key,
     required this.group,
     required this.prayer,
     this.options,
+    this.actions,
   });
 
   final PrayerGroup group;
   final Prayer? prayer;
   final PrayerAppBarOptions? options;
+  final List<Widget>? actions;
 
   Widget buildTitle(PrayerAppBarOptions opts, bool singleLine) =>
       opts.subtitleVisible
@@ -57,21 +63,25 @@ class PrayerAppBar extends StatelessWidget {
       toolbarHeight: opts.collapsedHeight,
       stretch: true,
       //title: buildTitle(opts, true),
+      actions: actions,
       flexibleSpace: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           final currentHeight = constraints.biggest.height;
           final percentage =
               (currentHeight - opts.collapsedHeight) /
               (opts.expandedHeight - opts.collapsedHeight);
+          final t = (percentage * 10).roundToDouble() / 10;
           return FlexibleSpaceBar(
             title: buildTitle(opts, percentage < 0.3),
             titlePadding: EdgeInsets.fromLTRB(
-              Tween<double>(
-                begin: 56,
-                end: 24,
-              ).transform((percentage * 10).roundToDouble() / 10),
+              Tween<double>(begin: 56, end: 24).transform(t),
               14,
-              12,
+              actions == null
+                  ? 12
+                  : Tween<double>(
+                    begin: actions!.length * kMinInteractiveDimension,
+                    end: 12,
+                  ).transform(t),
               14,
             ),
             background: background,
