@@ -57,7 +57,6 @@ class PrayerAppBar extends StatelessWidget {
       toolbarHeight: opts.collapsedHeight,
       stretch: true,
       //title: buildTitle(opts, true),
-      //titleSpacing: 0,
       flexibleSpace: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
           final currentHeight = constraints.biggest.height;

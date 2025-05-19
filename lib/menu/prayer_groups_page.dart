@@ -154,8 +154,9 @@ class _PrayerGroupsPageState extends State<PrayerGroupsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ignáci imák'),
         automaticallyImplyLeading: false,
+        title: const Text('Ignáci imák'),
+        titleSpacing: NavigationToolbar.kMiddleSpacing,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),

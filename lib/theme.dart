@@ -13,6 +13,7 @@ class AppTheme {
       dynamicSchemeVariant: DynamicSchemeVariant.vibrant,
       contrastLevel: 1,
     ),
+    appBarTheme: const AppBarTheme(titleSpacing: 0),
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
     // ignore: deprecated_member_use
     progressIndicatorTheme: const ProgressIndicatorThemeData(year2023: false),
