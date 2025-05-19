@@ -21,38 +21,28 @@ class PrayerDescriptionPage extends StatelessWidget {
     final appBarOptions = PrayerAppBarOptions(context, true);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          PrayerAppBar.prayer(
-            group: group,
-            prayer: prayer,
-            options: appBarOptions,
-          ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            fillOverscroll: true,
-            child: SizedBox(
-              height:
-                  MediaQuery.of(context).size.height -
-                  appBarOptions.collapsedHeight,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  PrayerText(
-                    prayer.description,
-                    padding: const EdgeInsets.fromLTRB(
-                      16,
-                      32,
-                      16,
-                      kMinInteractiveDimension * 2,
-                    ),
-                  ),
-                ],
+      body: NestedScrollView(
+        headerSliverBuilder:
+            (context, innerBoxIsScrolled) => [
+              PrayerAppBar.prayer(
+                group: group,
+                prayer: prayer,
+                options: appBarOptions,
               ),
-            ),
+            ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            32,
+            16,
+            kMinInteractiveDimension * 2,
           ),
-        ],
+          child: PrayerText(
+            prayer.description,
+            minFontSize: PrayerText.kDefaultFontSize,
+            padding: EdgeInsets.zero,
+          ),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
